@@ -96,8 +96,8 @@ function drawSky(){
   for(let i=0;i<w*h*.002;i++){const x=r()*w,y=hill(x)+r()*(h-hill(x))*.7;c.globalAlpha=.3+r()*.4;c.fillRect(x,y,1.2,2.4+r()*3);}
   c.globalAlpha=1; c.strokeStyle=INK; c.lineWidth=2.2; c.beginPath(); for(let x=0;x<=w;x+=4)(x?c.lineTo:c.moveTo).call(c,x,hill(x)+Math.sin(x*.21)*1.2); c.stroke();
 }
-function buildSun(){
-  const s=$('sun'); if(!s)return; const r=rng(3); let d='';
+function sunMarkup(){
+  const r=rng(3); let d='';
   for(let k=0;k<16;k++){
     const a=k/16*Math.PI*2, L=78+(k%2?0:12)+r()*6, base=44, sp=.13, wig=(k%2?1:-1)*8;
     const P=(rad,ang)=>[Math.cos(ang)*rad,Math.sin(ang)*rad];
@@ -106,10 +106,38 @@ function buildSun(){
     d+=`M${x1.toFixed(1)},${y1.toFixed(1)} Q${(m1x+wig*Math.cos(a+1.57)).toFixed(1)},${(m1y+wig*Math.sin(a+1.57)).toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} Q${(m2x+wig*Math.cos(a+1.57)).toFixed(1)},${(m2y+wig*Math.sin(a+1.57)).toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}Z `;
   }
   let sp=''; for(let i=0;i<=200;i++){const t=i/200,a=t*Math.PI*2*2.6,rr=2+t*32;sp+=(i?'L':'M')+(Math.cos(a)*rr).toFixed(1)+','+(Math.sin(a)*rr).toFixed(1);}
-  s.innerHTML=`<path d="${d}" fill="#f3c22f" stroke="#1d3687" stroke-width="3" stroke-linejoin="round"/>
+  return `<path d="${d}" fill="#f3c22f" stroke="#1d3687" stroke-width="3" stroke-linejoin="round"/>
     <circle r="46" fill="#1d3687"/><circle r="41" fill="#f3c22f"/>
     <path d="${sp}" fill="none" stroke="#1d3687" stroke-width="6.5" stroke-linecap="round"/>`;
 }
+function buildSun(){ const s=$('sun'); if(s)s.innerHTML=sunMarkup(); }
+
+/* ---------- card back: the hero sky with RONIN on it (painted once, used everywhere as --back) ---------- */
+async function paintBack(){
+  const W=600,H=840, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const c=cv.getContext('2d');
+  c.fillStyle='#efe9dc'; c.fillRect(0,0,W,H);
+  const n=noise2(11), cell=11, fbm=(x,y)=>{let v=0,a=.55,f=1;for(let o=0;o<5;o++){v+=a*n(x*f,y*f);a*=.5;f*=2.03;}return v;};
+  const hill=x=>H*.8-Math.sin(x/W*2.6+.4)*H*.04;
+  for(let y=0;y<H;y+=cell)for(let x=0;x<W+cell;x+=cell){ const X=x+((y/cell)%2?cell/2:0); if(y>hill(X))continue;
+    const cl=fbm(X/150,y/110)+(y/H)*.18-.25, e=Math.max(0,Math.min(1,(cl-.43)/.05));
+    if(e<1){ c.fillStyle='#3c6f9e'; c.beginPath(); c.arc(X,y,cell*.64*(1-e*.7),0,6.283); c.fill(); }
+    else { const sh=Math.max(0,Math.min(1,(.62-cl)*2.2)); if(sh>.05){ c.fillStyle='#7d97ad'; c.beginPath(); c.arc(X,y,cell*.42*Math.sqrt(sh),0,6.283); c.fill(); } } }
+  c.beginPath(); c.moveTo(0,H); for(let x=0;x<=W;x+=4)c.lineTo(x,hill(x)); c.lineTo(W,H); c.closePath(); c.fillStyle='#55722a'; c.fill();
+  const r=rng(9); c.strokeStyle='#2f4514'; for(let i=0;i<2600;i++){const x=r()*W,y=hill(x)+r()*(H-hill(x));c.globalAlpha=.3+r()*.5;c.beginPath();c.moveTo(x,y);c.lineTo(x+(r()-.5)*3,y-4-r()*6);c.stroke();}
+  c.globalAlpha=1; c.strokeStyle=INK; c.lineWidth=3; c.beginPath(); for(let x=0;x<=W;x+=4)(x?c.lineTo:c.moveTo).call(c,x,hill(x)); c.stroke();
+  // the spiral sun
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 200 200" width="260" height="260">${sunMarkup()}</svg>`;
+  await new Promise(res=>{ const im=new Image(); im.onload=()=>{ c.drawImage(im,W/2-130,H*.5-130,260,260); res(); }; im.onerror=res; im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); });
+  // the title
+  try{ await document.fonts.load('900 150px Archivo'); await document.fonts.load('800 40px "Shippori Mincho"'); }catch(_){}
+  c.fillStyle=INK; c.textAlign='center'; c.font='900 128px Archivo'; c.save(); c.translate(W/2,H*.27); c.scale(1,1); c.fillText('RONIN',0,0); c.restore();
+  c.font='800 34px "Shippori Mincho"'; c.fillText('道',W/2,H*.27+56);
+  c.font='800 20px Archivo'; c.fillStyle='#f2f0eb'; c.fillText('N O   M A S T E R',W/2,H*.93);
+  // frame
+  c.strokeStyle=INK; c.lineWidth=10; c.strokeRect(5,5,W-10,H-10); c.lineWidth=2; c.strokeRect(22,22,W-44,H-44);
+  document.documentElement.style.setProperty('--back',`url(${cv.toDataURL('image/jpeg',.88)})`);
+}
+paintBack();
 
 /* ---------- collection grid (landing: first 7 · cards.html: all) ---------- */
 let openShrine=()=>{};
@@ -387,7 +415,7 @@ let openShrine=()=>{};
   const flash=$('fFlash'), res=$('fResult'), reel=$('reel'), track=$('reelTrack');
   const pick=()=>{ let x=Math.random()*TOTAL; for(const n of NFTS){ x-=n.e; if(x<=0)return n; } return NFTS[NFTS.length-1]; };
   // the reel: every card in the collection, repeated so it loops seamlessly
-  const cardHTML=n=>`<div class="rc" data-r="${n.r}" style="--rc:${RCOL[n.r][0]}"><div class="rc-in"><img src="${img(n)}" alt="${n.t}" style="object-position:${n.pos||'50% 50%'}"><span class="rc-r">${n.r}</span><b>${n.t}</b></div></div>`;
+  const cardHTML=n=>`<div class="rc" data-r="${n.r}" style="--rc:${RCOL[n.r][0]}"><div class="rc-flip"><div class="rc-in"><img src="${img(n)}" alt="${n.t}" style="object-position:${n.pos||'50% 50%'}"><span class="rc-r">${n.r}</span><b>${n.t}</b></div><div class="rc-bk"></div></div></div>`;
   let IW=0, Lp=0, copies=0, offset=0, speed=.45, spin=null, busy=false, landed=false;   // landed: the reel holds still on the drawn card
   function build(){
     track.innerHTML=NFTS.map(cardHTML).join('');
@@ -406,7 +434,8 @@ let openShrine=()=>{};
   requestAnimationFrame(loop);
   function draw(){
     if(busy)return; busy=true; landed=false; res.classList.remove('on'); stage.classList.remove('done');
-    track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim'));
+    reel.classList.add('down');   // every card turns face-down before the spin
+    track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim','up'));
     const n=pick(), t=NFTS.indexOf(n), [c1,c2]=RCOL[n.r];
     stage.classList.add('rumble'); fx.burst(innerWidth/2,innerHeight*.5,30,'#0c0c0c');
     setTimeout(()=>{
@@ -419,7 +448,7 @@ let openShrine=()=>{};
         track.style.transform=`translate3d(${-(offset%Lp)}px,0,0)`;
         const cards=[...track.querySelectorAll('.rc')], half=(IW-parseFloat(getComputedStyle(track).gap||0))/2;
         let best=0, bd=1e9; cards.forEach((c,k)=>{ c.classList.add('dim'); if(k%NFTS.length!==t)return; const d=Math.abs(k*IW+half-(offset%Lp)-cx); if(d<bd){bd=d;best=k;} });
-        cards[best].classList.remove('dim'); cards[best].classList.add('win');
+        cards[best].classList.remove('dim'); cards[best].classList.add('win','up');   // only the winner turns face-up
         stage.style.setProperty('--c1',c1); stage.style.setProperty('--c2',c2); stage.classList.add('done');
         flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
         fx.burst(innerWidth/2,reel.getBoundingClientRect().top+reel.clientHeight/2,n.r==='Legendary'?160:n.r==='Epic'?90:50,c1);
@@ -432,7 +461,7 @@ let openShrine=()=>{};
       }};
     },500);
   }
-  $('fAgain').onclick=()=>checkout({kind:'mint',preview:()=>{ track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim')); stage.classList.remove('done'); draw(); }});
+  $('fAgain').onclick=()=>checkout({kind:'mint',preview:()=>{ track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim','up')); stage.classList.remove('done'); draw(); }});
   $('fDraw').onclick=()=>checkout({kind:'mint',preview:draw});   // every draw goes through the checkout first
   $('fMint').onclick=()=>checkout({kind:'mint',preview:draw});
 
@@ -567,7 +596,7 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     const live=mint?!!CONFIG.mintUrl:!!CONFIG.marketUrl;
     $('coEye').textContent=mint?'Mint · random draw':'Buy from a holder';
     $('coTitle').textContent=mint?'Mint a random RONIN':`Buy ${n.t}`;
-    $('coArt').innerHTML=mint?'<span class="jp">運</span>':`<img src="${img(n)}" alt="" style="object-position:${n.pos||'50% 50%'}">`;
+    $('coArt').innerHTML=mint?'<i class="co-back"></i>':`<img src="${img(n)}" alt="" style="object-position:${n.pos||'50% 50%'}">`;
     $('coArt').style.setProperty('--rc',mint?'#3c6f9e':RCOL[n.r][0]);
     $('coName').textContent=mint?'Random piece · fate decides':`${n.t} · #${k.x.ed}/${n.e}`;
     $('coMeta').textContent=mint?`Legendary ${(NFTS.filter(x=>x.r==='Legendary').reduce((a,x)=>a+x.e,0)/TOTAL*100).toFixed(1)}% · ${TOTAL} pieces`:`${n.r} · seller ${k.x.seller}`;

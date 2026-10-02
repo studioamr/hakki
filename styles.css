@@ -859,3 +859,15 @@ nav .wbtn+.wl-link{margin-left:18px}
 .sel-r{display:none}
 @media (max-width:640px){.sel-r{display:inline;color:var(--ink);font-weight:700}}
 .co-prev{display:block;margin:12px auto 0;border:0;background:none;font:700 13px Archivo;color:#2f5f8e;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* ===== card back (hero sky + RONIN) ===== */
+.rc{perspective:900px}
+.rc-flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.3,1.3,.5,1)}
+.rc-in,.rc-bk{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.rc-bk{position:absolute;inset:0;border-radius:12px;border:2.5px solid var(--ink);box-shadow:5px 5px 0 var(--ink);background:var(--back,#3c6f9e) center/cover;transform:rotateY(180deg)}
+.reel.down .rc-flip{transform:rotateY(180deg)}
+.reel.down .rc.up .rc-flip{transform:rotateY(360deg);transition-duration:.9s}
+.reel.down .rc:nth-child(odd) .rc-flip{transition-delay:.05s}
+.rc.win .rc-in{box-shadow:8px 8px 0 var(--ink),0 0 0 4px var(--c1),0 0 50px 6px var(--c1)}
+.co-back{display:block;width:100%;height:100%;background:var(--back,#3c6f9e) center/cover}
+.reel.down .rc.dim{filter:none;opacity:.55}
