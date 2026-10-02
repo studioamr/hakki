@@ -611,6 +611,32 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
   document.addEventListener('ronin:wallet',render); render();
 })();
 
+/* ---------- coin.html: $HAKKI ---------- */
+(function(){
+  const pg=$('coinPage'); if(!pg)return;
+  const C=CONFIG.coin||{};
+  // the 3D coin: two faces + a stack of rims for thickness
+  const face=(back)=>`<div class="c3-face ${back?'b':'f'}"><svg viewBox="-110 -110 220 220" aria-hidden="true">
+      <defs><path id="rim${back?'b':'f'}" d="M0,-86 a86,86 0 1,1 -0.1,0"/></defs>
+      <circle r="104" fill="#f3c22f"/><circle r="104" fill="none" stroke="#1d3687" stroke-width="6"/><circle r="92" fill="none" stroke="#1d3687" stroke-width="2" stroke-dasharray="3 5"/>
+      <text font-family="Archivo" font-weight="900" font-size="15" letter-spacing="6" fill="#1d3687"><textPath href="#rim${back?'b':'f'}">${back?'NO MASTER · NO TAX · NO TEAM · ':'$HAKKI · THE COIN OF THE RONIN · '}</textPath></text>
+      ${back?'<text y="22" text-anchor="middle" font-family="Shippori Mincho,serif" font-weight="800" font-size="78" fill="#1d3687">八起</text>':`<g transform="scale(.62)">${sunMarkup()}</g>`}
+    </svg></div>`;
+  const rims=Array.from({length:14},(_,i)=>`<i class="c3-rim" style="transform:translateZ(${(i-6.5)*1.4}px)"></i>`).join('');
+  $('c3d').innerHTML=face(false)+rims+face(true);
+  tilt($('chCoin'),18);
+  // contract address + links
+  $('caTxt').innerHTML='<b>CA</b>'+(C.ca||'soon. Only trust this page.');
+  $('caBtn').onclick=()=>{ if(!C.ca)return toast('The contract isn’t live yet'); navigator.clipboard.writeText(C.ca).then(()=>toast('CA copied')); };
+  const buy=e=>{ if(C.buyUrl){ window.open(C.buyUrl,'_blank','noopener'); } else { e.preventDefault(); toast('$HAKKI isn’t live yet. Soon.'); } };
+  ['coinBuy','coinBuy2'].forEach(id=>{ const a=$(id); if(a)a.onclick=e=>{ if(id==='coinBuy'&&!C.buyUrl)return; buy(e); }; });
+  if(C.buyUrl){ $('coinBuy').href=C.buyUrl; $('coinBuy').target='_blank'; }
+  if(C.chartUrl){ const a=$('coinChart'); a.href=C.chartUrl; a.target='_blank'; a.rel='noopener'; }
+  // tokenomics donut: two segments with a 2px paper gap
+  const seg=[[90,'#3c6f9e'],[10,'#f3c22f']], R0=80, sw=26, Ci=2*Math.PI*R0; let off=0;
+  $('tkSvg').innerHTML=`<circle r="${R0}" cx="100" cy="100" fill="none" stroke="#0c0c0c14" stroke-width="${sw}"/>`+seg.map(([v,c])=>{ const L=Ci*v/100-3, el=`<circle r="${R0}" cx="100" cy="100" fill="none" stroke="${c}" stroke-width="${sw}" stroke-dasharray="${L} ${Ci-L}" stroke-dashoffset="${-off}" transform="rotate(-90 100 100)"/>`; off+=Ci*v/100; return el; }).join('');
+})();
+
 /* ---------- the falls: ronin by the pond, subscribe ---------- */
 (function(){
   const sec=$('subscribe'), bg=$('flBg'), cv=$('flFx'); if(!sec||!cv)return;

@@ -7,5 +7,6 @@ const CONFIG = {
   subscribeUrl: "",  // form endpoint that accepts a POST with {email} (e.g. https://formspree.io/f/xxxx)
   collection: "",   // collection address (after the mint) so profiles can list each holder's cards
   rpc: "",          // optional Solana RPC (Helius/QuickNode) for wallet balances; empty = public mainnet RPC
+  coin: { ca: "", buyUrl: "", chartUrl: "" },   // $HAKKI: contract address, swap link (Jupiter), chart (Dexscreener)
   x: "", telegram: ""
 };
