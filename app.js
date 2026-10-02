@@ -384,24 +384,24 @@ let openShrine=()=>{};
   const pick=()=>{ let x=Math.random()*TOTAL; for(const n of NFTS){ x-=n.e; if(x<=0)return n; } return NFTS[NFTS.length-1]; };
   // the reel: every card in the collection, repeated so it loops seamlessly
   const cardHTML=n=>`<div class="rc" data-r="${n.r}" style="--rc:${RCOL[n.r][0]}"><div class="rc-in"><img src="${img(n)}" alt="${n.t}" style="object-position:${n.pos||'50% 50%'}"><span class="rc-r">${n.r}</span><b>${n.t}</b></div></div>`;
-  let IW=0, Lp=0, copies=0, offset=0, speed=.45, spin=null, busy=false;
+  let IW=0, Lp=0, copies=0, offset=0, speed=.45, spin=null, busy=false, landed=false;   // landed: the reel holds still on the drawn card
   function build(){
     track.innerHTML=NFTS.map(cardHTML).join('');
     const first=track.firstElementChild; IW=first.getBoundingClientRect().width+parseFloat(getComputedStyle(track).columnGap||getComputedStyle(track).gap||0);
     Lp=IW*NFTS.length; copies=Math.ceil(reel.clientWidth/Lp)+2;
     track.innerHTML=Array.from({length:copies},()=>NFTS.map(cardHTML).join('')).join('');
   }
-  build(); addEventListener('resize',()=>{ if(!busy)build(); });
+  build(); addEventListener('resize',()=>{ if(!busy&&!landed)build(); });
   const loop=t=>{
     if(spin){ const f=Math.min(1,(t-spin.t0)/spin.dur), e=1-Math.pow(1-f,4); const prev=offset; offset=spin.from+(spin.to-spin.from)*e;
       reel.classList.toggle('blur',offset-prev>18); if(f>=1){ const s=spin; spin=null; s.done(); } }
-    else if(!busy&&!still) offset+=speed;
+    else if(!busy&&!landed&&!still) offset+=speed;
     track.style.transform=`translate3d(${-(offset%Lp)}px,0,0)`;
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
   function draw(){
-    if(busy)return; busy=true; res.classList.remove('on'); stage.classList.remove('done');
+    if(busy)return; busy=true; landed=false; res.classList.remove('on'); stage.classList.remove('done');
     track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim'));
     const n=pick(), t=NFTS.indexOf(n), [c1,c2]=RCOL[n.r];
     stage.classList.add('rumble'); fx.burst(innerWidth/2,innerHeight*.5,30,'#0c0c0c');
@@ -423,7 +423,7 @@ let openShrine=()=>{};
         $('fRr').textContent=n.r; $('fRt').textContent=n.t; $('fRj').textContent=n.jt;
         $('fRo').textContent=`1 of ${n.e} editions · ${(n.e/TOTAL*100).toFixed(1)}% chance · est. value ◎ ${n.p}`;
         $('fRnote').textContent=live?'':'Nothing was minted yet: the mint opens soon.';
-        res.classList.add('on'); busy=false;
+        res.classList.add('on'); landed=true; busy=false;
         setTimeout(()=>{ const r=res.getBoundingClientRect(); if(r.bottom>innerHeight)scrollBy({top:r.bottom-innerHeight+24,behavior:'smooth'}); },300);
       }};
     },500);
