@@ -3,54 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RONIN · No Master</title>
+<title>RONIN · All Cards</title>
 <meta name="description" content="RONIN: a collection of ronin artworks on Solana. Draw one at random or buy the one you want from a holder.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,800;0,900;1,800&family=Silkscreen&family=Shippori+Mincho:wght@600;800&family=Old+Standard+TT&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="dark-top">
 
 <nav id="nav"><div class="wrap">
   <a class="logo" href="index.html">RONIN <span class="jp">道</span></a>
-  <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html">Cards</a><a href="luck.html">Try your luck</a><a href="index.html#listings">Listings</a></div>
+  <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html" class="cur">Cards</a><a href="luck.html">Try your luck</a><a href="index.html#listings">Listings</a></div>
   <a class="wl-link" href="#subscribe">Subscribe →</a>
 </div></nav>
 
-<header class="sky" id="top">
-  <canvas id="skyCv"></canvas>
-  <div class="in">
-    <div class="peace">PEACE</div>
-    <div class="mantra px"><span>BE CONSISTENT</span><span>BE DISCIPLINED</span><span>BE OBSESSED</span></div>
-    <svg class="sun" id="sun" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
-  </div>
-  <div class="sky-foot"><div class="wrap">
-    <div class="tag"><b>RONIN</b> <span class="jp">道</span><small>no master</small></div>
-  </div></div>
-</header>
-
-<section class="coll" id="collection"><div class="wrap">
+<section class="coll coll-page" id="collection"><div class="wrap">
   <div class="head">
-    <div><div class="eyebrow" id="collCount">Solana</div><h2>Collection</h2></div>
-    <a class="all-link" href="cards.html">See all cards →</a>
+    <div><div class="eyebrow" id="collCount">Solana</div><h2>All cards</h2></div>
+    <div class="cfilt" id="cfilt"></div>
   </div>
-  <div class="cards" id="cards" data-limit="7"></div>
-</div></section>
-
-<section class="market" id="listings"><div class="wrap">
-  <div class="head">
-    <div><div class="eyebrow">Holder to holder</div><h2>Listings</h2></div>
-    <p class="lead">Want a specific piece? Someone already holds it. Tap a listing to see its price history, sales and offers.</p>
-  </div>
-  <div class="board">
-    <div class="board-top">
-      <div><span class="chip-ex">Preview · example listings, trading opens after the mint</span></div>
-      <div class="filters" id="filters"></div>
-    </div>
-    <div class="listings" id="lstGrid"></div>
-    <div class="board-foot"><span>Rather leave it to fate? A random draw costs one fixed price.</span><a class="btn" href="luck.html">Try your luck →</a></div>
-  </div>
+  <div class="cards" id="cards"></div>
 </div></section>
 
 <section class="sub" id="subscribe"><div class="wrap">
