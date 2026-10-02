@@ -150,7 +150,76 @@ footer .soc a.off{opacity:.35;pointer-events:none}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,120px);background:var(--ink);color:var(--paper);padding:12px 18px;font-weight:800;font-size:13px;z-index:60;transition:transform .3s}
 .toast.on{transform:translate(-50%,0)}
 
+/* collection */
+.coll{background:#0a0a0b;color:var(--paper);padding:140px 0 150px;overflow:hidden;position:relative}
+.coll::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 10%,#f3c22f14,transparent 40%),radial-gradient(circle at 85% 70%,#3c6f9e22,transparent 45%),radial-gradient(#ffffff10 1px,transparent 1.4px) 0 0/14px 14px;pointer-events:none}
+.coll h2{color:var(--paper)}
+.coll .eyebrow{color:#8f8a80}
+.coll .lead{max-width:420px;color:#b9b3a8;font-size:16px;line-height:1.5}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;perspective:1100px;position:relative}
+.card{position:relative;aspect-ratio:3/4.1;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.8,.2,1);--mx:50%;--my:50%;--rx:0deg;--ry:0deg;--o:0;transform:rotateX(var(--rx)) rotateY(var(--ry))}
+.card.wide{grid-column:span 2;aspect-ratio:auto}
+.card .frame{position:absolute;inset:0;border-radius:14px;overflow:hidden;background:#111;box-shadow:0 20px 50px -20px #000,0 0 0 1px #ffffff1a}
+.card img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.04);transition:transform .6s,filter .6s;filter:saturate(1.05) contrast(1.04)}
+.card:hover img{transform:scale(1.09);filter:saturate(1.2) contrast(1.08) brightness(1.06)}
+/* holographic foil follows the pointer */
+.card .holo{position:absolute;inset:0;mix-blend-mode:color-dodge;opacity:calc(var(--o)*.55);transition:opacity .3s;
+  background:repeating-linear-gradient(115deg,#ff5f6d 0%,#ffc371 7%,#f3f7a1 14%,#7af0c8 21%,#65a8ff 28%,#c58cff 35%,#ff5f6d 42%) ;
+  background-size:300% 300%;background-position:var(--mx) var(--my)}
+.card .glare{position:absolute;inset:0;mix-blend-mode:overlay;opacity:var(--o);transition:opacity .3s;background:radial-gradient(circle at var(--mx) var(--my),#fffffff0 0%,#ffffff55 18%,transparent 55%)}
+/* light sweep that crosses every card on a loop */
+.card .sweep{position:absolute;inset:-40%;background:linear-gradient(105deg,transparent 42%,#ffffff2e 48%,#ffffffa0 50%,#ffffff2e 52%,transparent 58%);animation:sweep 5.5s ease-in-out infinite;animation-delay:var(--d,0s);mix-blend-mode:screen;pointer-events:none}
+@keyframes sweep{0%,62%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+.card .shade{position:absolute;inset:0;background:linear-gradient(transparent 55%,#000c)}
+/* rarity border glow */
+.card .ring{position:absolute;inset:-2px;border-radius:16px;padding:2px;background:conic-gradient(from var(--a,0deg),var(--c1),var(--c2),var(--c1),var(--c2),var(--c1));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spinb 4s linear infinite;filter:drop-shadow(0 0 10px var(--c1))}
+@property --a{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes spinb{to{--a:360deg}}
+.card[data-r=Legendary]{--c1:#f3c22f;--c2:#fff4c2}
+.card[data-r=Epic]{--c1:#c06bff;--c2:#f0d6ff}
+.card[data-r=Rare]{--c1:#4fa3ff;--c2:#d8ecff}
+.card[data-r=Common]{--c1:#8a857c;--c2:#d9d4ca}
+.card[data-r=Common] .ring{filter:none;opacity:.6}
+.card .info{position:absolute;left:18px;right:14px;bottom:16px;transform:translateZ(18px);display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.card .info b{display:block;font-weight:900;font-size:19px;letter-spacing:-.02em;line-height:1.05}
+.card .info small{font:400 11px Silkscreen,monospace;letter-spacing:.06em;opacity:.75}
+.card .rar{font:800 10px Archivo;letter-spacing:.2em;text-transform:uppercase;padding:6px 9px;border-radius:999px;background:#0008;border:1px solid var(--c1);color:var(--c2);white-space:nowrap;box-shadow:0 0 14px -2px var(--c1)}
+.card .spark{position:absolute;width:10px;height:10px;transform:translateZ(30px);pointer-events:none;animation:tw 2.6s ease-in-out infinite;animation-delay:var(--d)}
+.card .spark::before,.card .spark::after{content:"";position:absolute;inset:0;background:radial-gradient(#fff 0 18%,transparent 60%)}
+.card .spark::after{background:linear-gradient(#fff,#fff) center/100% 1.5px no-repeat,linear-gradient(#fff,#fff) center/1.5px 100% no-repeat;filter:drop-shadow(0 0 4px #fff)}
+@keyframes tw{0%,100%{opacity:0;transform:translateZ(30px) scale(.2) rotate(0)}50%{opacity:1;transform:translateZ(30px) scale(1.2) rotate(45deg)}}
+.lb{position:fixed;inset:0;z-index:70;background:#000d;backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:24px}
+.lb.on{display:flex}
+.lb .box{display:grid;grid-template-columns:auto 320px;gap:28px;align-items:center;max-width:1100px;width:100%}
+.lb img{max-height:84vh;max-width:100%;border-radius:14px;box-shadow:0 0 0 1px #fff2,0 0 80px -10px var(--c1,#f3c22f)}
+.lb .side{color:var(--paper)}
+.lb .side h3{font-weight:900;font-size:40px;letter-spacing:-.04em;line-height:1}
+.lb .side p{color:#b9b3a8;margin-top:14px;line-height:1.5}
+.lb .side .btn{margin-top:22px;background:var(--paper);color:var(--ink)}
+.lb .x{position:absolute;top:18px;right:22px;background:none;border:0;color:var(--paper);font:900 30px Archivo;cursor:pointer}
+
+/* page-wide foil: same light as the cards on panels, rules, stats, steps, buttons */
+.fx{position:relative;overflow:hidden;--mx:50%;--my:50%;--o:0;--rx:0deg;--ry:0deg;transform:perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry));transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.fx>.fx-holo,.fx>.fx-glare,.fx>.fx-sweep{position:absolute;inset:0;pointer-events:none;z-index:5}
+.fx>.fx-holo{mix-blend-mode:multiply;opacity:calc(var(--o)*.32);transition:opacity .3s;background:repeating-linear-gradient(115deg,#ff5f6d 0%,#ffc371 7%,#f3f7a1 14%,#7af0c8 21%,#65a8ff 28%,#c58cff 35%,#ff5f6d 42%);background-size:300% 300%;background-position:var(--mx) var(--my)}
+.fx>.fx-glare{mix-blend-mode:soft-light;opacity:var(--o);transition:opacity .3s;background:radial-gradient(circle at var(--mx) var(--my),#fff 0%,#ffffff66 20%,transparent 55%)}
+.fx>.fx-sweep{inset:-40%;background:linear-gradient(105deg,transparent 44%,#ffffff40 49%,#ffffff90 50%,#ffffff40 51%,transparent 56%);mix-blend-mode:soft-light;animation:sweep 7s ease-in-out infinite;animation-delay:var(--d,0s)}
+.btn.fx,.getup.fx,.ca.fx{overflow:hidden}
+/* cursor light that follows you across the whole page */
+.cursor-light{position:fixed;left:0;top:0;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;pointer-events:none;z-index:45;mix-blend-mode:soft-light;background:radial-gradient(circle,#fff9 0%,#f3c22f33 30%,transparent 65%);opacity:0;transition:opacity .4s;will-change:transform}
+body:hover .cursor-light{opacity:1}
+/* hero: shimmering words + glowing sun + floating motes */
+.sky .peace,.sky .mantra{background:linear-gradient(105deg,var(--ink) 40%,#5d6f8a 47%,#fff 50%,#5d6f8a 53%,var(--ink) 60%) 0 0/300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s ease-in-out infinite}
+@keyframes shine{0%,40%{background-position:100% 0}100%{background-position:0 0}}
+.sun{filter:drop-shadow(0 0 22px #f3c22faa) drop-shadow(0 0 60px #f3c22f55)}
+.mote{position:absolute;z-index:3;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 12px 3px #fff8,0 0 30px 6px #f3c22f55;pointer-events:none;animation:float var(--t) linear infinite;animation-delay:var(--d);opacity:0}
+@keyframes float{0%{transform:translate(0,0);opacity:0}15%{opacity:.9}85%{opacity:.9}100%{transform:translate(var(--dx),-60vh);opacity:0}}
+
 @media (max-width:900px){
+  .cards{grid-template-columns:1fr 1fr}
+  .lb .box{grid-template-columns:1fr}
+  .lb img{max-height:62vh}
     .sky-foot .tag{display:none}
   nav .links{display:none}
   .p1,.p2,.p3,.p4{grid-column:span 12}
@@ -172,14 +241,14 @@ footer .soc a.off{opacity:.35;pointer-events:none}
   .stat{border-right:0!important;border-bottom:3px solid var(--ink)}
   .stat:last-child{border-bottom:0}
 }
-@media (prefers-reduced-motion:reduce){.band div,.sun{animation:none}}
+@media (prefers-reduced-motion:reduce){.fx>.fx-sweep,.mote,.sky .peace,.sky .mantra,.band div,.sun,.card .sweep,.card .ring,.card .spark{animation:none}}
 </style>
 </head>
 <body>
 
 <nav id="nav"><div class="wrap">
   <a class="logo" href="#top">$HAKKI <span class="jp">八起</span></a>
-  <div class="links"><a href="#story">The Fall</a><a href="#code">The Code</a><a href="#numbers">Numbers</a><a href="#buy">Get up</a></div>
+  <div class="links"><a href="#collection">Collection</a><a href="#story">The Fall</a><a href="#code">The Code</a><a href="#numbers">Numbers</a><a href="#buy">Get up</a></div>
   <a class="btn js-buy" href="#buy">Buy $HAKKI</a>
 </div></nav>
 
@@ -198,6 +267,16 @@ footer .soc a.off{opacity:.35;pointer-events:none}
     </div>
   </div></div>
 </header>
+
+<section class="coll" id="collection"><div class="wrap">
+  <div class="head">
+    <div><div class="eyebrow">The collection · RONIN</div><h2>Every fall<br>is a frame.</h2></div>
+    <p class="lead">Seven moments of the path, from the ground to above the clouds. Move the cursor over each card: the foil catches the light.</p>
+  </div>
+  <div class="cards" id="cards"></div>
+</div></section>
+<div class="lb" id="lb"><button class="x" id="lbx" aria-label="Close">×</button><div class="box"><img id="lbimg" alt=""><div class="side"><div class="eyebrow" id="lbr"></div><h3 id="lbt"></h3><p id="lbd"></p><a class="btn" href="#buy">Mint soon</a></div></div></div>
+
 
 <section class="hero wrap" id="eight">
   <div class="kicker">fall down seven times</div>
@@ -299,6 +378,7 @@ footer .soc a.off{opacity:.35;pointer-events:none}
   </div>
 </div></footer>
 
+<div class="cursor-light" id="cl" aria-hidden="true"></div>
 <div class="toast" id="toast">Copied</div>
 
 <script>
@@ -512,6 +592,66 @@ const toast=t=>{const el=document.getElementById('toast');el.textContent=t;el.cl
   if(CONFIG.chartUrl)document.querySelectorAll('.js-chart').forEach(a=>{a.href=CONFIG.chartUrl;a.target='_blank';a.rel='noopener'});
   [['sX',CONFIG.x],['sTg',CONFIG.telegram],['sDex',CONFIG.chartUrl]].forEach(([id,u])=>{const a=document.getElementById(id);if(u){a.href=u;a.target='_blank';a.rel='noopener'}else a.classList.add('off');});
   const nav=document.getElementById('nav'); addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true});
+})();
+
+
+/* ---------- collection ---------- */
+const NFTS=[
+  {f:'pink-field',t:'Pink Field',r:'Legendary',d:'Where the path ends: flowers, sky and a friend. The only frame where he smiles.',wide:1},
+  {f:'above-clouds',t:'Above the Clouds',r:'Legendary',d:'The eighth rising. Sitting above everything that knocked him down.'},
+  {f:'seventh-fall',t:'Seventh Fall',r:'Epic',d:'Ink, water and blood. The lowest point, the last fall before the rise.'},
+  {f:'the-ground',t:'The Ground',r:'Epic',d:'Face to the sky, back on the straw. Rest is not quitting.'},
+  {f:'bamboo',t:'Bamboo Rest',r:'Rare',d:'Bamboo bends and never breaks. Neither does he.'},
+  {f:'meadow',t:'The Meadow',r:'Rare',d:'Hills, wind and the long walk home.'},
+  {f:'cedar-path',t:'Cedar Path',r:'Common',d:'One step into the forest. Every legend starts walking.'},
+];
+(function(){
+  const box=document.getElementById('cards'), touch=matchMedia('(hover:none)').matches;
+  const nSpark={Legendary:9,Epic:6,Rare:4,Common:2};
+  NFTS.forEach((n,i)=>{
+    const c=document.createElement('div'); c.className='card'+(n.wide?' wide':''); c.dataset.r=n.r;
+    c.style.setProperty('--d',(i*.7)+'s');
+    let sp=''; for(let k=0;k<nSpark[n.r];k++) sp+=`<i class="spark" style="left:${8+Math.random()*84}%;top:${6+Math.random()*70}%;--d:${(Math.random()*2.6).toFixed(2)}s"></i>`;
+    c.innerHTML=`<div class="ring"></div><div class="frame"><img src="img/coleccion/${n.f}.webp" alt="${n.t}" loading="lazy"><div class="holo"></div><div class="sweep"></div><div class="shade"></div><div class="glare"></div></div>${sp}
+      <div class="info"><div><small>RONIN #${String(i+1).padStart(3,'0')}</small><b>${n.t}</b></div><span class="rar">${n.r}</span></div>`;
+    if(!touch){
+      c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+        c.style.setProperty('--mx',(x*100)+'%');c.style.setProperty('--my',(y*100)+'%');
+        c.style.setProperty('--ry',((x-.5)*16)+'deg');c.style.setProperty('--rx',((.5-y)*16)+'deg');c.style.setProperty('--o',1);c.style.transition='transform .08s';});
+      c.addEventListener('pointerleave',()=>{c.style.transition='';['--rx','--ry'].forEach(v=>c.style.setProperty(v,'0deg'));c.style.setProperty('--o',0);});
+    } else c.style.setProperty('--o',.35);
+    c.onclick=()=>{const lb=document.getElementById('lb');document.getElementById('lbimg').src=`img/coleccion/${n.f}.webp`;
+      lb.style.setProperty('--c1',getComputedStyle(c).getPropertyValue('--c1'));
+      document.getElementById('lbr').textContent=`RONIN #${String(i+1).padStart(3,'0')} · ${n.r}`;document.getElementById('lbt').textContent=n.t;document.getElementById('lbd').textContent=n.d;lb.classList.add('on');};
+    box.appendChild(c);
+  });
+  const lb=document.getElementById('lb'); const close=()=>lb.classList.remove('on');
+  document.getElementById('lbx').onclick=close; lb.onclick=e=>{if(e.target===lb)close()}; addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+})();
+
+
+/* ---------- page-wide foil (the cards' light, everywhere) ---------- */
+(function(){
+  const touch=matchMedia('(hover:none)').matches, still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const els=document.querySelectorAll('.panel,.rule,.stat,.step,.btn,.getup,.ca,.tally,.hero-art');
+  els.forEach((el,i)=>{
+    el.classList.add('fx'); el.style.setProperty('--d',(i%7*.9)+'s');
+    el.insertAdjacentHTML('beforeend','<i class="fx-holo"></i><i class="fx-glare"></i><i class="fx-sweep"></i>');
+    if(touch)return;
+    const tilt=Math.max(2,Math.min(10,2600/Math.max(el.offsetWidth,1)));   // big blocks tilt less
+    el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+      el.style.setProperty('--mx',x*100+'%');el.style.setProperty('--my',y*100+'%');el.style.setProperty('--o',1);
+      if(!still){el.style.transition='transform .08s';el.style.setProperty('--ry',(x-.5)*tilt+'deg');el.style.setProperty('--rx',(.5-y)*tilt+'deg');}});
+    el.addEventListener('pointerleave',()=>{el.style.transition='';el.style.setProperty('--o',0);el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');});
+  });
+  const cl=document.getElementById('cl');
+  if(!touch)addEventListener('pointermove',e=>{cl.style.transform=`translate(${e.clientX}px,${e.clientY}px)`},{passive:true});
+  else cl.remove();
+  // light motes rising out of the hero grass
+  const sky=document.querySelector('.sky');
+  if(!still)for(let k=0;k<16;k++){const m=document.createElement('i');m.className='mote';
+    m.style.cssText=`left:${Math.random()*100}%;bottom:${8+Math.random()*14}%;--t:${9+Math.random()*9}s;--d:${-Math.random()*14}s;--dx:${(Math.random()-.5)*160}px;transform:scale(${.5+Math.random()})`;
+    sky.appendChild(m);}
 })();
 
 /* ---------- boot ---------- */
