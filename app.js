@@ -387,7 +387,7 @@ let openShrine=()=>{};
   function draw(){
     if(busy)return; busy=true; res.classList.remove('on'); stage.classList.remove('done','r-Legendary','r-Epic','r-Rare','r-Common');
     const n=pick(), [c1,c2]=RCOL[n.r];
-    stage.classList.add('rumble'); fx.burst(innerWidth/2,innerHeight*.48,30,'#cfe0ff');
+    stage.classList.add('rumble'); fx.burst(innerWidth/2,innerHeight*.48,30,'#0c0c0c');
     setTimeout(()=>{
       stage.classList.remove('rumble');
       // spin: whirl through the collection, decelerate, land face-up on the drawn piece
@@ -428,7 +428,7 @@ let openShrine=()=>{};
         if(p.k==='e'){ p.x+=p.vx; p.y+=p.vy; p.vy+=.03; p.vx*=.98; p.l-=.011; if(p.l<=0)return false;
           c.globalAlpha=p.l; c.fillStyle=p.col; c.shadowColor=p.col; c.shadowBlur=14; c.beginPath(); c.arc(p.x,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; return true; }
         p.w+=.03; p.x+=p.vx+Math.sin(p.w)*.4; p.y+=p.vy; if(p.y<-20)p.y=H+20; if(p.y>H+20)p.y=-20; if(p.x>W+20)p.x=-20;
-        if(p.k==='m'){ c.globalAlpha=.5+Math.sin(p.w*2)*.4; c.fillStyle='#e6efff'; c.shadowColor='#bcd4ff'; c.shadowBlur=10; c.beginPath(); c.arc(p.x,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; }
+        if(p.k==='m'){ c.globalAlpha=.18+Math.sin(p.w*2)*.1; c.fillStyle='#0c0c0c'; c.beginPath(); c.arc(p.x,p.y,p.s*.8,0,6.283); c.fill(); c.globalAlpha=1; }   // drifting ink dust
         else { p.a+=.02; c.save(); c.translate(p.x,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.fillStyle='#ffc6d9'; c.globalAlpha=.85;
           c.beginPath(); c.moveTo(-p.s,0); c.quadraticCurveTo(0,-p.s*.75,p.s,0); c.quadraticCurveTo(0,p.s*.75,-p.s,0); c.fill(); c.restore(); }
         return true; });
