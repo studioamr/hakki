@@ -206,7 +206,7 @@ let openShrine=()=>{};
   }
   const replay=()=>{ sh.classList.remove('on'); void sh.offsetWidth; sh.classList.add('on'); };
   openShrine=i=>{ fill(i); sh.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; replay(); startSky(); sh.scrollTop=0; };
-  const close=()=>{ sh.classList.remove('on'); sh.setAttribute('aria-hidden','true'); document.body.style.overflow=''; cancelAnimationFrame(raf); raf=0; };
+  const close=()=>{ sh.classList.remove('on'); (document.activeElement?.blur(),sh.setAttribute('aria-hidden','true')); document.body.style.overflow=''; cancelAnimationFrame(raf); raf=0; };
   const go=d=>{ fill((cur+d+NFTS.length)%NFTS.length); replay(); seed(); burst(innerWidth/2,innerHeight/2,26); };
   $('shX').onclick=close; $('shPrev').onclick=()=>go(-1); $('shNext').onclick=()=>go(1);
   addEventListener('keydown',e=>{ if(!sh.classList.contains('on'))return; if(e.key==='Escape')close(); if(e.key==='ArrowRight')go(1); if(e.key==='ArrowLeft')go(-1); });
@@ -395,7 +395,7 @@ let openShrine=()=>{};
     range=30; $('trRange').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.d===30)); drawChart();
     tr.setAttribute('aria-hidden','false'); tr.classList.add('on'); document.body.style.overflow='hidden';
   }
-  const close=()=>{ tr.classList.remove('on'); tr.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
+  const close=()=>{ tr.classList.remove('on'); (document.activeElement?.blur(),tr.setAttribute('aria-hidden','true')); document.body.style.overflow=''; };
   $('trX').onclick=close; tr.onclick=e=>{ if(e.target===tr)close(); }; addEventListener('keydown',e=>{ if(e.key==='Escape'&&tr.classList.contains('on'))close(); });
   $('trRange').onclick=e=>{ const b=e.target.closest('button'); if(!b)return; range=+b.dataset.d; $('trRange').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawChart(); };
   $('trBuy').onclick=()=>checkout({kind:'listing',x:curX}); $('trBarBuy').onclick=()=>checkout({kind:'listing',x:curX}); $('trOffer').onclick=openMarket;
@@ -533,13 +533,21 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
   let prov=null, addr='', bal=null, pending=null;
 
   // nav button
-  document.querySelectorAll('nav .wl-link').forEach(a=>a.insertAdjacentHTML('beforebegin','<button class="wbtn" id="wBtn"><i></i><span>Connect wallet</span></button>'));
+  const navWrap=document.querySelector('nav .wrap'); if(navWrap)navWrap.insertAdjacentHTML('beforeend','<button class="wbtn" id="wBtn"><i></i><span>Sign in</span></button>');
   document.body.insertAdjacentHTML('beforeend',`
   <div class="wm" id="wModal" aria-hidden="true" role="dialog" aria-label="Connect a wallet"><div class="wm-box">
     <button class="wm-x" data-close>✕</button>
-    <div class="eyebrow">Solana</div><h3>Connect a wallet</h3>
-    <p class="wm-sub">Your wallet stays yours: connecting only shares your public address. Nothing is ever charged without your signature.</p>
+    <div class="eyebrow">Solana</div><h3 id="wTitle">Sign in</h3>
+    <p class="wm-sub" id="wSub">Pick your wallet, then sign a free message that proves it's yours. Signing never moves funds or approves a transaction.</p>
     <div class="wm-list" id="wList"></div>
+  </div></div>
+  <div class="wm" id="pModal" aria-hidden="true" role="dialog" aria-label="Your profile"><div class="wm-box pr">
+    <button class="wm-x" data-close>✕</button>
+    <div class="pr-head"><div class="pr-av" id="prAv"></div><div><div class="eyebrow">Signed in with Solana</div><h3 id="prAddr"></h3></div></div>
+    <div class="pr-row"><div><small>Balance</small><b id="prBal">—</b></div><div><small>Network</small><b>Solana</b></div><div><small>Wallet</small><b id="prW"></b></div></div>
+    <div class="pr-own"><small>Your RONINs</small><p id="prOwn">Your pieces will show up here after the mint.</p></div>
+    <div class="pr-act"><a class="btn" href="index.html#luck" data-close>Draw a ronin</a><button class="pr-copy" id="prCopy">Copy address</button></div>
+    <button class="wm-dis" id="prOut">Sign out</button>
   </div></div>
   <div class="wm" id="coModal" aria-hidden="true" role="dialog" aria-label="Checkout"><div class="wm-box co">
     <button class="wm-x" data-close>✕</button>
@@ -556,14 +564,17 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     <p class="co-note" id="coNote"></p>
     <button class="co-prev" id="coPrev" hidden>See a sample draw first · free, nothing is minted →</button>
   </div></div>`);
-  const btn=$('wBtn'), wm=$('wModal'), co=$('coModal');
+  const btn=$('wBtn'), wm=$('wModal'), co=$('coModal'), pm=$('pModal'); let session=null, wName='', wantSign=false;
+  try{ session=JSON.parse(localStorage.getItem('ronin-session')||'null'); }catch(_){}
   const open=m=>{ m.classList.add('on'); m.setAttribute('aria-hidden','false'); };
-  const close=m=>{ m.classList.remove('on'); m.setAttribute('aria-hidden','true'); };
-  [wm,co].forEach(m=>{ m.onclick=e=>{ if(e.target===m||e.target.hasAttribute('data-close'))close(m); }; });
-  addEventListener('keydown',e=>{ if(e.key==='Escape'){ close(wm); close(co); } });
+  const close=m=>{ m.classList.remove('on'); (document.activeElement?.blur(),m.setAttribute('aria-hidden','true')); };
+  [wm,co,pm].forEach(m=>{ m.onclick=e=>{ if(e.target===m||e.target.hasAttribute('data-close'))close(m); }; });
+  addEventListener('keydown',e=>{ if(e.key==='Escape'){ close(wm); close(co); close(pm); } });
 
   function paint(){
-    if(btn){ btn.classList.toggle('on',!!addr); btn.querySelector('span').textContent=addr?`${short(addr)}${bal!=null?' · ◎ '+bal.toFixed(2):''}`:'Connect wallet'; }
+    const signed=!!(addr&&session&&session.addr===addr);
+    if(btn){ btn.classList.toggle('on',signed); btn.querySelector('span').textContent=signed?`${short(addr)}${bal!=null?' · ◎ '+bal.toFixed(2):''}`:'Sign in'; }
+    if(signed){ $('prAddr').textContent=short(addr); $('prBal').textContent=bal!=null?'◎ '+bal.toFixed(3):'—'; $('prW').textContent=wName||'Wallet'; $('prAv').style.setProperty('--h',parseInt(addr.slice(0,6),36)%360); }
     $('wList').innerHTML=WALLETS.map(w=>{ const has=!!w.get(); return `<button class="wm-w" data-w="${w.id}"><span class="wm-logo ${w.id}">${w.name[0]}</span><b>${w.name}</b><em>${addr&&prov===w.get()?'Connected':has?'Detected':'Install'}</em></button>`; }).join('')
       +(addr?`<button class="wm-dis" id="wDis">Disconnect ${short(addr)}</button>`:'');
     if(co.classList.contains('on'))fillCheckout();
@@ -578,17 +589,36 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     try{ const res=await p.connect(); prov=p; addr=(res?.publicKey||p.publicKey).toString(); try{localStorage.setItem('ronin-wallet',w.id)}catch(_){}
       p.on?.('disconnect',()=>{ addr=''; bal=null; paint(); });
       p.on?.('accountChanged',pk=>{ if(pk){ addr=pk.toString(); balance(); } });
-      close(wm); toast('Wallet connected'); paint(); balance(); if(pending){ const k=pending; pending=null; checkout(k); }
+      wName=w.name; close(wm); paint(); balance();
+      if(wantSign){ wantSign=false; await signIn(p); }
+      else toast('Wallet connected');
+      if(pending){ const k=pending; pending=null; checkout(k); }
     }catch(e){ toast('Connection cancelled'); }
   }
   wm.addEventListener('click',async e=>{
     const b=e.target.closest('[data-w]'); if(b)return connect(WALLETS.find(w=>w.id===b.dataset.w));
     if(e.target.id==='wDis'){ try{ await prov?.disconnect(); }catch(_){} addr=''; bal=null; prov=null; try{localStorage.removeItem('ronin-wallet')}catch(_){} paint(); toast('Wallet disconnected'); }
   });
-  if(btn)btn.onclick=()=>{ paint(); open(wm); };
+  async function signIn(p){
+    const msg=`Sign in to RONIN\n\nWallet: ${addr}\nNonce: ${Math.random().toString(36).slice(2,10)}\nIssued: ${new Date().toISOString()}\n\nThis signature only proves you own this wallet. It costs nothing and approves no transaction.`;
+    try{ const enc=new TextEncoder().encode(msg); const out=await p.signMessage(enc,'utf8'); const sig=out?.signature||out;
+      session={addr,t:Date.now(),sig:btoa(String.fromCharCode(...new Uint8Array(sig))).slice(0,24)};
+      try{localStorage.setItem('ronin-session',JSON.stringify(session))}catch(_){}
+      toast('Signed in'); paint();
+    }catch(_){ toast('Sign-in cancelled'); }
+  }
+  if(btn)btn.onclick=()=>{
+    const signed=!!(addr&&session&&session.addr===addr);
+    if(signed){ paint(); open(pm); return; }
+    if(addr&&prov){ signIn(prov); return; }          // connected but not signed: just sign
+    wantSign=true; $('wTitle').textContent='Sign in'; paint(); open(wm);
+  };
+  $('prCopy').onclick=()=>{ navigator.clipboard?.writeText(addr).then(()=>toast('Address copied')); };
+  $('prOut').onclick=async()=>{ session=null; try{localStorage.removeItem('ronin-session');localStorage.removeItem('ronin-wallet')}catch(_){}
+    try{ await prov?.disconnect(); }catch(_){} addr=''; bal=null; prov=null; close(pm); paint(); toast('Signed out'); };
   // reconnect silently if this wallet already trusts the site
   (async()=>{ let id=null; try{id=localStorage.getItem('ronin-wallet')}catch(_){} const w=WALLETS.find(x=>x.id===id); const p=w&&w.get();
-    if(p){ try{ const r=await p.connect({onlyIfTrusted:true}); prov=p; addr=(r?.publicKey||p.publicKey).toString(); paint(); balance(); }catch(_){} } paint(); })();
+    if(p){ try{ const r=await p.connect({onlyIfTrusted:true}); prov=p; wName=w.name; addr=(r?.publicKey||p.publicKey).toString(); paint(); balance(); }catch(_){} } paint(); })();
 
   let cur=null;
   function fillCheckout(){
@@ -609,7 +639,7 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     pay.textContent=!addr?'Connect a wallet to pay':!live?(mint?'Mint opens soon':'Trading opens after the mint'):!enough?'Not enough SOL':'Confirm & pay';
     $('coNote').textContent=live?'You’ll sign the purchase in your wallet on the '+(mint?'mint':'marketplace')+' page. The NFT lands in your wallet in the same transaction.'
       :'Nothing can be charged yet. Connect now and you’ll be ready the moment it opens.';
-    const c=$('coCon'); if(c)c.onclick=()=>{ pending=cur; close(co); paint(); open(wm); };
+    const c=$('coCon'); if(c)c.onclick=()=>{ pending=cur; wantSign=false; $('wTitle').textContent='Connect a wallet'; close(co); paint(); open(wm); };
     $('coPrev').hidden=!(mint&&!live&&k.preview);
   }
   checkout=k=>{ cur=k; fillCheckout(); open(co); };
