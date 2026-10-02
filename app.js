@@ -1,4 +1,4 @@
-/* RONIN · shared script for index.html, cards.html and luck.html
+/* RONIN · shared script for index.html, cards.html, draw.html and profile.html
    Each block checks that its elements exist, so every page loads the same file. */
 
 /* ---------- utils ---------- */
@@ -190,7 +190,7 @@ let openShrine=()=>{};
         <button class="sh-mint" id="shMint"><span>Buy from a holder</span><i></i></button>
       </div>
       <p class="rv sh-note" style="--i:8" id="shNote"></p>
-      <a class="rv sh-luck" style="--i:8" href="luck.html">or draw a random ronin →</a>
+      <a class="rv sh-luck" style="--i:8" href="draw.html">or draw a random ronin →</a>
     </div>
   </div></div>`);
   const sh=$('shrine'); let cur=0, raf=0, parts=[], mode='petals', birds=[], t=0;
@@ -401,97 +401,6 @@ let openShrine=()=>{};
   $('trBuy').onclick=()=>checkout({kind:'listing',x:curX}); $('trBarBuy').onclick=()=>checkout({kind:'listing',x:curX}); $('trOffer').onclick=openMarket;
 })();
 
-/* ---------- luck.html: draw your fate ---------- */
-(function(){
-  const stage=$('fate'); if(!stage)return;
-  const tiers=['Legendary','Epic','Rare','Common'].map(r=>({r,e:NFTS.filter(n=>n.r===r).reduce((a,n)=>a+n.e,0)})).filter(t=>t.e);
-  $('fOdds').innerHTML=tiers.map(t=>`<div class="fo" style="--rc:${RCOL[t.r][0]}"><span>${t.r}</span><b>${(t.e/TOTAL*100).toFixed(1)}%</b><i style="width:${t.e/TOTAL*100}%"></i></div>`).join('');
-  $('fPrice').textContent=CONFIG.mintPrice; $('fSupply').textContent=TOTAL.toLocaleString('en-US'); $('fArt').textContent=NFTS.length;
-  const live=!!CONFIG.mintUrl; $('fDraw').querySelector('span').textContent=`Draw · ◎ ${CONFIG.mintPrice}`;
-  $('fMode').textContent=live?'Mint is live':'Mint opens soon';
-  // countdown when a date is set
-  if(CONFIG.mintDate){ const end=new Date(CONFIG.mintDate); const tick=()=>{ const s=Math.max(0,(end-new Date())/1000|0);
-    $('fMode').textContent=s?`Mint opens in ${Math.floor(s/86400)}d ${Math.floor(s%86400/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`:'Mint is live'; }; tick(); setInterval(tick,1000); }
-  const flash=$('fFlash'), res=$('fResult'), reel=$('reel'), track=$('reelTrack');
-  const pick=()=>{ let x=Math.random()*TOTAL; for(const n of NFTS){ x-=n.e; if(x<=0)return n; } return NFTS[NFTS.length-1]; };
-  // the reel: every card in the collection, repeated so it loops seamlessly
-  const cardHTML=n=>`<div class="rc" data-r="${n.r}" style="--rc:${RCOL[n.r][0]}"><div class="rc-flip"><div class="rc-in"><img src="${img(n)}" alt="${n.t}" style="object-position:${n.pos||'50% 50%'}"><span class="rc-r">${n.r}</span><b>${n.t}</b></div><div class="rc-bk"></div></div></div>`;
-  let IW=0, Lp=0, copies=0, offset=0, speed=.45, spin=null, busy=false, landed=false;   // landed: the reel holds still on the drawn card
-  function build(){
-    track.innerHTML=NFTS.map(cardHTML).join('');
-    const first=track.firstElementChild; IW=first.getBoundingClientRect().width+parseFloat(getComputedStyle(track).columnGap||getComputedStyle(track).gap||0);
-    Lp=IW*NFTS.length; copies=Math.ceil(reel.clientWidth/Lp)+2;
-    track.innerHTML=Array.from({length:copies},()=>NFTS.map(cardHTML).join('')).join('');
-  }
-  build(); addEventListener('resize',()=>{ if(!busy&&!landed)build(); });
-  const loop=t=>{
-    if(spin){ const f=Math.min(1,(t-spin.t0)/spin.dur), e=1-Math.pow(1-f,4); const prev=offset; offset=spin.from+(spin.to-spin.from)*e;
-      reel.classList.toggle('blur',offset-prev>18); if(f>=1){ const s=spin; spin=null; s.done(); } }
-    else if(!busy&&!landed&&!still) offset+=speed;
-    track.style.transform=`translate3d(${-(offset%Lp)}px,0,0)`;
-    requestAnimationFrame(loop);
-  };
-  requestAnimationFrame(loop);
-  function draw(){
-    if(busy)return; busy=true; landed=false; res.classList.remove('on'); stage.classList.remove('done');
-    reel.classList.add('down');   // every card turns face-down before the spin
-    track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim','up'));
-    const n=pick(), t=NFTS.indexOf(n), [c1,c2]=RCOL[n.r];
-    stage.classList.add('rumble'); fx.burst(innerWidth/2,innerHeight*.5,30,'#0c0c0c');
-    setTimeout(()=>{
-      stage.classList.remove('rumble');
-      const cx=reel.clientWidth/2, now=offset%Lp;
-      const delta=(((t*IW+(IW-parseFloat(getComputedStyle(track).gap||0))/2-cx-now)%Lp)+Lp)%Lp;
-      offset=now; spin={t0:performance.now(),dur:still?10:3600,from:now,to:now+Lp*(4+Math.floor(Math.random()*2))+delta,done:()=>{
-        reel.classList.remove('blur');
-        // light up the card that stopped in the window
-        track.style.transform=`translate3d(${-(offset%Lp)}px,0,0)`;
-        const cards=[...track.querySelectorAll('.rc')], half=(IW-parseFloat(getComputedStyle(track).gap||0))/2;
-        let best=0, bd=1e9; cards.forEach((c,k)=>{ c.classList.add('dim'); if(k%NFTS.length!==t)return; const d=Math.abs(k*IW+half-(offset%Lp)-cx); if(d<bd){bd=d;best=k;} });
-        cards[best].classList.remove('dim'); cards[best].classList.add('win','up');   // only the winner turns face-up
-        stage.style.setProperty('--c1',c1); stage.style.setProperty('--c2',c2); stage.classList.add('done');
-        flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
-        fx.burst(innerWidth/2,reel.getBoundingClientRect().top+reel.clientHeight/2,n.r==='Legendary'?160:n.r==='Epic'?90:50,c1);
-        if(n.r==='Legendary'){ fx.rays(c1); document.body.classList.add('quake'); setTimeout(()=>document.body.classList.remove('quake'),700); }
-        $('fRr').textContent=n.r; $('fRt').textContent=n.t; $('fRj').textContent=n.jt;
-        $('fRo').textContent=`1 of ${n.e} editions · ${(n.e/TOTAL*100).toFixed(1)}% chance · est. value ◎ ${n.p}`;
-        $('fRnote').textContent=live?'':'Nothing was minted yet: the mint opens soon.';
-        res.classList.add('on'); landed=true; busy=false;
-        setTimeout(()=>{ const r=res.getBoundingClientRect(); if(r.bottom>innerHeight)scrollBy({top:r.bottom-innerHeight+24,behavior:'smooth'}); },300);
-      }};
-    },500);
-  }
-  $('fAgain').onclick=()=>checkout({kind:'mint',preview:()=>{ track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim','up')); stage.classList.remove('done'); draw(); }});
-  $('fDraw').onclick=()=>checkout({kind:'mint',preview:draw});   // every draw goes through the checkout first
-  $('fMint').onclick=()=>checkout({kind:'mint',preview:draw});
-
-  /* sky: moon dust, petals and fireflies around the torii */
-  const fx=(function(){
-    const cv=$('fSky'); let c,W,H,parts=[],rays=null;
-    const size=()=>{ ({c,w:W,h:H}=fit(cv)); };
-    size(); addEventListener('resize',size);
-    for(let i=0;i<70;i++)parts.push({k:i%3?'m':'p',x:R(0,W),y:R(0,H),s:i%3?R(.8,2.4):R(5,11),vx:R(-.2,.5),vy:i%3?R(-.35,-.05):R(.4,1.1),w:R(0,6),a:R(0,6)});
-    const api={ burst(x,y,n,col){ const b=cv.getBoundingClientRect(); x-=b.left; y-=b.top;   // callers pass viewport coordinates
-      for(let i=0;i<n;i++){const a=R(0,6.283),v=R(1,7);parts.push({k:'e',x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,l:1,s:R(1,3.2),col});} },
-      rays(col){ rays={col,l:1}; } };
-    const loop=()=>{ c.clearRect(0,0,W,H);
-      if(rays){ c.save(); c.translate(W/2,H*.48); c.globalCompositeOperation='screen';
-        for(let k=0;k<14;k++){ c.rotate(Math.PI*2/14); const g=c.createLinearGradient(0,0,0,-Math.max(W,H)); g.addColorStop(0,rays.col+'aa'); g.addColorStop(1,rays.col+'00');
-          c.globalAlpha=rays.l*.5; c.fillStyle=g; c.beginPath(); c.moveTo(-14,0); c.lineTo(14,0); c.lineTo(70,-Math.max(W,H)); c.lineTo(-70,-Math.max(W,H)); c.fill(); }
-        c.restore(); rays.l-=.006; if(rays.l<=0)rays=null; }
-      parts=parts.filter(p=>{
-        if(p.k==='e'){ p.x+=p.vx; p.y+=p.vy; p.vy+=.03; p.vx*=.98; p.l-=.011; if(p.l<=0)return false;
-          c.globalAlpha=p.l; c.fillStyle=p.col; c.shadowColor=p.col; c.shadowBlur=14; c.beginPath(); c.arc(p.x,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; return true; }
-        p.w+=.03; p.x+=p.vx+Math.sin(p.w)*.4; p.y+=p.vy; if(p.y<-20)p.y=H+20; if(p.y>H+20)p.y=-20; if(p.x>W+20)p.x=-20;
-        if(p.k==='m'){ c.globalAlpha=.18+Math.sin(p.w*2)*.1; c.fillStyle='#0c0c0c'; c.beginPath(); c.arc(p.x,p.y,p.s*.8,0,6.283); c.fill(); c.globalAlpha=1; }   // drifting ink dust
-        else { p.a+=.02; c.save(); c.translate(p.x,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.fillStyle='#ffc6d9'; c.globalAlpha=.85;
-          c.beginPath(); c.moveTo(-p.s,0); c.quadraticCurveTo(0,-p.s*.75,p.s,0); c.quadraticCurveTo(0,p.s*.75,-p.s,0); c.fill(); c.restore(); }
-        return true; });
-      if(!still)requestAnimationFrame(loop); };
-    loop(); return api;
-  })();
-})();
-
 /* ---------- page-wide foil on buttons + cursor light + hero motes ---------- */
 (function(){
   document.querySelectorAll('.btn').forEach((el,i)=>{
@@ -665,7 +574,7 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
       root.innerHTML=`<div class="pf-gate"><div class="pf-k jp">道</div><div class="eyebrow">Holders</div><h1>Sign in to your profile.</h1>
         <p>Your cards live in your wallet. Sign a free message with it to open your profile: your RONINs, your rank and your activity. Signing never moves funds.</p>
         <button class="btn pf-go" id="pfGo">${st.addr?'Sign in with '+short(st.addr):'Continue with wallet'}</button>
-        <a class="pf-alt" href="index.html#luck">Don't have a card yet? Draw your first ronin →</a></div>`;
+        <a class="pf-alt" href="draw.html">Don't have a card yet? Draw your first ronin →</a></div>`;
       $('pfGo').onclick=()=>A.signIn(); return;
     }
     const a=st.session.addr, prof=A.profile(a), owned=await window.RONIN_OWNED(a);
@@ -682,9 +591,9 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
         <div><small>Cards</small><b>${owned?list.length:'—'}</b></div><div><small>Legendary</small><b>${owned?leg:'—'}</b></div>
         <div><small>Est. value</small><b>${owned?'◎ '+value.toFixed(1):'—'}</b></div><div><small>Rarest</small><b>${rarest?rarest.n.t:'—'}</b></div></div>
       <div class="pf-sec"><h2>Your cards</h2>
-        ${owned===null?`<div class="pf-empty"><b>The collection isn't live yet.</b><p>When the mint opens, every RONIN in this wallet shows up here automatically.</p><a class="btn" href="index.html#luck">Draw a ronin</a></div>`
+        ${owned===null?`<div class="pf-empty"><b>The collection isn't live yet.</b><p>When the mint opens, every RONIN in this wallet shows up here automatically.</p><a class="btn" href="draw.html">Draw a ronin</a></div>`
           :list.length?`<div class="cards pf-cards">${list.map((o,i)=>card(o.n,i)).join('')}</div>`
-          :`<div class="pf-empty"><b>No RONIN in this wallet yet.</b><p>Draw one at random, or buy the exact one you want from a holder.</p><a class="btn" href="index.html#luck">Draw a ronin</a> <a class="btn ghost" href="index.html#listings">Listings</a></div>`}
+          :`<div class="pf-empty"><b>No RONIN in this wallet yet.</b><p>Draw one at random, or buy the exact one you want from a holder.</p><a class="btn" href="draw.html">Draw a ronin</a> <a class="btn ghost" href="index.html#listings">Listings</a></div>`}
       </div>`;
     const nm=$('pfName'); nm.onblur=()=>{ const v=nm.textContent.trim().slice(0,32)||'Nameless ronin'; A.saveProfile(a,{...prof,name:v,since:prof.since||st.session.t}); toast('Name saved'); };
     nm.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); nm.blur(); } };
@@ -693,4 +602,109 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     root.querySelectorAll('.pf-cards .card').forEach(c=>tilt(c));
   }
   document.addEventListener('ronin:wallet',render); render();
+})();
+
+/* ---------- draw.html: the legendary draw ---------- */
+(function(){
+  const pg=$('drawPage'); if(!pg)return;
+  const KANJI={Common:'並',Rare:'稀',Epic:'傑',Legendary:'伝説'}, ORDER=['Common','Rare','Epic','Legendary'];
+  const live=!!CONFIG.mintUrl, ring=$('dwRing'), card=$('dwCard'), flip=$('dwFlip'), res=$('dwResult');
+  // ui: price, odds, pool
+  $('dwPrice').textContent=CONFIG.mintPrice;
+  $('dwGo').querySelector('span').textContent=`Draw · ◎ ${CONFIG.mintPrice}`;
+  $('dwMode').textContent=live?'Mint is live':'Mint opens soon';
+  const tiers=['Legendary','Epic','Rare','Common'].map(r=>({r,e:NFTS.filter(n=>n.r===r).reduce((a,n)=>a+n.e,0)})).filter(t=>t.e);
+  $('dwOdds').innerHTML=tiers.map(t=>`<div style="--rc:${RCOL[t.r][0]}"><i></i><span>${t.r}</span><b>${(t.e/TOTAL*100).toFixed(1)}%</b></div>`).join('');
+  $('dwPool').innerHTML=NFTS.map(n=>`<div class="dp" style="--rc:${RCOL[n.r][0]}"><img src="${img(n)}" alt="${n.t}" loading="lazy" style="object-position:${n.pos||'50% 50%'}"><div><b>${n.t}</b><small>${n.r} · ${(n.e/TOTAL*100).toFixed(1)}%</small></div></div>`).join('');
+
+  // the ring of face-down cards
+  const N=12; ring.innerHTML=Array.from({length:N},(_,i)=>`<div class="dw-rc" style="--i:${i}"><i></i><i class="b2"></i></div>`).join('');   // a back on both sides, so the far half never reads mirrored
+  const rcs=[...ring.children]; let ang=0, vel=.12, radius=0, mode='idle', raf;
+  const place=()=>{ radius=Math.min(innerWidth*.36,380); rcs.forEach((c,i)=>{ c.dataset.a=i*360/N; }); };
+  place(); addEventListener('resize',place);
+  const loop=()=>{
+    ang+=vel; const tilt=-14;
+    rcs.forEach((c,i)=>{ const a=+c.dataset.a+ang, r=mode==='collapse'?0:radius;
+      c.style.transform=`rotateX(${tilt}deg) rotateY(${a}deg) translateZ(${r}px)`; });
+    raf=requestAnimationFrame(loop);
+  };
+  if(!still)loop(); else rcs.forEach((c,i)=>c.style.transform=`rotateY(${i*360/N}deg) translateZ(${radius}px)`);
+
+  /* night halftone sky with twinkling stars */
+  (function(){
+    const cv=$('dwSky'); let c,W,H,stars=[],t=0;
+    const paint=()=>{ ({c,w:W,h:H}=fit(cv)); stars=Array.from({length:Math.round(W*H/9000)},()=>({x:R(0,W),y:R(0,H*.85),s:R(.6,2),p:R(0,6)})); };
+    const n=noise2(21), fbm=(x,y)=>{let v=0,a=.55,f=1;for(let o=0;o<4;o++){v+=a*n(x*f,y*f);a*=.5;f*=2.03;}return v;};
+    let base=null;
+    const bake=()=>{ const o=document.createElement('canvas'); o.width=W; o.height=H; const g=o.getContext('2d');
+      const grd=g.createLinearGradient(0,0,0,H); grd.addColorStop(0,'#0b1430'); grd.addColorStop(.7,'#16254d'); grd.addColorStop(1,'#1d2f5c'); g.fillStyle=grd; g.fillRect(0,0,W,H);
+      const cell=W<600?6:8; for(let y=0;y<H;y+=cell)for(let x=0;x<W+cell;x+=cell){ const X=x+((y/cell)%2?cell/2:0), cl=fbm(X/320,y/200)+(y/H)*.25-.3;
+        const e=Math.max(0,Math.min(1,(cl-.4)/.08)); if(e<=0)continue; g.fillStyle=`rgba(120,150,210,${.10+e*.22})`; g.beginPath(); g.arc(X,y,cell*.42*e,0,6.283); g.fill(); }
+      base=o; };
+    const loop=()=>{ t+=.02; c.drawImage(base,0,0,W,H);
+      for(const s of stars){ const a=.35+.65*Math.abs(Math.sin(t+s.p)); c.globalAlpha=a; c.fillStyle='#f2f0eb'; c.beginPath(); c.arc(s.x,s.y,s.s,0,6.283); c.fill(); }
+      c.globalAlpha=1; if(!still)requestAnimationFrame(loop); };
+    paint(); bake(); loop(); addEventListener('resize',()=>{ paint(); bake(); });
+  })();
+
+  /* particles: ink sparks, petals, light rays */
+  const fx=(function(){
+    const cv=$('dwFx'); let c,W,H,parts=[],rays=null,petals=0;
+    const size=()=>{ ({c,w:W,h:H}=fit(cv)); }; size(); addEventListener('resize',size);
+    const api={
+      burst(n,col,f=1){ const b=card.getBoundingClientRect(), cb=cv.getBoundingClientRect(), x=b.left+b.width/2-cb.left, y=b.top+b.height/2-cb.top;
+        for(let i=0;i<n;i++){ const a=R(0,6.283),v=R(2,11)*f; parts.push({k:'s',x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,s:R(1.2,3.6),col}); } },
+      reset(){ rays=null; parts=[]; },
+      rays(col){ rays={col,l:1}; }, petals(n){ for(let i=0;i<n;i++)parts.push({k:'p',x:R(0,W),y:R(-H,0),s:R(6,13),vx:R(.3,1.4),vy:R(1,2.4),a:R(0,6),w:R(0,6),l:1}); }
+    };
+    const loop=()=>{ c.clearRect(0,0,W,H);
+      if(rays){ const b=card.getBoundingClientRect(), cb=cv.getBoundingClientRect(); c.save(); c.translate(b.left+b.width/2-cb.left,b.top+b.height/2-cb.top); c.rotate(performance.now()/3000); c.globalCompositeOperation='lighter';
+        for(let k=0;k<16;k++){ c.rotate(Math.PI*2/16); const L=Math.max(W,H); const g=c.createLinearGradient(0,0,0,-L); g.addColorStop(0,rays.col+'cc'); g.addColorStop(1,rays.col+'00');
+          c.globalAlpha=rays.l*.55; c.fillStyle=g; c.beginPath(); c.moveTo(-10,0); c.lineTo(10,0); c.lineTo(80,-L); c.lineTo(-80,-L); c.fill(); }
+        c.restore(); rays.l-=.004; if(rays.l<=0)rays=null; }
+      parts=parts.filter(p=>{
+        if(p.k==='s'){ p.x+=p.vx; p.y+=p.vy; p.vy+=.12; p.vx*=.985; p.l-=.012; if(p.l<=0)return false;
+          c.globalAlpha=p.l; c.fillStyle=p.col; c.shadowColor=p.col; c.shadowBlur=16; c.beginPath(); c.arc(p.x,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; return true; }
+        p.w+=.03; p.x+=p.vx+Math.sin(p.w)*.6; p.y+=p.vy; p.a+=.03; if(p.y>H+20)return false;
+        c.save(); c.translate(p.x,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.fillStyle='#ffc6d9'; c.globalAlpha=.9;
+        c.beginPath(); c.moveTo(-p.s,0); c.quadraticCurveTo(0,-p.s*.75,p.s,0); c.quadraticCurveTo(0,p.s*.75,-p.s,0); c.fill(); c.restore(); return true; });
+      requestAnimationFrame(loop); };
+    loop(); return api;
+  })();
+
+  const sleep=ms=>new Promise(r=>setTimeout(r,still?0:ms));
+  const pick=()=>{ let x=Math.random()*TOTAL; for(const n of NFTS){ x-=n.e; if(x<=0)return n; } return NFTS[NFTS.length-1]; };
+  const ramp=(from,to,ms)=>new Promise(res=>{ const t0=performance.now(); const st=t=>{ const f=Math.min(1,(t-t0)/ms); vel=from+(to-from)*f*f; f<1?requestAnimationFrame(st):res(); }; requestAnimationFrame(st); });
+  let busy=false;
+  async function draw(){
+    if(busy)return; busy=true; res.classList.remove('on'); pg.classList.remove('done','r-Common','r-Rare','r-Epic','r-Legendary');
+    flip.classList.remove('up'); card.className='dw-card'; $('dwKanji').className='dw-kanji jp'; fx.reset();
+    const n=pick(), [c1,c2]=RCOL[n.r], lvl=ORDER.indexOf(n.r);
+    pg.style.setProperty('--c1',c1); pg.style.setProperty('--c2',c2);
+    $('dwImg').src=img(n); $('dwImg').style.objectPosition=n.pos||'50% 50%'; $('dwFtR').textContent=n.r;
+    // 1 · the ring spins into a whirlwind, then collapses into one card
+    pg.classList.add('spin'); await ramp(vel,9,1300); await sleep(500);
+    mode='collapse'; pg.classList.add('collapse'); await sleep(450);
+    flash('#ffffff'); card.classList.add('show'); fx.burst(60,'#cfe0ff',.8); await sleep(700);
+    // 2 · anticipation: the glow climbs the rarity ladder only as far as the pull goes
+    for(let k=0;k<=lvl;k++){ card.style.setProperty('--g',RCOL[ORDER[k]][0]); card.classList.remove('pulse'); void card.offsetWidth; card.classList.add('pulse','lv'+k);
+      fx.burst(14+k*14,RCOL[ORDER[k]][0],.5+k*.2); await sleep(k===lvl?900:650); }
+    // 3 · the reveal
+    card.classList.add('reveal'); flip.classList.add('up'); flash(c1);
+    const kj=$('dwKanji'); kj.textContent=KANJI[n.r]; kj.classList.add('stamp');
+    const sh=$('dwShock'); sh.classList.remove('go'); void sh.offsetWidth; sh.classList.add('go');
+    fx.burst(n.r==='Legendary'?260:n.r==='Epic'?150:n.r==='Rare'?90:50,c1,n.r==='Legendary'?1.4:1);
+    if(n.r==='Legendary'){ fx.rays(c1); fx.petals(90); document.body.classList.add('quake'); setTimeout(()=>document.body.classList.remove('quake'),900); }
+    else if(n.r==='Epic'){ fx.rays(c1); }
+    pg.classList.add('done','r-'+n.r);
+    $('dwRr').textContent=n.r; $('dwRt').textContent=n.t; $('dwRj').textContent=n.jt;
+    $('dwRo').textContent=`1 of ${n.e} editions · ${(n.e/TOTAL*100).toFixed(1)}% chance · est. value ◎ ${n.p}`;
+    $('dwNote').textContent=live?'':'Nothing was minted yet: the mint opens soon.';
+    await sleep(500); res.classList.add('on');
+    // the ring quietly comes back behind the drawn card
+    mode='idle'; pg.classList.remove('spin','collapse'); vel=.12; busy=false;
+  }
+  function flash(col){ const f=$('dwFlash'); f.style.setProperty('--f',col); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+  const go=()=>checkout({kind:'mint',preview:draw});
+  $('dwGo').onclick=go; $('dwAgain').onclick=go; $('dwReal').onclick=go;
 })();
