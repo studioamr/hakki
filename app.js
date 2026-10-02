@@ -380,35 +380,56 @@ let openShrine=()=>{};
   // countdown when a date is set
   if(CONFIG.mintDate){ const end=new Date(CONFIG.mintDate); const tick=()=>{ const s=Math.max(0,(end-new Date())/1000|0);
     $('fMode').textContent=s?`Mint opens in ${Math.floor(s/86400)}d ${Math.floor(s%86400/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`:'Mint is live'; }; tick(); setInterval(tick,1000); }
-  const card=$('fCard'), face=$('fFaceImg'), flash=$('fFlash'), res=$('fResult');
-  tilt($('fTilt'),12);
+  const flash=$('fFlash'), res=$('fResult'), reel=$('reel'), track=$('reelTrack');
   const pick=()=>{ let x=Math.random()*TOTAL; for(const n of NFTS){ x-=n.e; if(x<=0)return n; } return NFTS[NFTS.length-1]; };
-  let busy=false, rot=0;
+  // the reel: every card in the collection, repeated so it loops seamlessly
+  const cardHTML=n=>`<div class="rc" data-r="${n.r}" style="--rc:${RCOL[n.r][0]}"><div class="rc-in"><img src="${img(n)}" alt="${n.t}" style="object-position:${n.pos||'50% 50%'}"><span class="rc-r">${n.r}</span><b>${n.t}</b></div></div>`;
+  let IW=0, Lp=0, copies=0, offset=0, speed=.45, spin=null, busy=false;
+  function build(){
+    track.innerHTML=NFTS.map(cardHTML).join('');
+    const first=track.firstElementChild; IW=first.getBoundingClientRect().width+parseFloat(getComputedStyle(track).columnGap||getComputedStyle(track).gap||0);
+    Lp=IW*NFTS.length; copies=Math.ceil(reel.clientWidth/Lp)+2;
+    track.innerHTML=Array.from({length:copies},()=>NFTS.map(cardHTML).join('')).join('');
+  }
+  build(); addEventListener('resize',()=>{ if(!busy)build(); });
+  const loop=t=>{
+    if(spin){ const f=Math.min(1,(t-spin.t0)/spin.dur), e=1-Math.pow(1-f,4); const prev=offset; offset=spin.from+(spin.to-spin.from)*e;
+      reel.classList.toggle('blur',offset-prev>18); if(f>=1){ const s=spin; spin=null; s.done(); } }
+    else if(!busy&&!still) offset+=speed;
+    track.style.transform=`translate3d(${-(offset%Lp)}px,0,0)`;
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
   function draw(){
-    if(busy)return; busy=true; res.classList.remove('on'); stage.classList.remove('done','r-Legendary','r-Epic','r-Rare','r-Common');
-    const n=pick(), [c1,c2]=RCOL[n.r];
-    stage.classList.add('rumble'); fx.burst(innerWidth/2,innerHeight*.48,30,'#0c0c0c');
+    if(busy)return; busy=true; res.classList.remove('on'); stage.classList.remove('done');
+    track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim'));
+    const n=pick(), t=NFTS.indexOf(n), [c1,c2]=RCOL[n.r];
+    stage.classList.add('rumble'); fx.burst(innerWidth/2,innerHeight*.5,30,'#0c0c0c');
     setTimeout(()=>{
       stage.classList.remove('rumble');
-      // spin: whirl through the collection, decelerate, land face-up on the drawn piece
-      const turns=6+Math.floor(Math.random()*2), from=rot%360, to=turns*360+180, t0=performance.now(), dur=still?10:2600; let k=0, lastSwap=0;
-      const step=t=>{ const f=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-f,4); rot=from+(to-from)*e; card.style.transform=`rotateY(${rot}deg)`;
-        if(f<.85&&t-lastSwap>60+f*260){ face.src=img(NFTS[k++%NFTS.length]); lastSwap=t; }
-        if(f<1)return requestAnimationFrame(step);
-        face.src=img(n); face.style.objectPosition=n.pos||'50% 50%';
-        stage.style.setProperty('--c1',c1); stage.style.setProperty('--c2',c2); stage.classList.add('done','r-'+n.r);
+      const cx=reel.clientWidth/2, now=offset%Lp;
+      const delta=(((t*IW+(IW-parseFloat(getComputedStyle(track).gap||0))/2-cx-now)%Lp)+Lp)%Lp;
+      offset=now; spin={t0:performance.now(),dur:still?10:3600,from:now,to:now+Lp*(4+Math.floor(Math.random()*2))+delta,done:()=>{
+        reel.classList.remove('blur');
+        // light up the card that stopped in the window
+        track.style.transform=`translate3d(${-(offset%Lp)}px,0,0)`;
+        const cards=[...track.querySelectorAll('.rc')], half=(IW-parseFloat(getComputedStyle(track).gap||0))/2;
+        let best=0, bd=1e9; cards.forEach((c,k)=>{ c.classList.add('dim'); if(k%NFTS.length!==t)return; const d=Math.abs(k*IW+half-(offset%Lp)-cx); if(d<bd){bd=d;best=k;} });
+        cards[best].classList.remove('dim'); cards[best].classList.add('win');
+        stage.style.setProperty('--c1',c1); stage.style.setProperty('--c2',c2); stage.classList.add('done');
         flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
-        fx.burst(innerWidth/2,innerHeight*.48,n.r==='Legendary'?160:n.r==='Epic'?90:50,c1); if(n.r==='Legendary'){ fx.rays(c1); document.body.classList.add('quake'); setTimeout(()=>document.body.classList.remove('quake'),700); }
+        fx.burst(innerWidth/2,reel.getBoundingClientRect().top+reel.clientHeight/2,n.r==='Legendary'?160:n.r==='Epic'?90:50,c1);
+        if(n.r==='Legendary'){ fx.rays(c1); document.body.classList.add('quake'); setTimeout(()=>document.body.classList.remove('quake'),700); }
         $('fRr').textContent=n.r; $('fRt').textContent=n.t; $('fRj').textContent=n.jt;
         $('fRo').textContent=`1 of ${n.e} editions · ${(n.e/TOTAL*100).toFixed(1)}% chance · est. value ◎ ${n.p}`;
         $('fRnote').textContent=live?'':'This was a practice draw. Nothing was minted.';
         res.classList.add('on'); busy=false;
-      };
-      requestAnimationFrame(step);
-    },650);
+        setTimeout(()=>{ const r=res.getBoundingClientRect(); if(r.bottom>innerHeight)scrollBy({top:r.bottom-innerHeight+24,behavior:'smooth'}); },300);
+      }};
+    },500);
   }
+  $('fAgain').onclick=()=>{ track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim')); stage.classList.remove('done'); draw(); };
   $('fDraw').onclick=()=>{ if(live)window.open(CONFIG.mintUrl,'_blank','noopener'); draw(); };
-  $('fAgain').onclick=draw;
   $('fMint').onclick=()=>{ if(live)window.open(CONFIG.mintUrl,'_blank','noopener'); else toast('The mint opens soon. Subscribe to know first.'); };
 
   /* sky: moon dust, petals and fireflies around the torii */

@@ -709,3 +709,31 @@ body.quake .fate{animation:rumble .07s linear 8}
 .f-draw i{mix-blend-mode:soft-light}
 .f-mode{color:var(--mute)}
 .f-flash{background:radial-gradient(circle at 50% 46%,var(--c1,#fff),transparent 55%);mix-blend-mode:multiply}
+
+/* ===== luck.html · the reel: every card, one window ===== */
+.f-stage{display:block;padding:34px 0 10px;perspective:none}
+.reel{position:relative;width:100%;overflow:hidden;padding:26px 0;-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.reel-track{display:flex;gap:18px;width:max-content;will-change:transform}
+.rc{flex:0 0 auto;width:clamp(120px,13vw,170px);aspect-ratio:3/4.2;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s,filter .5s}
+.rc-in{position:relative;width:100%;height:100%;border-radius:12px;overflow:hidden;border:2.5px solid var(--ink);box-shadow:5px 5px 0 var(--ink);background:#111}
+.rc img{width:100%;height:100%;object-fit:cover;display:block}
+.rc-in::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,#000c)}
+.rc-r{position:absolute;top:8px;left:8px;z-index:2;font:800 8.5px Archivo;letter-spacing:.18em;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:var(--rc);color:var(--ink);border:1.5px solid var(--ink)}
+.rc b{position:absolute;left:9px;right:9px;bottom:8px;z-index:2;color:#fff;font-weight:900;font-size:13px;line-height:1.1}
+.rc:hover{transform:translateY(-8px)}
+.reel.blur .reel-track{filter:blur(2.5px)}
+.rc.dim{opacity:.28;filter:grayscale(1)}
+.rc.win{transform:scale(1.32);z-index:3;position:relative}
+.rc.win .rc-in{box-shadow:8px 8px 0 var(--ink),0 0 0 4px var(--c1),0 0 50px 6px var(--c1)}
+.reel-win{position:absolute;top:8px;bottom:8px;left:50%;width:calc(clamp(120px,13vw,170px) + 26px);transform:translateX(-50%);pointer-events:none;z-index:4}
+.reel-win i{position:absolute;top:0;bottom:0;width:4px;background:var(--ink);border-radius:3px}
+.reel-win .rw-l{left:0}.reel-win .rw-r{right:0}
+.reel-win::before,.reel-win::after{content:"";position:absolute;left:-10px;right:-10px;height:4px;background:var(--ink);border-radius:3px}
+.reel-win::before{top:0}.reel-win::after{bottom:0}
+.rw-seal{position:absolute;top:-22px;left:50%;transform:translateX(-50%) rotate(-6deg);width:40px;height:40px;display:grid;place-items:center;background:var(--shu,#d23a2a);color:#f6f1e6;font-size:22px;font-weight:800;border-radius:4px;box-shadow:3px 3px 0 var(--ink);z-index:5}
+.fate.rumble .reel{animation:rumble .08s linear infinite}
+.fate .f-result{position:relative;bottom:auto;left:auto;translate:none;margin:6px auto 0;display:none}
+.fate .f-result.on{display:grid}
+.fate.done .reel-win i,.fate.done .reel-win::before,.fate.done .reel-win::after{background:var(--c1);box-shadow:0 0 0 1.5px var(--ink)}
+.reel{overflow:clip}
+.fate{grid-template-columns:minmax(0,1fr)}.f-stage,.reel{min-width:0}

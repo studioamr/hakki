@@ -15,7 +15,7 @@
 <nav id="nav"><div class="wrap">
   <a class="logo" href="index.html">RONIN <span class="jp">道</span></a>
   <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html">Cards</a><a href="luck.html" class="cur">Try your luck</a><a href="index.html#listings">Listings</a></div>
-  <a class="wl-link" href="#subscribe">Subscribe →</a>
+  <a class="wl-link" href="index.html#subscribe">Subscribe →</a>
 </div></nav>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="inkBleed"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="5"/></filter></svg>
@@ -26,15 +26,12 @@
   <div class="f-head">
     <div class="f-eye jp">運試し</div>
     <h1>Draw your fate.</h1>
-    <p>One price. One draw. The path decides which ronin walks with you.</p>
+    <p>These are every card in RONIN. One price, one draw: the reel decides which one walks with you.</p>
   </div>
   <div class="f-stage">
-    <div class="f-tilt" id="fTilt">
-      <div class="f-halo"></div>
-      <div class="f-card" id="fCard">
-        <div class="f-face f-back"><div class="f-pat"></div><div class="f-k jp">運</div><div class="f-seal jp">道</div><small>RONIN · FATE</small><i class="f-sheen"></i></div>
-        <div class="f-face f-front"><img id="fFaceImg" alt=""><i class="f-sheen"></i></div>
-      </div>
+    <div class="reel" id="reel">
+      <div class="reel-track" id="reelTrack"></div>
+      <div class="reel-win" aria-hidden="true"><span class="rw-seal jp">運</span><i class="rw-l"></i><i class="rw-r"></i></div>
     </div>
     <div class="f-result" id="fResult" aria-live="polite">
       <span class="f-rr" id="fRr"></span><b id="fRt"></b><span class="f-rj jp" id="fRj"></span><small id="fRo"></small><em id="fRnote"></em>
@@ -51,17 +48,6 @@
     <div class="f-facts"><div><small>Supply</small><b id="fSupply"></b></div><div><small>Artworks</small><b id="fArt"></b></div><div><small>Chain</small><b>Solana</b></div></div>
   </div>
 </main>
-
-<section class="sub" id="subscribe"><div class="wrap">
-  <div class="sub-in">
-    <div><div class="eyebrow">Subscribe</div><h2>Don't miss the mint.</h2><p>One email when the path opens. Nothing else.</p></div>
-    <form class="sub-form" id="subForm" novalidate>
-      <input type="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Email">
-      <button class="btn" type="submit">Subscribe</button>
-      <p class="sub-msg" id="subMsg" role="status"></p>
-    </form>
-  </div>
-</div></section>
 
 <footer><div class="wrap">
   <div class="row">
