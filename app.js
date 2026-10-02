@@ -149,7 +149,7 @@ let openShrine=()=>{};
     const c=document.createElement('div'); c.className='card'+(n.wide?' wide':''); c.dataset.r=n.r;
     c.style.setProperty('--d',(i%7*.7)+'s'); c.style.setProperty('--k',(i%4)*.1+'s');
     c.innerHTML=`<div class="ring"></div><div class="frame"><img src="${img(n)}" alt="${n.t}" loading="lazy" style="object-position:${n.wide?'50% 50%':(n.pos||'50% 50%')}"><div class="holo"></div><div class="sweep"></div><div class="shade"></div><div class="glare"></div></div>${sparks(nSpark[n.r])}
-      <div class="info"><div><small>RONIN #${String(i+1).padStart(3,'0')}</small><b>${n.t}</b></div><span class="rar">${n.r}</span></div>`;
+      <div class="info"><div><small>RONIN #${String(i+1).padStart(3,'0')}${box.dataset.odds?` · ${(n.e/TOTAL*100).toFixed(1)}% chance`:''}</small><b>${n.t}</b></div><span class="rar">${n.r}</span></div>`;
     tilt(c); c.onclick=()=>openShrine(i); box.appendChild(c); reveal.observe(c);
   });
   const cnt=$('collCount'); if(cnt)cnt.textContent=`${NFTS.length} artworks · ${TOTAL} pieces · Solana`;
@@ -645,7 +645,7 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
   $('dwMode').textContent=live?'Mint is live':'Mint opens soon';
   const tiers=['Legendary','Epic','Rare','Common'].map(r=>({r,e:NFTS.filter(n=>n.r===r).reduce((a,n)=>a+n.e,0)})).filter(t=>t.e);
   $('dwOdds').innerHTML=tiers.map(t=>`<div style="--rc:${RCOL[t.r][0]}"><i></i><span>${t.r}</span><b>${(t.e/TOTAL*100).toFixed(1)}%</b></div>`).join('');
-  $('dwPool').innerHTML=NFTS.map(n=>`<div class="dp" style="--rc:${RCOL[n.r][0]}"><img src="${img(n)}" alt="${n.t}" loading="lazy" style="object-position:${n.pos||'50% 50%'}"><div><b>${n.t}</b><small>${n.r} · ${(n.e/TOTAL*100).toFixed(1)}%</small></div></div>`).join('');
+  if($('dwPool'))$('dwPool').innerHTML=NFTS.map(n=>`<div class="dp" style="--rc:${RCOL[n.r][0]}"><img src="${img(n)}" alt="${n.t}" loading="lazy" style="object-position:${n.pos||'50% 50%'}"><div><b>${n.t}</b><small>${n.r} · ${(n.e/TOTAL*100).toFixed(1)}%</small></div></div>`).join('');
 
   // the ring of face-down cards
   const N=12; ring.innerHTML=Array.from({length:N},(_,i)=>`<div class="dw-rc" style="--i:${i}"><i></i><i class="b2"></i></div>`).join('');   // a back on both sides, so the far half never reads mirrored
