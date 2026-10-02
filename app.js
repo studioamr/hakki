@@ -42,6 +42,7 @@ const TOTAL=NFTS.reduce((a,n)=>a+n.e,0);
 const RCOL={Common:['#a8a196','#efe9dc'],Rare:['#4fa3ff','#d8ecff'],Epic:['#c06bff','#f0d6ff'],Legendary:['#f3c22f','#fff4c2']};
 const img=n=>`img/coleccion/${n.f}.webp`;
 const scene=f=>`img/escenas/${f}.webp`;
+let checkout=()=>{};   // set by the wallet block at the bottom
 const openMarket=()=>{ if(CONFIG.marketUrl)window.open(CONFIG.marketUrl,'_blank','noopener'); else toast('Trading opens right after the mint.'); };
 const nSpark={Legendary:9,Epic:6,Rare:4,Common:2};
 const sparks=n=>{let sp='';for(let k=0;k<n;k++)sp+=`<i class="spark" style="left:${8+Math.random()*84}%;top:${6+Math.random()*70}%;--d:${(Math.random()*2.6).toFixed(2)}s"></i>`;return sp;};
@@ -342,7 +343,8 @@ let openShrine=()=>{};
       const lx=X(k)/720*bx.width; tip.style.left=Math.min(bx.width-130,Math.max(0,lx+12))+'px'; tip.style.top=(Y(H[k])/240*bx.height-20)+'px'; };
     hit.onpointerleave=()=>{ hov.style.display='none'; tip.style.display='none'; };
   }
-  function openTrade(x){
+  let curX=null;
+  function openTrade(x){ curX=x;
     const n=x.n, g=rng(5000+x.id*7), [c1]=RCOL[n.r];
     tr.style.setProperty('--rc',c1); series(x);
     $('trImg').src=img(n); $('trImg').style.objectPosition=n.pos||'50% 50%';
@@ -366,7 +368,7 @@ let openShrine=()=>{};
   const close=()=>{ tr.classList.remove('on'); tr.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
   $('trX').onclick=close; tr.onclick=e=>{ if(e.target===tr)close(); }; addEventListener('keydown',e=>{ if(e.key==='Escape'&&tr.classList.contains('on'))close(); });
   $('trRange').onclick=e=>{ const b=e.target.closest('button'); if(!b)return; range=+b.dataset.d; $('trRange').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawChart(); };
-  $('trBuy').onclick=openMarket; $('trOffer').onclick=openMarket;
+  $('trBuy').onclick=()=>checkout({kind:'listing',x:curX}); $('trOffer').onclick=openMarket;
 })();
 
 /* ---------- luck.html: draw your fate ---------- */
@@ -430,7 +432,7 @@ let openShrine=()=>{};
   }
   $('fAgain').onclick=()=>{ track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim')); stage.classList.remove('done'); draw(); };
   $('fDraw').onclick=()=>{ if(live)window.open(CONFIG.mintUrl,'_blank','noopener'); draw(); };
-  $('fMint').onclick=()=>{ if(live)window.open(CONFIG.mintUrl,'_blank','noopener'); else toast('The mint opens soon. Subscribe to know first.'); };
+  $('fMint').onclick=()=>checkout({kind:'mint'});
 
   /* sky: moon dust, petals and fireflies around the torii */
   const fx=(function(){
@@ -483,3 +485,100 @@ let openShrine=()=>{};
 buildSun();
 document.fonts.ready.then(drawSky);
 let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,200);});
+
+/* ---------- wallet + checkout ----------
+   Connecting a wallet happens right here (Phantom, Solflare, Backpack).
+   Paying never happens here as a plain SOL transfer: the mint contract (Candy Machine / launchpad)
+   or the marketplace takes the payment and hands over the NFT in the same transaction.
+   So "Confirm & pay" sends the buyer to CONFIG.mintUrl / CONFIG.marketUrl, and stays off until those exist. */
+(function(){
+  const WALLETS=[
+    {id:'phantom',name:'Phantom',get:()=>window.phantom?.solana||(window.solana?.isPhantom?window.solana:null),url:'https://phantom.app/download'},
+    {id:'solflare',name:'Solflare',get:()=>window.solflare?.isSolflare?window.solflare:null,url:'https://solflare.com/download'},
+    {id:'backpack',name:'Backpack',get:()=>window.backpack?.solana||window.backpack||null,url:'https://backpack.app/download'},
+  ];
+  const RPC=CONFIG.rpc||'https://api.mainnet-beta.solana.com';
+  const short=a=>a.slice(0,4)+'…'+a.slice(-4);
+  let prov=null, addr='', bal=null, pending=null;
+
+  // nav button
+  document.querySelectorAll('nav .wl-link').forEach(a=>a.insertAdjacentHTML('beforebegin','<button class="wbtn" id="wBtn"><i></i><span>Connect wallet</span></button>'));
+  document.body.insertAdjacentHTML('beforeend',`
+  <div class="wm" id="wModal" aria-hidden="true" role="dialog" aria-label="Connect a wallet"><div class="wm-box">
+    <button class="wm-x" data-close>✕</button>
+    <div class="eyebrow">Solana</div><h3>Connect a wallet</h3>
+    <p class="wm-sub">Your wallet stays yours: connecting only shares your public address. Nothing is ever charged without your signature.</p>
+    <div class="wm-list" id="wList"></div>
+  </div></div>
+  <div class="wm" id="coModal" aria-hidden="true" role="dialog" aria-label="Checkout"><div class="wm-box co">
+    <button class="wm-x" data-close>✕</button>
+    <div class="eyebrow" id="coEye">Checkout</div><h3 id="coTitle"></h3>
+    <div class="co-item"><div class="co-art" id="coArt"></div><div><b id="coName"></b><small id="coMeta"></small></div></div>
+    <dl class="co-sum">
+      <div><dt id="coLine">Price</dt><dd id="coPrice"></dd></div>
+      <div><dt>Network fee</dt><dd>≈ ◎ 0.00001</dd></div>
+      <div id="coRentRow"><dt>NFT account (rent)</dt><dd>≈ ◎ 0.012</dd></div>
+      <div class="tot"><dt>Total</dt><dd id="coTotal"></dd></div>
+    </dl>
+    <div class="co-wallet" id="coWallet"></div>
+    <button class="btn co-pay" id="coPay">Confirm &amp; pay</button>
+    <p class="co-note" id="coNote"></p>
+  </div></div>`);
+  const btn=$('wBtn'), wm=$('wModal'), co=$('coModal');
+  const open=m=>{ m.classList.add('on'); m.setAttribute('aria-hidden','false'); };
+  const close=m=>{ m.classList.remove('on'); m.setAttribute('aria-hidden','true'); };
+  [wm,co].forEach(m=>{ m.onclick=e=>{ if(e.target===m||e.target.hasAttribute('data-close'))close(m); }; });
+  addEventListener('keydown',e=>{ if(e.key==='Escape'){ close(wm); close(co); } });
+
+  function paint(){
+    if(btn){ btn.classList.toggle('on',!!addr); btn.querySelector('span').textContent=addr?`${short(addr)}${bal!=null?' · ◎ '+bal.toFixed(2):''}`:'Connect wallet'; }
+    $('wList').innerHTML=WALLETS.map(w=>{ const has=!!w.get(); return `<button class="wm-w" data-w="${w.id}"><span class="wm-logo ${w.id}">${w.name[0]}</span><b>${w.name}</b><em>${addr&&prov===w.get()?'Connected':has?'Detected':'Install'}</em></button>`; }).join('')
+      +(addr?`<button class="wm-dis" id="wDis">Disconnect ${short(addr)}</button>`:'');
+    if(co.classList.contains('on'))fillCheckout();
+  }
+  async function balance(){
+    try{ const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[addr]})});
+      const j=await r.json(); bal=j.result.value/1e9; }catch(_){ bal=null; }
+    paint();
+  }
+  async function connect(w){
+    const p=w.get(); if(!p){ window.open(w.url,'_blank','noopener'); return; }
+    try{ const res=await p.connect(); prov=p; addr=(res?.publicKey||p.publicKey).toString(); try{localStorage.setItem('ronin-wallet',w.id)}catch(_){}
+      p.on?.('disconnect',()=>{ addr=''; bal=null; paint(); });
+      p.on?.('accountChanged',pk=>{ if(pk){ addr=pk.toString(); balance(); } });
+      close(wm); toast('Wallet connected'); paint(); balance(); if(pending){ const k=pending; pending=null; checkout(k); }
+    }catch(e){ toast('Connection cancelled'); }
+  }
+  wm.addEventListener('click',async e=>{
+    const b=e.target.closest('[data-w]'); if(b)return connect(WALLETS.find(w=>w.id===b.dataset.w));
+    if(e.target.id==='wDis'){ try{ await prov?.disconnect(); }catch(_){} addr=''; bal=null; prov=null; try{localStorage.removeItem('ronin-wallet')}catch(_){} paint(); toast('Wallet disconnected'); }
+  });
+  if(btn)btn.onclick=()=>{ paint(); open(wm); };
+  // reconnect silently if this wallet already trusts the site
+  (async()=>{ let id=null; try{id=localStorage.getItem('ronin-wallet')}catch(_){} const w=WALLETS.find(x=>x.id===id); const p=w&&w.get();
+    if(p){ try{ const r=await p.connect({onlyIfTrusted:true}); prov=p; addr=(r?.publicKey||p.publicKey).toString(); paint(); balance(); }catch(_){} } paint(); })();
+
+  let cur=null;
+  function fillCheckout(){
+    const k=cur, mint=k.kind==='mint', n=mint?null:k.x.n, price=mint?CONFIG.mintPrice:k.x.price, total=price+0.00001+(mint?0.012:0);
+    const live=mint?!!CONFIG.mintUrl:!!CONFIG.marketUrl;
+    $('coEye').textContent=mint?'Mint · random draw':'Buy from a holder';
+    $('coTitle').textContent=mint?'Mint a random RONIN':`Buy ${n.t}`;
+    $('coArt').innerHTML=mint?'<span class="jp">運</span>':`<img src="${img(n)}" alt="" style="object-position:${n.pos||'50% 50%'}">`;
+    $('coArt').style.setProperty('--rc',mint?'#3c6f9e':RCOL[n.r][0]);
+    $('coName').textContent=mint?'Random piece · fate decides':`${n.t} · #${k.x.ed}/${n.e}`;
+    $('coMeta').textContent=mint?`Legendary ${(NFTS.filter(x=>x.r==='Legendary').reduce((a,x)=>a+x.e,0)/TOTAL*100).toFixed(1)}% · ${TOTAL} pieces`:`${n.r} · seller ${k.x.seller}`;
+    $('coLine').textContent=mint?'Mint price':'Listed price';
+    $('coPrice').textContent='◎ '+price; $('coRentRow').hidden=!mint; $('coTotal').textContent='◎ '+total.toFixed(3);
+    const enough=bal==null||bal>=total;
+    $('coWallet').innerHTML=addr?`<span class="dot ok"></span>${short(addr)}<b>${bal!=null?'◎ '+bal.toFixed(3):'balance…'}</b>${enough?'':'<em>Not enough SOL</em>'}`:`<span class="dot"></span>No wallet connected<button class="co-con" id="coCon">Connect</button>`;
+    const pay=$('coPay');
+    pay.disabled=!addr||!live||!enough;
+    pay.textContent=!addr?'Connect a wallet to pay':!live?(mint?'Mint opens soon':'Trading opens after the mint'):!enough?'Not enough SOL':'Confirm & pay';
+    $('coNote').textContent=live?'You’ll sign the purchase in your wallet on the '+(mint?'mint':'marketplace')+' page. The NFT lands in your wallet in the same transaction.'
+      :'Nothing can be charged yet. Connect now and you’ll be ready the moment it opens.';
+    const c=$('coCon'); if(c)c.onclick=()=>{ pending=cur; close(co); paint(); open(wm); };
+  }
+  checkout=k=>{ cur=k; fillCheckout(); open(co); };
+  $('coPay').onclick=()=>{ const u=cur.kind==='mint'?CONFIG.mintUrl:CONFIG.marketUrl; if(u)window.open(u,'_blank','noopener'); };
+})();

@@ -5,5 +5,6 @@ const CONFIG = {
   mintDate: "",      // e.g. "2026-11-08T18:00:00-06:00" shows a countdown on luck.html
   marketUrl: "",     // secondary market (Magic Eden / Tensor collection page)
   subscribeUrl: "",  // form endpoint that accepts a POST with {email} (e.g. https://formspree.io/f/xxxx)
+  rpc: "",          // optional Solana RPC (Helius/QuickNode) for wallet balances; empty = public mainnet RPC
   x: "", telegram: ""
 };
