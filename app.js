@@ -145,12 +145,19 @@ let openShrine=()=>{};
   const box=$('cards'); if(!box)return;
   const limit=+box.dataset.limit||NFTS.length;
   const reveal=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); reveal.unobserve(e.target); } }),{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+  // grouped by rank (draw.html): one row of same-size cards per rarity
+  const group=!!box.dataset.group, slots={};
+  if(group){ box.classList.add('tiers-wrap'); box.classList.remove('cards');
+    ['Legendary','Epic','Rare','Common'].forEach(r=>{ const list=NFTS.filter(n=>n.r===r); if(!list.length)return;
+      const e=list.reduce((a,n)=>a+n.e,0);
+      box.insertAdjacentHTML('beforeend',`<div class="tier" style="--rc:${RCOL[r][0]}"><div class="tier-h"><i></i><b>${r}</b><span>${list.length} card${list.length>1?'s':''} · ${(e/TOTAL*100).toFixed(1)}% of every draw</span></div><div class="cards tier-grid" data-t="${r}"></div></div>`);
+      slots[r]=box.querySelector(`[data-t="${r}"]`); }); }
   NFTS.slice(0,limit).forEach((n,i)=>{
-    const c=document.createElement('div'); c.className='card'+(n.wide?' wide':''); c.dataset.r=n.r;
+    const c=document.createElement('div'); c.className='card'+(n.wide&&!group?' wide':''); c.dataset.r=n.r;
     c.style.setProperty('--d',(i%7*.7)+'s'); c.style.setProperty('--k',(i%4)*.1+'s');
-    c.innerHTML=`<div class="ring"></div><div class="frame"><img src="${img(n)}" alt="${n.t}" loading="lazy" style="object-position:${n.wide?'50% 50%':(n.pos||'50% 50%')}"><div class="holo"></div><div class="sweep"></div><div class="shade"></div><div class="glare"></div></div>${sparks(nSpark[n.r])}
+    c.innerHTML=`<div class="ring"></div><div class="frame"><img src="${img(n)}" alt="${n.t}" loading="lazy" style="object-position:${n.wide&&!group?'50% 50%':(n.pos||'50% 50%')}"><div class="holo"></div><div class="sweep"></div><div class="shade"></div><div class="glare"></div></div>${sparks(nSpark[n.r])}
       <div class="info"><div><small>RONIN #${String(i+1).padStart(3,'0')}${box.dataset.odds?` · ${(n.e/TOTAL*100).toFixed(1)}% chance`:''}</small><b>${n.t}</b></div><span class="rar">${n.r}</span></div>`;
-    tilt(c); c.onclick=()=>openShrine(i); box.appendChild(c); reveal.observe(c);
+    tilt(c); c.onclick=()=>openShrine(i); (group?slots[n.r]:box).appendChild(c); reveal.observe(c);
   });
   const cnt=$('collCount'); if(cnt)cnt.textContent=`${NFTS.length} artworks · ${TOTAL} pieces · Solana`;
   // rarity filter (cards.html)
