@@ -858,3 +858,4 @@ nav .wbtn+.wl-link{margin-left:18px}
 }
 .sel-r{display:none}
 @media (max-width:640px){.sel-r{display:inline;color:var(--ink);font-weight:700}}
+.co-prev{display:block;margin:12px auto 0;border:0;background:none;font:700 13px Archivo;color:#2f5f8e;cursor:pointer;text-decoration:underline;text-underline-offset:3px}

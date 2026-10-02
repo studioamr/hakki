@@ -432,9 +432,9 @@ let openShrine=()=>{};
       }};
     },500);
   }
-  $('fAgain').onclick=()=>{ track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim')); stage.classList.remove('done'); draw(); };
-  $('fDraw').onclick=()=>{ if(live)window.open(CONFIG.mintUrl,'_blank','noopener'); draw(); };
-  $('fMint').onclick=()=>checkout({kind:'mint'});
+  $('fAgain').onclick=()=>checkout({kind:'mint',preview:()=>{ track.querySelectorAll('.rc').forEach(c=>c.classList.remove('win','dim')); stage.classList.remove('done'); draw(); }});
+  $('fDraw').onclick=()=>checkout({kind:'mint',preview:draw});   // every draw goes through the checkout first
+  $('fMint').onclick=()=>checkout({kind:'mint',preview:draw});
 
   /* sky: moon dust, petals and fireflies around the torii */
   const fx=(function(){
@@ -525,6 +525,7 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     <div class="co-wallet" id="coWallet"></div>
     <button class="btn co-pay" id="coPay">Confirm &amp; pay</button>
     <p class="co-note" id="coNote"></p>
+    <button class="co-prev" id="coPrev" hidden>See a sample draw first · free, nothing is minted →</button>
   </div></div>`);
   const btn=$('wBtn'), wm=$('wModal'), co=$('coModal');
   const open=m=>{ m.classList.add('on'); m.setAttribute('aria-hidden','false'); };
@@ -580,7 +581,9 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     $('coNote').textContent=live?'You’ll sign the purchase in your wallet on the '+(mint?'mint':'marketplace')+' page. The NFT lands in your wallet in the same transaction.'
       :'Nothing can be charged yet. Connect now and you’ll be ready the moment it opens.';
     const c=$('coCon'); if(c)c.onclick=()=>{ pending=cur; close(co); paint(); open(wm); };
+    $('coPrev').hidden=!(mint&&!live&&k.preview);
   }
   checkout=k=>{ cur=k; fillCheckout(); open(co); };
   $('coPay').onclick=()=>{ const u=cur.kind==='mint'?CONFIG.mintUrl:CONFIG.marketUrl; if(u)window.open(u,'_blank','noopener'); };
+  $('coPrev').onclick=()=>{ close(co); cur.preview&&cur.preview(); };
 })();
