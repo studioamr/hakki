@@ -275,7 +275,7 @@ let openShrine=()=>{};
       <div class="im"><img src="${img(x.n)}" alt="${x.n.t}" loading="lazy" style="object-position:${x.n.pos||'50% 50%'}"><span class="ex">EXAMPLE</span><span class="rr">${x.n.r}</span></div>
       <div class="bd"><small>${x.n.ch} · #${x.ed}/${x.n.e}</small><b>${x.n.t}</b>
         <div class="row"><span class="pr"><em>◎</em>${x.price}</span><span class="up">${x.up>=0?'+':''}${x.up}% vs mint</span></div>
-        <div class="sel">seller ${x.seller}</div><button>View · Buy</button></div></div>`).join('');
+        <div class="sel"><span class="sel-r">${x.n.r} · </span>seller ${x.seller}</div><button>View · Buy</button></div></div>`).join('');
     $('lstGrid').querySelectorAll('.lst').forEach(el=>{ const go=()=>openTrade(L[+el.dataset.id]); el.onclick=go; el.onkeydown=e=>{if(e.key==='Enter')go();}; });
   }
   $('filters').onclick=e=>{ const b=e.target.closest('button'); if(!b)return;
@@ -307,7 +307,9 @@ let openShrine=()=>{};
           <div><h4>Offers</h4><table><thead><tr><th>Price</th><th>vs listed</th><th>From</th><th>Expires</th></tr></thead><tbody id="trOffers"></tbody></table></div>
         </div>
       </div>
-    </div></div></div>`);
+    </div>
+    <div class="tr-bar"><div><small>Listed</small><b>◎ <span id="trBarP"></span></b></div><button class="btn" id="trBarBuy">Buy now</button></div>
+    </div></div>`);
   const tr=$('trade'); let hist=[], vols=[], range=30;
   const fmt=v=>v>=10?v.toFixed(1):v.toFixed(2);
   const dayLabel=k=>{const d=new Date(); d.setDate(d.getDate()-k); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};
@@ -349,7 +351,7 @@ let openShrine=()=>{};
     tr.style.setProperty('--rc',c1); series(x);
     $('trImg').src=img(n); $('trImg').style.objectPosition=n.pos||'50% 50%';
     $('trCh').textContent=`RONIN #${String(x.i+1).padStart(3,'0')} · ${n.jt}`; $('trT').textContent=n.t; $('trR').textContent=n.r;
-    $('trEd').textContent=`Edition #${x.ed} of ${n.e}`; $('trP').textContent=x.price; $('trSeller').textContent=`Seller ${x.seller}`;
+    $('trEd').textContent=`Edition #${x.ed} of ${n.e}`; $('trP').textContent=x.price; $('trBarP').textContent=x.price; $('trSeller').textContent=`Seller ${x.seller}`;
     const same=L.filter(y=>y.i===x.i), floor=Math.min(...same.map(y=>y.price),x.price*R(.9,.97));
     const last=hist[hist.length-1], d1=(last/hist[hist.length-2]-1)*100, vol7=vols.slice(-7).reduce((a,b)=>a+b,0);
     const rank=[...NFTS].sort((a,b)=>a.e-b.e).indexOf(n)+1, holders=Math.round(n.e*R(.62,.8));
@@ -368,7 +370,7 @@ let openShrine=()=>{};
   const close=()=>{ tr.classList.remove('on'); tr.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
   $('trX').onclick=close; tr.onclick=e=>{ if(e.target===tr)close(); }; addEventListener('keydown',e=>{ if(e.key==='Escape'&&tr.classList.contains('on'))close(); });
   $('trRange').onclick=e=>{ const b=e.target.closest('button'); if(!b)return; range=+b.dataset.d; $('trRange').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); drawChart(); };
-  $('trBuy').onclick=()=>checkout({kind:'listing',x:curX}); $('trOffer').onclick=openMarket;
+  $('trBuy').onclick=()=>checkout({kind:'listing',x:curX}); $('trBarBuy').onclick=()=>checkout({kind:'listing',x:curX}); $('trOffer').onclick=openMarket;
 })();
 
 /* ---------- luck.html: draw your fate ---------- */

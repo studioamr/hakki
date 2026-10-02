@@ -792,3 +792,69 @@ nav .wbtn+.wl-link{margin-left:18px}
 .co-note{margin-top:10px;font-size:12.5px;color:var(--mute);line-height:1.45}
 @media (max-width:900px){nav .wbtn{margin-left:auto;padding:8px 12px;font-size:12px}}
 @media (max-width:560px){nav .wl-link{display:none}}
+
+/* ===== Listings + trade sheet on phones ===== */
+.tr-bar{display:none}
+@media (max-width:900px){
+  .listings{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .market{padding:30px 0 80px}
+  .market .head{margin-bottom:22px}
+  .board{padding:14px 12px;border-radius:14px;box-shadow:4px 4px 0 var(--ink)}
+  .board-top{gap:10px;margin-bottom:12px}
+  .chip-ex{font-size:9px;letter-spacing:.1em;padding:5px 8px;display:inline-block;line-height:1.4}
+  .filters{flex-wrap:nowrap;overflow-x:auto;width:calc(100% + 24px);margin:0 -12px;padding:2px 12px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .filters::-webkit-scrollbar{display:none}
+  .filters button{flex:0 0 auto;padding:9px 14px}
+  /* listings become an app-style list: thumb · info · price */
+  .listings{grid-template-columns:1fr;gap:8px}
+  .lst{display:grid;grid-template-columns:76px minmax(0,1fr);align-items:stretch;border-radius:12px;border-width:2px}
+  .lst:hover{transform:none;box-shadow:none}
+  .lst:active{transform:scale(.985);box-shadow:3px 3px 0 var(--rc)}
+  .lst .im{aspect-ratio:auto;height:100%;min-height:96px;border-right:2px solid var(--ink)}
+  .lst .im img{position:absolute;inset:0;height:100%}
+  .lst .ex{top:5px;left:5px;font-size:7px;padding:3px 5px}
+  .lst .rr{display:none}
+  .lst .bd{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"meta price" "name price" "tags up";align-items:center;column-gap:10px;padding:10px 12px}
+  .lst .bd small{grid-area:meta;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lst .bd b{grid-area:name;font-size:16px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lst .row{display:contents}
+  .lst .pr{grid-area:price;font-size:19px;text-align:right;align-self:end}
+  .lst .up{grid-area:up;text-align:right;font-size:11px;align-self:start}
+  .lst .sel{grid-area:tags;margin-top:4px;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lst button{display:none}
+  .board-foot{flex-direction:column;align-items:stretch;text-align:center;gap:12px}
+  .board-foot .btn{justify-content:center}
+
+  /* trade sheet = full-screen sheet with a sticky buy bar */
+  .trade{padding:0;background:var(--paper)}
+  .tr-box{max-width:none;min-height:100%;border:0;border-radius:0;box-shadow:none;padding:0 14px 96px}
+  .tr-top{position:sticky;top:0;z-index:3;background:var(--paper);margin:0 -14px 12px;padding:12px 14px;border-bottom:2px solid var(--ink)}
+  .tr-top .chip-ex{max-width:72%}
+  .tr-grid{gap:16px}
+  .tr-side{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;align-items:center}
+  .tr-art{max-width:none;box-shadow:3px 3px 0 var(--rc)}
+  .tr-id{margin-top:0}
+  .tr-id h3{font-size:26px}
+  .tr-meta{flex-wrap:wrap;gap:6px}
+  .tr-buy{display:none}
+  .tr-stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  .st{padding:10px 12px}
+  .st b{font-size:19px}
+  .tr-chart{padding:12px 10px 8px}
+  .tr-ch-head b{display:block;margin-bottom:4px}
+  .tr-plot svg{height:190px}
+  .tr-vol{height:40px}
+  .tr-tables>div{padding:12px 10px;overflow:hidden}
+  .tr-tables table{font-size:12.5px}
+  .tr-tables th:nth-child(4),.tr-tables td:nth-child(4){display:none}
+  .tr-tables td:nth-child(3){max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tr-tables td{white-space:nowrap}
+  .tr-bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--paper);border-top:2px solid var(--ink)}
+  .tr-bar small{display:block;font:800 9px Archivo;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+  .tr-bar b{font-weight:900;font-size:24px;letter-spacing:-.03em}
+  .tr-bar .btn{padding:15px 26px;border-radius:12px;font-size:15px}
+}
+.sel-r{display:none}
+@media (max-width:640px){.sel-r{display:inline;color:var(--ink);font-weight:700}}
