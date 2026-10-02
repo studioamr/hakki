@@ -517,11 +517,12 @@ buildSun();
 document.fonts.ready.then(drawSky);
 let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,200);});
 
-/* ---------- wallet + checkout ----------
-   Connecting a wallet happens right here (Phantom, Solflare, Backpack).
-   Paying never happens here as a plain SOL transfer: the mint contract (Candy Machine / launchpad)
-   or the marketplace takes the payment and hands over the NFT in the same transaction.
-   So "Confirm & pay" sends the buyer to CONFIG.mintUrl / CONFIG.marketUrl, and stays off until those exist. */
+/* ---------- wallet · sign in · profile · checkout ----------
+   Wallet  = connect Phantom / Solflare / Backpack to pay (nav button "Wallet").
+   Sign in = holders open their profile (profile.html) by signing a free message with their wallet.
+   Paying never happens here as a plain SOL transfer: the mint contract (Candy Machine / launchpad) or the
+   marketplace takes the payment and hands over the NFT in the same transaction. "Confirm & pay" sends people
+   to CONFIG.mintUrl / CONFIG.marketUrl and stays off until those exist. */
 (function(){
   const WALLETS=[
     {id:'phantom',name:'Phantom',get:()=>window.phantom?.solana||(window.solana?.isPhantom?window.solana:null),url:'https://phantom.app/download'},
@@ -530,24 +531,26 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
   ];
   const RPC=CONFIG.rpc||'https://api.mainnet-beta.solana.com';
   const short=a=>a.slice(0,4)+'…'+a.slice(-4);
-  let prov=null, addr='', bal=null, pending=null;
+  const LS={get:k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch(_){return null}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}},del:k=>{try{localStorage.removeItem(k)}catch(_){}}};
+  let prov=null, addr='', bal=null, wName='', pending=null, afterConnect=null, session=LS.get('ronin-session');
+  const signed=()=>!!(session&&addr&&session.addr===addr);
 
-  // nav button
-  const navWrap=document.querySelector('nav .wrap'); if(navWrap)navWrap.insertAdjacentHTML('beforeend','<button class="wbtn" id="wBtn"><i></i><span>Sign in</span></button>');
+  // nav: "Sign in" (profile) + "Wallet"
+  const navWrap=document.querySelector('nav .wrap');
+  if(navWrap)navWrap.insertAdjacentHTML('beforeend','<a class="si-link" id="siLink" href="profile.html">Sign in</a><button class="wbtn" id="wBtn"><i></i><span>Wallet</span></button>');
   document.body.insertAdjacentHTML('beforeend',`
   <div class="wm" id="wModal" aria-hidden="true" role="dialog" aria-label="Connect a wallet"><div class="wm-box">
     <button class="wm-x" data-close>✕</button>
-    <div class="eyebrow">Solana</div><h3 id="wTitle">Sign in</h3>
-    <p class="wm-sub" id="wSub">Pick your wallet, then sign a free message that proves it's yours. Signing never moves funds or approves a transaction.</p>
+    <div class="eyebrow">Solana</div><h3>Connect a wallet</h3>
+    <p class="wm-sub">Connecting only shares your public address. Nothing is ever charged without your signature.</p>
     <div class="wm-list" id="wList"></div>
   </div></div>
-  <div class="wm" id="pModal" aria-hidden="true" role="dialog" aria-label="Your profile"><div class="wm-box pr">
+  <div class="wm" id="wPanel" aria-hidden="true" role="dialog" aria-label="Your wallet"><div class="wm-box pr">
     <button class="wm-x" data-close>✕</button>
-    <div class="pr-head"><div class="pr-av" id="prAv"></div><div><div class="eyebrow">Signed in with Solana</div><h3 id="prAddr"></h3></div></div>
-    <div class="pr-row"><div><small>Balance</small><b id="prBal">—</b></div><div><small>Network</small><b>Solana</b></div><div><small>Wallet</small><b id="prW"></b></div></div>
-    <div class="pr-own"><small>Your RONINs</small><p id="prOwn">Your pieces will show up here after the mint.</p></div>
-    <div class="pr-act"><a class="btn" href="index.html#luck" data-close>Draw a ronin</a><button class="pr-copy" id="prCopy">Copy address</button></div>
-    <button class="wm-dis" id="prOut">Sign out</button>
+    <div class="pr-head"><div class="pr-av" id="wpAv"></div><div><div class="eyebrow" id="wpName">Wallet</div><h3 id="wpAddr"></h3></div></div>
+    <div class="pr-row"><div><small>Balance</small><b id="wpBal">—</b></div><div><small>Network</small><b>Solana</b></div><div><small>Status</small><b>Connected</b></div></div>
+    <div class="pr-act"><button class="pr-copy" id="wpCopy">Copy address</button><a class="btn" href="profile.html">My profile</a></div>
+    <button class="wm-dis" id="wpOut">Disconnect</button>
   </div></div>
   <div class="wm" id="coModal" aria-hidden="true" role="dialog" aria-label="Checkout"><div class="wm-box co">
     <button class="wm-x" data-close>✕</button>
@@ -564,62 +567,67 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     <p class="co-note" id="coNote"></p>
     <button class="co-prev" id="coPrev" hidden>See a sample draw first · free, nothing is minted →</button>
   </div></div>`);
-  const btn=$('wBtn'), wm=$('wModal'), co=$('coModal'), pm=$('pModal'); let session=null, wName='', wantSign=false;
-  try{ session=JSON.parse(localStorage.getItem('ronin-session')||'null'); }catch(_){}
+  const btn=$('wBtn'), si=$('siLink'), wm=$('wModal'), wp=$('wPanel'), co=$('coModal');
   const open=m=>{ m.classList.add('on'); m.setAttribute('aria-hidden','false'); };
-  const close=m=>{ m.classList.remove('on'); (document.activeElement?.blur(),m.setAttribute('aria-hidden','true')); };
-  [wm,co,pm].forEach(m=>{ m.onclick=e=>{ if(e.target===m||e.target.hasAttribute('data-close'))close(m); }; });
-  addEventListener('keydown',e=>{ if(e.key==='Escape'){ close(wm); close(co); close(pm); } });
+  const close=m=>{ document.activeElement?.blur(); m.classList.remove('on'); m.setAttribute('aria-hidden','true'); };
+  [wm,wp,co].forEach(m=>{ m.onclick=e=>{ if(e.target===m||e.target.closest('[data-close]'))close(m); }; });
+  addEventListener('keydown',e=>{ if(e.key==='Escape')[wm,wp,co].forEach(close); });
+  const hue=a=>parseInt(a.slice(0,6),36)%360;
 
   function paint(){
-    const signed=!!(addr&&session&&session.addr===addr);
-    if(btn){ btn.classList.toggle('on',signed); btn.querySelector('span').textContent=signed?`${short(addr)}${bal!=null?' · ◎ '+bal.toFixed(2):''}`:'Sign in'; }
-    if(signed){ $('prAddr').textContent=short(addr); $('prBal').textContent=bal!=null?'◎ '+bal.toFixed(3):'—'; $('prW').textContent=wName||'Wallet'; $('prAv').style.setProperty('--h',parseInt(addr.slice(0,6),36)%360); }
-    $('wList').innerHTML=WALLETS.map(w=>{ const has=!!w.get(); return `<button class="wm-w" data-w="${w.id}"><span class="wm-logo ${w.id}">${w.name[0]}</span><b>${w.name}</b><em>${addr&&prov===w.get()?'Connected':has?'Detected':'Install'}</em></button>`; }).join('')
-      +(addr?`<button class="wm-dis" id="wDis">Disconnect ${short(addr)}</button>`:'');
+    if(btn){ btn.classList.toggle('on',!!addr); btn.querySelector('span').textContent=addr?`${short(addr)}${bal!=null?' · ◎ '+bal.toFixed(2):''}`:'Wallet'; }
+    if(si){ const prof=session&&LS.get('ronin-profile-'+session.addr); si.textContent=session?(prof?.name||'My profile'):'Sign in'; }
+    $('wList').innerHTML=WALLETS.map(w=>{ const has=!!w.get(); return `<button class="wm-w" data-w="${w.id}"><span class="wm-logo ${w.id}">${w.name[0]}</span><b>${w.name}</b><em>${addr&&prov===w.get()?'Connected':has?'Detected':'Install'}</em></button>`; }).join('');
+    if(addr){ $('wpAddr').textContent=short(addr); $('wpBal').textContent=bal!=null?'◎ '+bal.toFixed(3):'—'; $('wpName').textContent=wName||'Wallet'; $('wpAv').style.setProperty('--h',hue(addr)); }
     if(co.classList.contains('on'))fillCheckout();
+    document.dispatchEvent(new CustomEvent('ronin:wallet'));
   }
   async function balance(){
     try{ const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[addr]})});
-      const j=await r.json(); bal=j.result.value/1e9; }catch(_){ bal=null; }
+      bal=(await r.json()).result.value/1e9; }catch(_){ bal=null; }
     paint();
   }
   async function connect(w){
     const p=w.get(); if(!p){ window.open(w.url,'_blank','noopener'); return; }
-    try{ const res=await p.connect(); prov=p; addr=(res?.publicKey||p.publicKey).toString(); try{localStorage.setItem('ronin-wallet',w.id)}catch(_){}
+    try{ const res=await p.connect(); prov=p; wName=w.name; addr=(res?.publicKey||p.publicKey).toString(); LS.set('ronin-wallet',w.id);
       p.on?.('disconnect',()=>{ addr=''; bal=null; paint(); });
       p.on?.('accountChanged',pk=>{ if(pk){ addr=pk.toString(); balance(); } });
-      wName=w.name; close(wm); paint(); balance();
-      if(wantSign){ wantSign=false; await signIn(p); }
-      else toast('Wallet connected');
+      close(wm); toast(`${w.name} connected`); paint(); balance();
+      if(afterConnect){ const f=afterConnect; afterConnect=null; f(); }
       if(pending){ const k=pending; pending=null; checkout(k); }
-    }catch(e){ toast('Connection cancelled'); }
+    }catch(_){ toast('Connection cancelled'); }
   }
-  wm.addEventListener('click',async e=>{
-    const b=e.target.closest('[data-w]'); if(b)return connect(WALLETS.find(w=>w.id===b.dataset.w));
-    if(e.target.id==='wDis'){ try{ await prov?.disconnect(); }catch(_){} addr=''; bal=null; prov=null; try{localStorage.removeItem('ronin-wallet')}catch(_){} paint(); toast('Wallet disconnected'); }
-  });
-  async function signIn(p){
+  wm.addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(b)connect(WALLETS.find(w=>w.id===b.dataset.w)); });
+  if(btn)btn.onclick=()=>{ paint(); open(addr?wp:wm); };
+  $('wpCopy').onclick=()=>navigator.clipboard?.writeText(addr).then(()=>toast('Address copied'));
+  $('wpOut').onclick=async()=>{ try{ await prov?.disconnect(); }catch(_){} addr=''; bal=null; prov=null; LS.del('ronin-wallet'); close(wp); paint(); toast('Wallet disconnected'); };
+  // reconnect silently if the wallet already trusts the site
+  (async()=>{ const w=WALLETS.find(x=>x.id===LS.get('ronin-wallet')), p=w&&w.get();
+    if(p){ try{ const r=await p.connect({onlyIfTrusted:true}); prov=p; wName=w.name; addr=(r?.publicKey||p.publicKey).toString(); balance(); }catch(_){} } paint(); })();
+
+  /* sign in: a free signature proves the wallet (and the cards in it) are yours */
+  async function signIn(){
+    if(!addr){ afterConnect=signIn; paint(); open(wm); return; }
     const msg=`Sign in to RONIN\n\nWallet: ${addr}\nNonce: ${Math.random().toString(36).slice(2,10)}\nIssued: ${new Date().toISOString()}\n\nThis signature only proves you own this wallet. It costs nothing and approves no transaction.`;
-    try{ const enc=new TextEncoder().encode(msg); const out=await p.signMessage(enc,'utf8'); const sig=out?.signature||out;
-      session={addr,t:Date.now(),sig:btoa(String.fromCharCode(...new Uint8Array(sig))).slice(0,24)};
-      try{localStorage.setItem('ronin-session',JSON.stringify(session))}catch(_){}
+    try{ const out=await prov.signMessage(new TextEncoder().encode(msg),'utf8'); const sig=out?.signature||out;
+      session={addr,t:Date.now(),sig:btoa(String.fromCharCode(...new Uint8Array(sig))).slice(0,24)}; LS.set('ronin-session',session);
       toast('Signed in'); paint();
     }catch(_){ toast('Sign-in cancelled'); }
   }
-  if(btn)btn.onclick=()=>{
-    const signed=!!(addr&&session&&session.addr===addr);
-    if(signed){ paint(); open(pm); return; }
-    if(addr&&prov){ signIn(prov); return; }          // connected but not signed: just sign
-    wantSign=true; $('wTitle').textContent='Sign in'; paint(); open(wm);
-  };
-  $('prCopy').onclick=()=>{ navigator.clipboard?.writeText(addr).then(()=>toast('Address copied')); };
-  $('prOut').onclick=async()=>{ session=null; try{localStorage.removeItem('ronin-session');localStorage.removeItem('ronin-wallet')}catch(_){}
-    try{ await prov?.disconnect(); }catch(_){} addr=''; bal=null; prov=null; close(pm); paint(); toast('Signed out'); };
-  // reconnect silently if this wallet already trusts the site
-  (async()=>{ let id=null; try{id=localStorage.getItem('ronin-wallet')}catch(_){} const w=WALLETS.find(x=>x.id===id); const p=w&&w.get();
-    if(p){ try{ const r=await p.connect({onlyIfTrusted:true}); prov=p; wName=w.name; addr=(r?.publicKey||p.publicKey).toString(); paint(); balance(); }catch(_){} } paint(); })();
+  function signOut(){ session=null; LS.del('ronin-session'); paint(); toast('Signed out'); }
+  window.RONIN_AUTH={signIn,signOut,state:()=>({addr,bal,wName,session,signed:signed()}),profile:a=>LS.get('ronin-profile-'+a)||{},saveProfile:(a,v)=>LS.set('ronin-profile-'+a,v)};
 
+  /* owned cards: once the collection exists (CONFIG.collection + a DAS-capable RPC like Helius) */
+  window.RONIN_OWNED=async a=>{
+    if(!CONFIG.collection||!CONFIG.rpc)return null;            // null = collection not live yet
+    try{ const r=await fetch(CONFIG.rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:'r',method:'getAssetsByOwner',params:{ownerAddress:a,page:1,limit:1000}})});
+      const items=(await r.json()).result?.items||[];
+      return items.filter(x=>(x.grouping||[]).some(g=>g.group_key==='collection'&&g.group_value===CONFIG.collection))
+        .map(x=>({id:x.id,name:x.content?.metadata?.name||'RONIN',n:NFTS.find(n=>(x.content?.metadata?.name||'').includes(n.t))}));
+    }catch(_){ return []; }
+  };
+
+  /* checkout */
   let cur=null;
   function fillCheckout(){
     const k=cur, mint=k.kind==='mint', n=mint?null:k.x.n, price=mint?CONFIG.mintPrice:k.x.price, total=price+0.00001+(mint?0.012:0);
@@ -634,15 +642,55 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     $('coPrice').textContent='◎ '+price; $('coRentRow').hidden=!mint; $('coTotal').textContent='◎ '+total.toFixed(3);
     const enough=bal==null||bal>=total;
     $('coWallet').innerHTML=addr?`<span class="dot ok"></span>${short(addr)}<b>${bal!=null?'◎ '+bal.toFixed(3):'balance…'}</b>${enough?'':'<em>Not enough SOL</em>'}`:`<span class="dot"></span>No wallet connected<button class="co-con" id="coCon">Connect</button>`;
-    const pay=$('coPay');
-    pay.disabled=!addr||!live||!enough;
+    const pay=$('coPay'); pay.disabled=!addr||!live||!enough;
     pay.textContent=!addr?'Connect a wallet to pay':!live?(mint?'Mint opens soon':'Trading opens after the mint'):!enough?'Not enough SOL':'Confirm & pay';
     $('coNote').textContent=live?'You’ll sign the purchase in your wallet on the '+(mint?'mint':'marketplace')+' page. The NFT lands in your wallet in the same transaction.'
       :'Nothing can be charged yet. Connect now and you’ll be ready the moment it opens.';
-    const c=$('coCon'); if(c)c.onclick=()=>{ pending=cur; wantSign=false; $('wTitle').textContent='Connect a wallet'; close(co); paint(); open(wm); };
+    const c=$('coCon'); if(c)c.onclick=()=>{ pending=cur; close(co); paint(); open(wm); };
     $('coPrev').hidden=!(mint&&!live&&k.preview);
   }
   checkout=k=>{ cur=k; fillCheckout(); open(co); };
   $('coPay').onclick=()=>{ const u=cur.kind==='mint'?CONFIG.mintUrl:CONFIG.marketUrl; if(u)window.open(u,'_blank','noopener'); };
   $('coPrev').onclick=()=>{ close(co); cur.preview&&cur.preview(); };
+})();
+
+/* ---------- profile.html ---------- */
+(function(){
+  const root=$('profile'); if(!root)return;
+  const A=window.RONIN_AUTH, short=a=>a.slice(0,4)+'…'+a.slice(-4);
+  const card=(n,i)=>`<div class="card in" data-r="${n.r}" style="--d:${i*.4}s"><div class="ring"></div><div class="frame"><img src="${img(n)}" alt="${n.t}" style="object-position:${n.pos||'50% 50%'}"><div class="holo"></div><div class="sweep"></div><div class="shade"></div><div class="glare"></div></div><div class="info"><div><small>${n.ch}</small><b>${n.t}</b></div><span class="rar">${n.r}</span></div></div>`;
+  async function render(){
+    const st=A.state();
+    if(!st.session){
+      root.innerHTML=`<div class="pf-gate"><div class="pf-k jp">道</div><div class="eyebrow">Holders</div><h1>Sign in to your profile.</h1>
+        <p>Your cards live in your wallet. Sign a free message with it to open your profile: your RONINs, your rank and your activity. Signing never moves funds.</p>
+        <button class="btn pf-go" id="pfGo">${st.addr?'Sign in with '+short(st.addr):'Continue with wallet'}</button>
+        <a class="pf-alt" href="index.html#luck">Don't have a card yet? Draw your first ronin →</a></div>`;
+      $('pfGo').onclick=()=>A.signIn(); return;
+    }
+    const a=st.session.addr, prof=A.profile(a), owned=await window.RONIN_OWNED(a);
+    const list=owned?owned.filter(o=>o.n):[], value=list.reduce((s,o)=>s+o.n.p,0), leg=list.filter(o=>o.n.r==='Legendary').length;
+    const rarest=list.slice().sort((x,y)=>x.n.e-y.n.e)[0];
+    const since=new Date(prof.since||st.session.t).toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    root.innerHTML=`<div class="pf-head">
+        <div class="pf-av" style="--h:${parseInt(a.slice(0,6),36)%360}">${rarest?`<img src="${img(rarest.n)}" alt="">`:''}</div>
+        <div class="pf-id"><div class="eyebrow">RONIN holder · since ${since}</div>
+          <h1 id="pfName" contenteditable="true" spellcheck="false" title="Click to edit">${(prof.name||'Nameless ronin').replace(/</g,'&lt;')}</h1>
+          <div class="pf-addr"><code>${short(a)}</code><button id="pfCopy">Copy</button>${st.addr===a?'<span class="ok">● wallet connected</span>':'<span>wallet not connected</span>'}</div></div>
+        <button class="pf-out" id="pfOut">Sign out</button></div>
+      <div class="pf-stats">
+        <div><small>Cards</small><b>${owned?list.length:'—'}</b></div><div><small>Legendary</small><b>${owned?leg:'—'}</b></div>
+        <div><small>Est. value</small><b>${owned?'◎ '+value.toFixed(1):'—'}</b></div><div><small>Rarest</small><b>${rarest?rarest.n.t:'—'}</b></div></div>
+      <div class="pf-sec"><h2>Your cards</h2>
+        ${owned===null?`<div class="pf-empty"><b>The collection isn't live yet.</b><p>When the mint opens, every RONIN in this wallet shows up here automatically.</p><a class="btn" href="index.html#luck">Draw a ronin</a></div>`
+          :list.length?`<div class="cards pf-cards">${list.map((o,i)=>card(o.n,i)).join('')}</div>`
+          :`<div class="pf-empty"><b>No RONIN in this wallet yet.</b><p>Draw one at random, or buy the exact one you want from a holder.</p><a class="btn" href="index.html#luck">Draw a ronin</a> <a class="btn ghost" href="index.html#listings">Listings</a></div>`}
+      </div>`;
+    const nm=$('pfName'); nm.onblur=()=>{ const v=nm.textContent.trim().slice(0,32)||'Nameless ronin'; A.saveProfile(a,{...prof,name:v,since:prof.since||st.session.t}); toast('Name saved'); };
+    nm.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); nm.blur(); } };
+    $('pfCopy').onclick=()=>navigator.clipboard?.writeText(a).then(()=>toast('Address copied'));
+    $('pfOut').onclick=()=>{ A.signOut(); render(); };
+    root.querySelectorAll('.pf-cards .card').forEach(c=>tilt(c));
+  }
+  document.addEventListener('ronin:wallet',render); render();
 })();
