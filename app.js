@@ -162,7 +162,7 @@ let openShrine=()=>{};
         <button class="sh-mint" id="shMint"><span>Buy from a holder</span><i></i></button>
       </div>
       <p class="rv sh-note" style="--i:8" id="shNote"></p>
-      <a class="rv sh-luck" style="--i:8" href="luck.html">or try your luck · draw a random piece →</a>
+      <a class="rv sh-luck" style="--i:8" href="luck.html">or draw a random ronin →</a>
     </div>
   </div></div>`);
   const sh=$('shrine'); let cur=0, raf=0, parts=[], mode='petals', birds=[], t=0;
