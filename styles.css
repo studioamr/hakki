@@ -1068,11 +1068,11 @@ body.quake .dw{animation:rumble .07s linear 12}
 .tier-h i{width:10px;height:10px;border-radius:50%;background:var(--rc);box-shadow:0 0 12px var(--rc);align-self:center}
 .tier-h b{font-weight:900;font-size:clamp(24px,2.6vw,34px);letter-spacing:-.03em;color:var(--rc)}
 .tier-h span{font-size:13px;color:#8f8a80}
-.dw-coll .tier-grid{grid-template-columns:repeat(6,1fr)!important;gap:14px!important}
-.dw-coll .tier-grid .card{aspect-ratio:3/4.2!important}
-.dw-coll .tier-grid .card .info{left:10px;right:8px;bottom:10px}
-.dw-coll .tier-grid .card .info b{font-size:14px}
-.dw-coll .tier-grid .card .info small{font-size:8.5px}
-.dw-coll .tier-grid .card .rar{display:none}
-@media (max-width:1000px){.dw-coll .tier-grid{grid-template-columns:repeat(4,1fr)!important}}
-@media (max-width:560px){.dw-coll .tier-grid{grid-template-columns:repeat(2,1fr)!important}}
+.tiers-wrap .tier-grid{grid-template-columns:repeat(6,1fr)!important;gap:14px!important}
+.tiers-wrap .tier-grid .card{aspect-ratio:3/4.2!important}
+.tiers-wrap .tier-grid .card .info{left:10px;right:8px;bottom:10px}
+.tiers-wrap .tier-grid .card .info b{font-size:14px}
+.tiers-wrap .tier-grid .card .info small{font-size:8.5px}
+.tiers-wrap .tier-grid .card .rar{display:none}
+@media (max-width:1000px){.tiers-wrap .tier-grid{grid-template-columns:repeat(4,1fr)!important}}
+@media (max-width:560px){.tiers-wrap .tier-grid{grid-template-columns:repeat(2,1fr)!important}}
