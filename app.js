@@ -604,6 +604,36 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
   document.addEventListener('ronin:wallet',render); render();
 })();
 
+/* ---------- the falls: ronin by the pond, subscribe ---------- */
+(function(){
+  const sec=$('subscribe'), bg=$('flBg'), cv=$('flFx'); if(!sec||!cv)return;
+  let c,W,H,parts=[],ripples=[],t=0,vis=false;
+  const size=()=>{ ({c,w:W,h:H}=fit(cv)); }; size(); addEventListener('resize',size);
+  new IntersectionObserver(es=>{ vis=es[0].isIntersecting; },{threshold:0}).observe(sec);
+  // parallax: the scene drifts slower than the page
+  addEventListener('scroll',()=>{ const r=sec.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight)return; bg.style.transform=`translate3d(0,${(r.top*-.12).toFixed(1)}px,0) scale(1.12)`; },{passive:true});
+  const spawn=()=>{ const k=Math.random();
+    if(k<.45)return {k:'mist',x:R(W*.25,W*.85),y:R(H*.35,H*.75),r:R(60,160),vx:R(-.15,.25),vy:R(-.35,-.1),l:0,max:R(.08,.18)};
+    if(k<.75)return {k:'mote',x:R(0,W),y:R(H*.2,H),s:R(1,2.6),vx:R(-.2,.2),vy:R(-.45,-.1),l:0,max:R(.5,.9),w:R(0,6)};
+    return {k:'petal',x:R(-40,W),y:R(-40,H*.3),s:R(5,10),vx:R(.3,1),vy:R(.5,1.2),a:R(0,6),w:R(0,6),l:0,max:.9}; };
+  for(let i=0;i<70;i++){ const p=spawn(); p.l=p.max*Math.random(); parts.push(p); }
+  const loop=()=>{
+    requestAnimationFrame(loop); if(!vis||still)return; t++;
+    c.clearRect(0,0,W,H);
+    if(t%40===0)ripples.push({x:R(W*.35,W*.95),y:R(H*.78,H*.95),r:2,l:1});
+    for(const r of ripples){ r.r+=.6; r.l-=.008; c.strokeStyle=`rgba(255,255,255,${Math.max(0,r.l)*.45})`; c.lineWidth=1.2; c.beginPath(); c.ellipse(r.x,r.y,r.r*2.4,r.r*.55,0,0,6.283); c.stroke(); }
+    ripples=ripples.filter(r=>r.l>0);
+    parts.forEach((p,i)=>{
+      p.l=Math.min(p.max,p.l+.004); p.x+=p.vx; p.y+=p.vy;
+      if(p.k==='mist'){ const g=c.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r); g.addColorStop(0,`rgba(255,255,255,${p.l})`); g.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=g; c.beginPath(); c.arc(p.x,p.y,p.r,0,6.283); c.fill(); if(p.y<H*.1)parts[i]=spawn(); }
+      else if(p.k==='mote'){ p.w+=.04; c.globalAlpha=p.l*(.5+Math.sin(p.w)*.5); c.fillStyle='#fff6d6'; c.shadowColor='#ffe9a8'; c.shadowBlur=10; c.beginPath(); c.arc(p.x+Math.sin(p.w)*3,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; if(p.y<0)parts[i]=spawn(); }
+      else { p.w+=.03; p.a+=.02; c.save(); c.translate(p.x+Math.sin(p.w)*8,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.fillStyle='#ffd3e2'; c.globalAlpha=p.l;
+        c.beginPath(); c.moveTo(-p.s,0); c.quadraticCurveTo(0,-p.s*.75,p.s,0); c.quadraticCurveTo(0,p.s*.75,-p.s,0); c.fill(); c.restore(); if(p.y>H+20)parts[i]=spawn(); }
+    });
+  };
+  loop();
+})();
+
 /* ---------- draw.html: the legendary draw ---------- */
 (function(){
   const pg=$('drawPage'); if(!pg)return;
