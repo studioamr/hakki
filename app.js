@@ -438,7 +438,8 @@ let openShrine=()=>{};
     const size=()=>{ ({c,w:W,h:H}=fit(cv)); };
     size(); addEventListener('resize',size);
     for(let i=0;i<70;i++)parts.push({k:i%3?'m':'p',x:R(0,W),y:R(0,H),s:i%3?R(.8,2.4):R(5,11),vx:R(-.2,.5),vy:i%3?R(-.35,-.05):R(.4,1.1),w:R(0,6),a:R(0,6)});
-    const api={ burst(x,y,n,col){ for(let i=0;i<n;i++){const a=R(0,6.283),v=R(1,7);parts.push({k:'e',x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,l:1,s:R(1,3.2),col});} },
+    const api={ burst(x,y,n,col){ const b=cv.getBoundingClientRect(); x-=b.left; y-=b.top;   // callers pass viewport coordinates
+      for(let i=0;i<n;i++){const a=R(0,6.283),v=R(1,7);parts.push({k:'e',x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,l:1,s:R(1,3.2),col});} },
       rays(col){ rays={col,l:1}; } };
     const loop=()=>{ c.clearRect(0,0,W,H);
       if(rays){ c.save(); c.translate(W/2,H*.48); c.globalCompositeOperation='screen';

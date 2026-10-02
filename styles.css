@@ -737,3 +737,13 @@ body.quake .fate{animation:rumble .07s linear 8}
 .fate.done .reel-win i,.fate.done .reel-win::before,.fate.done .reel-win::after{background:var(--c1);box-shadow:0 0 0 1.5px var(--ink)}
 .reel{overflow:clip}
 .fate{grid-template-columns:minmax(0,1fr)}.f-stage,.reel{min-width:0}
+
+/* ===== Try your luck, as a landing section ===== */
+.luck-sec{background:var(--paper);position:relative}
+.fate.inline{min-height:0;display:block;padding:120px 0 70px;background:radial-gradient(#3c6f9e1f 1.2px,transparent 1.7px) 0 0/12px 12px,var(--paper);overflow:hidden}
+.fate.inline::before{opacity:.12}
+.fate.inline .f-head{position:relative}
+.fate.inline .f-head::before{content:"";position:absolute;left:50%;top:-34px;width:min(230px,44vw);aspect-ratio:1;border-radius:50%;background:#d23a2a;transform:translateX(-50%);z-index:-1;opacity:.92}
+.fate.inline .f-head h2{font-weight:900;font-size:clamp(48px,7vw,104px);letter-spacing:-.055em;line-height:.9;margin-top:10px;color:var(--ink)}
+.fate.inline .f-stage{padding:44px 0 6px}
+.fate.inline .f-panel{margin-top:26px}

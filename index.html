@@ -14,7 +14,7 @@
 
 <nav id="nav"><div class="wrap">
   <a class="logo" href="index.html">RONIN <span class="jp">道</span></a>
-  <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html">Cards</a><a href="luck.html">Try your luck</a><a href="index.html#listings">Listings</a></div>
+  <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html">Cards</a><a href="index.html#luck">Try your luck</a><a href="index.html#listings">Listings</a></div>
   <a class="wl-link" href="#subscribe">Subscribe →</a>
 </div></nav>
 
@@ -49,7 +49,37 @@
       <div class="filters" id="filters"></div>
     </div>
     <div class="listings" id="lstGrid"></div>
-    <div class="board-foot"><span>Rather leave it to fate? A random draw costs one fixed price.</span><a class="btn" href="luck.html">Try your luck →</a></div>
+    <div class="board-foot"><span>Rather leave it to fate? A random draw costs one fixed price.</span><a class="btn" href="#luck">Try your luck ↓</a></div>
+  </div>
+</div></section>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="inkBleed"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="5"/></filter></svg>
+<section class="luck-sec" id="luck"><div class="fate inline" id="fate">
+  <canvas class="f-sky" id="fSky"></canvas>
+  <div class="f-flash" id="fFlash"></div>
+  <div class="f-head">
+    <div class="f-eye jp">運試し</div>
+    <h2>Try your luck.</h2>
+    <p>Every card in RONIN is on the reel. One price, one draw: fate decides which one walks with you.</p>
+  </div>
+  <div class="f-stage">
+    <div class="reel" id="reel">
+      <div class="reel-track" id="reelTrack"></div>
+      <div class="reel-win" aria-hidden="true"><span class="rw-seal jp">運</span><i class="rw-l"></i><i class="rw-r"></i></div>
+    </div>
+    <div class="f-result" id="fResult" aria-live="polite">
+      <span class="f-rr" id="fRr"></span><b id="fRt"></b><span class="f-rj jp" id="fRj"></span><small id="fRo"></small><em id="fRnote"></em>
+      <div class="f-ra"><button class="btn f-again" id="fAgain">Draw again</button><button class="btn f-real" id="fMint">Mint for real</button></div>
+    </div>
+  </div>
+  <div class="f-panel">
+    <div class="f-odds"><div class="f-lbl">Odds per draw</div><div id="fOdds"></div></div>
+    <div class="f-cta">
+      <div class="f-price"><small>Price per draw</small><span>◎</span><b id="fPrice">0.5</b><em>SOL</em></div>
+      <button class="f-draw" id="fDraw"><span>Practice draw</span><i></i></button>
+      <div class="f-mode" id="fMode"></div>
+    </div>
+    <div class="f-facts"><div><small>Supply</small><b id="fSupply"></b></div><div><small>Artworks</small><b id="fArt"></b></div><div><small>Chain</small><b>Solana</b></div></div>
   </div>
 </div></section>
 
