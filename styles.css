@@ -747,3 +747,4 @@ body.quake .fate{animation:rumble .07s linear 8}
 .fate.inline .f-head h2{font-weight:900;font-size:clamp(48px,7vw,104px);letter-spacing:-.055em;line-height:.9;margin-top:10px;color:var(--ink)}
 .fate.inline .f-stage{padding:44px 0 6px}
 .fate.inline .f-panel{margin-top:26px}
+.fate.inline .f-head::before{display:none}

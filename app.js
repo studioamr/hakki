@@ -375,8 +375,8 @@ let openShrine=()=>{};
   const tiers=['Legendary','Epic','Rare','Common'].map(r=>({r,e:NFTS.filter(n=>n.r===r).reduce((a,n)=>a+n.e,0)})).filter(t=>t.e);
   $('fOdds').innerHTML=tiers.map(t=>`<div class="fo" style="--rc:${RCOL[t.r][0]}"><span>${t.r}</span><b>${(t.e/TOTAL*100).toFixed(1)}%</b><i style="width:${t.e/TOTAL*100}%"></i></div>`).join('');
   $('fPrice').textContent=CONFIG.mintPrice; $('fSupply').textContent=TOTAL.toLocaleString('en-US'); $('fArt').textContent=NFTS.length;
-  const live=!!CONFIG.mintUrl; $('fDraw').querySelector('span').textContent=live?`Draw · ◎ ${CONFIG.mintPrice}`:'Practice draw';
-  $('fMode').textContent=live?'Mint is live':'Mint opens soon · practice for free';
+  const live=!!CONFIG.mintUrl; $('fDraw').querySelector('span').textContent=`Draw · ◎ ${CONFIG.mintPrice}`;
+  $('fMode').textContent=live?'Mint is live':'Mint opens soon';
   // countdown when a date is set
   if(CONFIG.mintDate){ const end=new Date(CONFIG.mintDate); const tick=()=>{ const s=Math.max(0,(end-new Date())/1000|0);
     $('fMode').textContent=s?`Mint opens in ${Math.floor(s/86400)}d ${Math.floor(s%86400/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`:'Mint is live'; }; tick(); setInterval(tick,1000); }
@@ -422,7 +422,7 @@ let openShrine=()=>{};
         if(n.r==='Legendary'){ fx.rays(c1); document.body.classList.add('quake'); setTimeout(()=>document.body.classList.remove('quake'),700); }
         $('fRr').textContent=n.r; $('fRt').textContent=n.t; $('fRj').textContent=n.jt;
         $('fRo').textContent=`1 of ${n.e} editions · ${(n.e/TOTAL*100).toFixed(1)}% chance · est. value ◎ ${n.p}`;
-        $('fRnote').textContent=live?'':'This was a practice draw. Nothing was minted.';
+        $('fRnote').textContent=live?'':'Nothing was minted yet: the mint opens soon.';
         res.classList.add('on'); busy=false;
         setTimeout(()=>{ const r=res.getBoundingClientRect(); if(r.bottom>innerHeight)scrollBy({top:r.bottom-innerHeight+24,behavior:'smooth'}); },300);
       }};
