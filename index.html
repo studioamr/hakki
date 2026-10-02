@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>$HAKKI · fall down seven times, get up eight</title>
+<meta name="description" content="七転八起. The coin for everyone who got rugged and stood back up.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,800;0,900;1,800&family=Silkscreen&family=Shippori+Mincho:wght@600;800&family=Old+Standard+TT&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f2f0eb; --paper-2:#e8e5dd; --ink:#0c0c0c; --ink-2:#3a3a3a; --mute:#77736b;
+  --sky:#3f74a3; --sun:#f3c22f; --navy:#1d3687; --grass:#5d7a2e;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::after{content:"";position:fixed;inset:0;background:var(--grain);opacity:.16;pointer-events:none;z-index:50;mix-blend-mode:multiply}
+a{color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+.jp{font-family:"Shippori Mincho",serif}
+.px{font-family:Silkscreen,monospace;letter-spacing:.04em}
+
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:40;padding:18px 0;transition:background .3s}
+nav.solid{background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid #0001}
+nav .wrap{display:flex;align-items:center;gap:28px}
+.logo{font-weight:900;font-size:20px;letter-spacing:-.02em;text-decoration:none;display:flex;align-items:baseline;gap:8px}
+.logo .jp{font-size:15px;color:var(--mute);font-weight:600}
+nav .links{display:flex;gap:22px;margin-left:auto;font-weight:600;font-size:14px}
+nav .links a{text-decoration:none;opacity:.7}
+nav .links a:hover{opacity:1}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border:0;font:800 14px Archivo;letter-spacing:.02em;padding:13px 20px;text-decoration:none;cursor:pointer;text-transform:uppercase;transition:transform .15s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink-2)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+
+/* hero */
+.hero{min-height:100vh;padding-top:120px;padding-bottom:40px;position:relative;display:flex;flex-direction:column}
+.hero .kicker{font-weight:800;font-size:clamp(20px,2.6vw,34px);letter-spacing:-.02em}
+.hero h1{font-weight:900;font-size:clamp(70px,15.5vw,228px);line-height:.86;letter-spacing:-.065em;margin-top:6px}
+.hero .sig{display:flex;justify-content:flex-end;font-weight:900;font-size:clamp(14px,1.4vw,19px);margin-top:4px;letter-spacing:.02em}
+.hero-art{position:relative;flex:1;min-height:340px;margin-top:10px}
+.hero-art canvas{position:absolute;inset:0;width:100%;height:100%}
+.vert{position:absolute;right:0;top:10px;writing-mode:vertical-rl;font-size:clamp(34px,4.4vw,62px);font-weight:800;letter-spacing:.12em;line-height:1}
+.vert small{display:block;font-size:12px;letter-spacing:.3em;font-family:Archivo;font-weight:800;color:var(--mute);margin-top:14px}
+.hero-foot{display:flex;flex-wrap:wrap;align-items:flex-end;gap:24px;justify-content:space-between;position:relative}
+.hero-foot p{max-width:430px;font-size:17px;line-height:1.45;color:var(--ink-2)}
+.ca{display:flex;align-items:stretch;border:2px solid var(--ink);background:var(--paper);max-width:100%}
+.ca span{padding:12px 14px;font:600 13px/1.2 ui-monospace,Menlo,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:min(360px,58vw)}
+.ca span b{font-family:Archivo;font-weight:900;margin-right:8px}
+.ca button{border:0;border-left:2px solid var(--ink);background:var(--ink);color:var(--paper);font:800 12px Archivo;padding:0 14px;cursor:pointer;text-transform:uppercase}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+/* marquee */
+.band{background:var(--ink);color:var(--paper);overflow:hidden;white-space:nowrap;padding:14px 0;font-weight:900;font-size:20px;letter-spacing:.02em;text-transform:uppercase}
+.band div{display:inline-block;animation:mq 38s linear infinite}
+.band i{font-style:normal;margin:0 22px;opacity:.45}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* story */
+section{position:relative}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:38px}
+.eyebrow{font-weight:800;font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute)}
+h2{font-weight:900;font-size:clamp(44px,7vw,104px);line-height:.9;letter-spacing:-.055em;margin-top:10px}
+.story{padding:140px 0 120px}
+.panels{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.panel{border:3px solid var(--ink);background:#fbfaf7;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.panel canvas{width:100%;height:100%;display:block;position:absolute;inset:0}
+.panel .art{position:relative;flex:1;min-height:260px}
+.panel .cap{position:relative;padding:20px 22px 24px;border-top:3px solid var(--ink);background:var(--paper)}
+.panel .num{position:absolute;top:14px;left:16px;z-index:2;display:flex;align-items:baseline;gap:10px}
+.panel .num .jp{font-size:44px;font-weight:800;line-height:1}
+.panel .num b{font-weight:900;font-size:12px;letter-spacing:.2em}
+.panel h3{font:italic 800 clamp(19px,1.7vw,24px)/1.08 Archivo;text-transform:uppercase;letter-spacing:-.01em}
+.panel p{margin-top:10px;font-size:15.5px;line-height:1.5;color:var(--ink-2)}
+.p1{grid-column:span 7}.p2{grid-column:span 5}.p3{grid-column:span 5}.p4{grid-column:span 7}
+.p1 .art,.p4 .art{min-height:330px}
+
+/* sky */
+.sky{position:relative;min-height:118vh;overflow:hidden;color:var(--ink)}
+.sky canvas{position:absolute;inset:0;width:100%;height:100%}
+.sky .in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:16vh 24px 0}
+.sky .peace{font-family:"Old Standard TT",serif;font-size:clamp(46px,6vw,88px);letter-spacing:.02em;line-height:1}
+.sky .mantra{margin-top:7vh;font-size:clamp(18px,2.4vw,34px);line-height:1.45}
+.sky .mantra span{display:block}
+.sun{width:clamp(170px,22vw,280px);margin-top:6vh;animation:spin 60s linear infinite;filter:drop-shadow(0 0 0 #0000)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sky .note{position:absolute;z-index:2;left:28px;bottom:28px;color:var(--paper);font-weight:800;font-size:12px;letter-spacing:.24em;text-transform:uppercase}
+
+/* code */
+.code{padding:140px 0 120px}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);border-top:3px solid var(--ink);border-left:3px solid var(--ink)}
+.rule{border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);padding:24px 22px 28px;min-height:230px;display:flex;flex-direction:column;background:#fbfaf7;transition:background .2s,color .2s}
+.rule:hover{background:var(--ink);color:var(--paper)}
+.rule:hover p{color:#cfcac0}
+.rule .jp{font-size:58px;font-weight:800;line-height:1}
+.rule h4{margin-top:auto;font-weight:900;font-size:21px;letter-spacing:-.02em;line-height:1.05;text-transform:uppercase}
+.rule p{margin-top:8px;font-size:14.5px;line-height:1.45;color:var(--ink-2)}
+.rule:last-child{background:var(--ink);color:var(--paper)}
+.rule:last-child p{color:#cfcac0}
+
+/* numbers */
+.nums{padding:20px 0 140px}
+.stats{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:0;border:3px solid var(--ink)}
+.stat{padding:30px 26px;border-right:3px solid var(--ink)}
+.stat:last-child{border-right:0}
+.stat .k{font-weight:800;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+.stat .v{font-weight:900;font-size:clamp(30px,3.6vw,54px);letter-spacing:-.05em;margin-top:12px;line-height:1}
+.stat .s{margin-top:10px;font-size:14px;color:var(--ink-2)}
+.stat:first-child{background:var(--ink);color:var(--paper)}
+.stat:first-child .k,.stat:first-child .s{color:#bdb8ad}
+
+/* buy */
+.buy{padding:0 0 140px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.step{border-top:3px solid var(--ink);padding-top:18px}
+.step .px{font-size:13px;color:var(--mute)}
+.step h4{font-weight:900;font-size:26px;letter-spacing:-.03em;margin-top:10px;line-height:1}
+.step p{margin-top:10px;font-size:15px;line-height:1.5;color:var(--ink-2)}
+
+/* rise */
+.rise{background:var(--ink);color:var(--paper);padding:130px 0;overflow:hidden}
+.rise .grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.rise h2{color:var(--paper)}
+.rise .lead{margin-top:22px;font-size:18px;line-height:1.5;color:#c9c4ba;max-width:470px}
+.getup{margin-top:34px;background:var(--paper);color:var(--ink);border:0;font:900 clamp(22px,2.4vw,30px) Archivo;letter-spacing:-.02em;text-transform:uppercase;padding:22px 34px;cursor:pointer;transition:transform .12s}
+.getup:active{transform:translateY(4px) scale(.98)}
+.counter{display:flex;align-items:baseline;gap:14px;margin-top:22px;color:#c9c4ba;font-size:15px}
+.counter b{color:var(--paper);font-weight:900;font-size:44px;letter-spacing:-.04em}
+.tally{position:relative;aspect-ratio:1/1;border:3px solid var(--paper);background:var(--paper)}
+.tally canvas{position:absolute;inset:0;width:100%;height:100%}
+.tally .lbl{position:absolute;left:14px;bottom:12px;font-weight:800;font-size:11px;letter-spacing:.22em;color:var(--mute);text-transform:uppercase;z-index:2}
+
+/* footer */
+footer{padding:90px 0 50px}
+footer .big{font-weight:900;font-size:clamp(60px,13vw,200px);letter-spacing:-.065em;line-height:.85}
+footer .row{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-top:40px;padding-top:24px;border-top:3px solid var(--ink)}
+footer .disc{max-width:620px;font-size:13.5px;line-height:1.55;color:var(--mute)}
+footer .soc{display:flex;gap:18px;font-weight:800;font-size:14px;text-transform:uppercase}
+footer .soc a{text-decoration:none}
+footer .soc a.off{opacity:.35;pointer-events:none}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,120px);background:var(--ink);color:var(--paper);padding:12px 18px;font-weight:800;font-size:13px;z-index:60;transition:transform .3s}
+.toast.on{transform:translate(-50%,0)}
+
+@media (max-width:900px){
+  nav .links{display:none}
+  .p1,.p2,.p3,.p4{grid-column:span 12}
+  .rules{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat:nth-child(2){border-right:0}
+  .stat:nth-child(-n+2){border-bottom:3px solid var(--ink)}
+  .steps{grid-template-columns:1fr 1fr;row-gap:34px}
+  .rise .grid{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .wrap{padding-left:16px;padding-right:16px}
+  nav .btn{padding:10px 14px;font-size:12px}
+  .vert{font-size:30px}
+  .rules{grid-template-columns:1fr}
+  .rule{min-height:180px}
+  .steps{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .stat{border-right:0!important;border-bottom:3px solid var(--ink)}
+  .stat:last-child{border-bottom:0}
+}
+@media (prefers-reduced-motion:reduce){.band div,.sun{animation:none}}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="wrap">
+  <a class="logo" href="#top">$HAKKI <span class="jp">八起</span></a>
+  <div class="links"><a href="#story">The Fall</a><a href="#code">The Code</a><a href="#numbers">Numbers</a><a href="#buy">Get up</a></div>
+  <a class="btn js-buy" href="#buy">Buy $HAKKI</a>
+</div></nav>
+
+<header class="hero wrap" id="top">
+  <div class="kicker">fall down seven times</div>
+  <h1>get up eight.</h1>
+  <div class="sig">$HAKKI</div>
+  <div class="hero-art">
+    <canvas id="heroCv"></canvas>
+    <div class="vert jp">七転八起<small>NANA KOROBI YA OKI</small></div>
+  </div>
+  <div class="hero-foot">
+    <p>The coin for everyone who got rugged, bled out on the chart, and stood back up anyway. No master. No roadmap. Only the eighth rising.</p>
+    <div>
+      <div class="ca"><span id="caTxt"><b>CA</b>soon</span><button id="caBtn">Copy</button></div>
+      <div class="actions"><a class="btn js-buy" href="#buy">Get up · buy</a><a class="btn ghost js-chart" href="#numbers">Chart</a></div>
+    </div>
+  </div>
+</header>
+
+<div class="band" aria-hidden="true"><div>
+  FALL DOWN SEVEN <i>/</i> GET UP EIGHT <i>/</i> 七転八起 <i>/</i> $HAKKI <i>/</i> NO MASTER <i>/</i> NO TAX <i>/</i> NO PROMISES <i>/</i> ONLY THE EIGHTH <i>/</i>
+  FALL DOWN SEVEN <i>/</i> GET UP EIGHT <i>/</i> 七転八起 <i>/</i> $HAKKI <i>/</i> NO MASTER <i>/</i> NO TAX <i>/</i> NO PROMISES <i>/</i> ONLY THE EIGHTH <i>/</i>
+</div></div>
+
+<section class="story" id="story"><div class="wrap">
+  <div class="head">
+    <div><div class="eyebrow">The legend · four panels</div><h2>Every one of us<br>got rugged once.</h2></div>
+  </div>
+  <div class="panels">
+    <article class="panel p1">
+      <div class="art"><canvas data-draw="fall"></canvas><div class="num"><span class="jp">転</span><b>I · THE FALL</b></div></div>
+      <div class="cap"><h3>You aped the top. The dev sold, deleted the X, and vanished.</h3>
+        <p>You were left holding a bag with no one behind it. In old Japan there was a word for a samurai whose lord abandoned him: <b>rōnin</b>, the masterless one. Crypto is full of them.</p></div>
+    </article>
+    <article class="panel p2">
+      <div class="art"><canvas data-draw="ground"></canvas><div class="num"><span class="jp">血</span><b>II · THE GROUND</b></div></div>
+      <div class="cap"><h3>−98%. Face on the floor.</h3>
+        <p>The chart said it was over. Most people stay down here. This is where the story usually ends.</p></div>
+    </article>
+    <article class="panel p3">
+      <div class="art"><canvas data-draw="rise"></canvas><div class="num"><span class="jp">起</span><b>III · THE RISING</b></div></div>
+      <div class="cap"><h3>A rōnin doesn't need a master.</h3>
+        <p>He needs a promise he keeps to himself. You got up. Not because the chart turned. Because you did.</p></div>
+    </article>
+    <article class="panel p4">
+      <div class="art"><canvas data-draw="eight"></canvas><div class="num"><span class="jp">八</span><b>IV · THE EIGHTH</b></div></div>
+      <div class="cap"><h3>Seven falls. Eight risings. The math only works one way.</h3>
+        <p>$HAKKI is the eighth one. A coin with no lord, built by and for the masterless: everyone who fell and refused to stay there.</p></div>
+    </article>
+  </div>
+</div></section>
+
+<section class="sky" id="peace">
+  <canvas id="skyCv"></canvas>
+  <div class="in">
+    <div class="peace">PEACE</div>
+    <div class="mantra px"><span>BE CONSISTENT</span><span>BE DISCIPLINED</span><span>BE OBSESSED</span><span>WITH</span><span>GETTING UP</span></div>
+    <svg class="sun" id="sun" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+  </div>
+  <div class="note">The ronin doesn't check the chart at 3am.</div>
+</section>
+
+<section class="code" id="code"><div class="wrap">
+  <div class="head"><div><div class="eyebrow">The code of the rōnin · 八</div><h2>Eight rules.<br>No exceptions.</h2></div></div>
+  <div class="rules">
+    <div class="rule"><span class="jp">一</span><h4>No master</h4><p>No dev wallet. No team allocation. Nobody to rug you this time.</p></div>
+    <div class="rule"><span class="jp">二</span><h4>No tax</h4><p>0% buy, 0% sell. The path costs nothing but nerve.</p></div>
+    <div class="rule"><span class="jp">三</span><h4>The bridge is burned</h4><p>Liquidity burned. There's no going back, for anyone.</p></div>
+    <div class="rule"><span class="jp">四</span><h4>The sword is sheathed</h4><p>Mint and freeze authority renounced. No new supply. Ever.</p></div>
+    <div class="rule"><span class="jp">五</span><h4>Don't sell the bottom</h4><p>Paper hands fall once. A rōnin falls and stays in the fight.</p></div>
+    <div class="rule"><span class="jp">六</span><h4>No moon promises</h4><p>We promise one thing: to get up. Everything else is noise.</p></div>
+    <div class="rule"><span class="jp">七</span><h4>Count the falls</h4><p>Then forget them. A scar is a receipt, not a reason.</p></div>
+    <div class="rule"><span class="jp">八</span><h4>Get up</h4><p>The only rule that matters. The other seven exist to protect it.</p></div>
+  </div>
+</div></section>
+
+<section class="nums" id="numbers"><div class="wrap">
+  <div class="head"><div><div class="eyebrow">Tokenomics</div><h2>Built on eights.</h2></div></div>
+  <div class="stats">
+    <div class="stat"><div class="k">Total supply</div><div class="v" id="supply">888,888,888</div><div class="s">One supply, all of it in the pool.</div></div>
+    <div class="stat"><div class="k">Tax</div><div class="v">0 / 0</div><div class="s">Buy / sell</div></div>
+    <div class="stat"><div class="k">Liquidity</div><div class="v">Burned</div><div class="s">No exit for the dev</div></div>
+    <div class="stat"><div class="k">Chain</div><div class="v" id="chain">Solana</div><div class="s">Mint renounced</div></div>
+  </div>
+</div></section>
+
+<section class="buy" id="buy"><div class="wrap">
+  <div class="head"><div><div class="eyebrow">How to get up</div><h2>Four steps.<br>One stance.</h2></div></div>
+  <div class="steps">
+    <div class="step"><div class="px">STEP 01</div><h4>Get a wallet</h4><p>Download Phantom or Solflare. Write the seed phrase on paper. Tell no one.</p></div>
+    <div class="step"><div class="px">STEP 02</div><h4>Load SOL</h4><p>Buy SOL on any exchange and send it to your wallet.</p></div>
+    <div class="step"><div class="px">STEP 03</div><h4>Find the dojo</h4><p>Open Jupiter or Raydium. Only use the contract address on this site.</p></div>
+    <div class="step"><div class="px">STEP 04</div><h4>Swap & stand</h4><p>Paste the CA, swap SOL for $HAKKI. Then do the hardest part: hold your ground.</p></div>
+  </div>
+</div></section>
+
+<section class="rise" id="rise"><div class="wrap grid">
+  <div>
+    <div class="eyebrow" style="color:#8f8a80">The ritual</div>
+    <h2>Fell today?<br>Get up.</h2>
+    <p class="lead">Every press is one more brush stroke. Five make 正, the way Japan has counted for centuries. Count yours, then go back to work.</p>
+    <button class="getup" id="getup">I got up ↑</button>
+    <div class="counter"><b id="count">0</b><span>times you got up</span></div>
+  </div>
+  <div class="tally"><canvas id="tallyCv"></canvas><div class="lbl">Your risings · 正</div></div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="big">get up eight.</div>
+  <div class="row">
+    <p class="disc">$HAKKI is a memecoin made for fun, with no intrinsic value and no expectation of financial return. There is no team, no roadmap and no promise of anything. Crypto is volatile and you can lose everything you put in. Don't spend what you can't afford to lose. Only trust the contract address published on this site.</p>
+    <div class="soc"><a id="sX" href="#">X</a><a id="sTg" href="#">Telegram</a><a id="sDex" href="#">Dexscreener</a></div>
+  </div>
+</div></footer>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+/* ===== CONFIG: fill this in on launch day ===== */
+const CONFIG = {
+  ca: "",            // contract address
+  chain: "Solana",
+  buyUrl: "",        // e.g. https://jup.ag/swap/SOL-<CA>
+  chartUrl: "",      // dexscreener link
+  x: "", telegram: ""
+};
+</script>
+<script>
+/* ---------- utils ---------- */
+const rng = s => () => (s = (s + 0x6D2B79F5) | 0, s = Math.imul(s ^ s >>> 15, 1 | s), s ^= s + Math.imul(s ^ s >>> 7, 61 | s), ((s ^ s >>> 14) >>> 0) / 4294967296);
+function noise1(seed){ const r=rng(seed), v=Array.from({length:512},r); return x=>{const i=Math.floor(x),f=x-i,t=f*f*(3-2*f);return v[i&511]*(1-t)+v[(i+1)&511]*t;}; }
+function noise2(seed){
+  const r=rng(seed), p=Array.from({length:256},r);
+  const h=(x,y)=>p[(x*57+y*131)&255 ^ ((y*13)&255)]??p[(x+y)&255];
+  return (x,y)=>{const xi=Math.floor(x),yi=Math.floor(y),fx=x-xi,fy=y-yi,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+    const a=h(xi,yi),b=h(xi+1,yi),c=h(xi,yi+1),d=h(xi+1,yi+1);return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
+}
+function fit(cv){ const r=cv.getBoundingClientRect(), d=Math.min(2,devicePixelRatio||1); cv.width=Math.max(1,r.width*d); cv.height=Math.max(1,r.height*d); const c=cv.getContext('2d'); c.setTransform(d,0,0,d,0,0); return {c,w:r.width,h:r.height}; }
+const INK='#0c0c0c';
+
+/* resample a polyline to ~step px spacing */
+function resample(pts,step=1.6){
+  const out=[pts[0]];
+  for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i],L=Math.hypot(x1-x0,y1-y0),n=Math.max(1,Math.round(L/step));
+    for(let k=1;k<=n;k++)out.push([x0+(x1-x0)*k/n,y0+(y1-y0)*k/n]);}
+  return out;
+}
+
+/* sumi-e brush: returns draw(upToFraction) for incremental animation */
+function brush(c,pts,{w=20,dry=.55,seed=1,taper=t=>Math.min(1,t/.06)*(1-Math.pow(t,2.4)*.75),alpha=.9}={}){
+  pts=resample(pts); const N=pts.length, r=rng(seed);
+  const nb=Math.max(14,Math.round(w*1.3));
+  const br=Array.from({length:nb},(_,i)=>({u:(i/(nb-1))*2-1+(r()-.5)*.08,lw:.7+r()*1.6,n:noise1(seed*31+i),ink:.55+r()*.45,o:r()*100}));
+  const norms=pts.map((p,i)=>{const a=pts[Math.max(0,i-2)],b=pts[Math.min(N-1,i+2)];const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;return [-dy/L,dx/L];});
+  let done=0;
+  return f=>{
+    const to=Math.min(N-1,Math.floor(f*(N-1))); if(to<=done)return;
+    c.save(); c.strokeStyle=INK; c.lineCap='round'; c.globalAlpha=alpha;
+    for(const b of br){
+      c.beginPath(); c.lineWidth=b.lw; let pen=false;
+      for(let i=Math.max(0,done-1);i<=to;i++){
+        const t=i/(N-1), ww=w*taper(t)/2, [nx,ny]=norms[i];
+        const edge=Math.abs(b.u);
+        const thr=t*dry*1.25+edge*edge*.35-(b.ink-.5)*.4;
+        const on=b.n(i*.045+b.o)>thr;
+        const x=pts[i][0]+nx*b.u*ww, y=pts[i][1]+ny*b.u*ww;
+        if(on&&pen)c.lineTo(x,y); else {c.moveTo(x,y);}
+        pen=on;
+      }
+      c.stroke();
+    }
+    c.restore(); done=to;
+  };
+}
+function animate(fn,ms,cb){const t0=performance.now();const step=t=>{const f=Math.min(1,(t-t0)/ms);fn(1-Math.pow(1-f,2.2));if(f<1)requestAnimationFrame(step);else cb&&cb();};requestAnimationFrame(step);}
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const run=(fn,ms,cb)=>reduced?(fn(1),cb&&cb()):animate(fn,ms,cb);
+
+/* hatched cast shadow (like pen-and-ink manga shadows) */
+function hatch(c,x,y,len,h,{seed=3,skew=.35,alpha=.75,gap=2.3}={}){
+  const r=rng(seed), n=noise1(seed);
+  c.save(); c.strokeStyle=INK; c.lineCap='round';
+  for(let yy=0;yy<h;yy+=gap){
+    const t=yy/h, prof=Math.sin(Math.PI*Math.min(1,t*1.15))**.6;
+    const L=len*prof*(.75+n(yy*.05)*.45), x0=x+yy*skew+(r()-.5)*8;
+    let cx=x0; c.lineWidth=.55+r()*.7;
+    while(cx<x0+L){const seg=6+r()*38, a=alpha*(1-(cx-x0)/(L+1))**.7;
+      c.globalAlpha=a; c.beginPath(); c.moveTo(cx,y+yy+(r()-.5)*.8); c.lineTo(Math.min(cx+seg,x0+L),y+yy+(r()-.5)*1.2); c.stroke();
+      cx+=seg+(r()<.2?r()*10:r()*2);}
+  }
+  c.restore();
+}
+/* ink splatter */
+function splat(c,x,y,s,seed=7){
+  const r=rng(seed); c.save(); c.fillStyle=INK;
+  for(let i=0;i<70;i++){const a=r()*6.283,d=Math.pow(r(),1.6)*s*.55,rr=s*(.05+r()*.13)*(1-d/s);
+    c.beginPath(); c.ellipse(x+Math.cos(a)*d,y+Math.sin(a)*d*.6,rr*1.2,rr*.8,a,0,6.283); c.fill();}
+  for(let i=0;i<46;i++){const a=r()*6.283,d=s*(.5+r()*1.1),rr=1+r()*s*.035,sx=x+Math.cos(a)*d,sy=y+Math.sin(a)*d*.62;
+    c.beginPath(); c.arc(sx,sy,rr,0,6.283); c.fill();
+    if(r()<.4){c.lineWidth=rr*.6;c.strokeStyle=INK;c.beginPath();c.moveTo(sx,sy);c.lineTo(x+Math.cos(a)*d*.72,y+Math.sin(a)*d*.62*.72);c.stroke();}}
+  c.restore();
+}
+function enso(cx,cy,R,seed=2,start=-1.9,sweep=5.75){
+  const r=rng(seed),n=noise1(seed),pts=[];
+  for(let i=0;i<=180;i++){const t=i/180,a=start+sweep*t,rr=R*(1+(n(t*6)-.5)*.06+t*.035);pts.push([cx+Math.cos(a)*rr,cy+Math.sin(a)*rr]);}
+  return pts;
+}
+
+/* ---------- hero ---------- */
+function drawHero(){
+  const cv=document.getElementById('heroCv'); const {c,w,h}=fit(cv); c.clearRect(0,0,w,h);
+  const R=Math.min(h*.40,w*.21), cx=Math.min(w*.3,R*1.6+20), cy=h*.47;
+  hatch(c,cx-R*.2,cy+R*.62,Math.min(w*.62,R*4.6),R*.5,{seed:11,skew:.9,alpha:.8});
+  const b=brush(c,enso(cx,cy,R,4),{w:R*.27,dry:.6,seed:9});
+  run(b,1700,()=>{ if(w<600)return;
+    // the katana: a single long, thin dry stroke cutting across
+    const k=brush(c,[[cx+R*1.25,cy+R*.95],[cx+R*2.4,cy+R*.15],[Math.min(w-90,cx+R*3.8),cy-R*.55]],{w:7,dry:.35,seed:21,taper:t=>Math.min(1,t/.02)*(1-t*.85)});
+    run(k,420);
+  });
+}
+
+/* ---------- story panels ---------- */
+const painters={
+  fall(c,w,h){
+    // a pump, then the rug: drawn like a cut
+    const p=[[w*.06,h*.78],[w*.16,h*.66],[w*.22,h*.7],[w*.32,h*.48],[w*.38,h*.53],[w*.48,h*.3],[w*.53,h*.36],[w*.6,h*.18],[w*.64,h*.22],[w*.67,h*.17],[w*.72,h*.86],[w*.94,h*.9]];
+    hatch(c,w*.66,h*.82,w*.3,h*.12,{seed:5,skew:.2,alpha:.55});
+    run(brush(c,p,{w:13,dry:.42,seed:3,taper:t=>Math.min(1,t/.03)*(1-t*.5)}),1500);
+  },
+  ground(c,w,h){
+    hatch(c,w*.02,h*.6,w*.95,h*.3,{seed:8,skew:.1,alpha:.5,gap:2.6});
+    splat(c,w*.48,h*.6,Math.min(w,h)*.34,4);
+  },
+  rise(c,w,h){
+    hatch(c,w*.5,h*.86,w*.46,h*.08,{seed:14,skew:.6,alpha:.6});
+    run(brush(c,[[w*.44,h*.88],[w*.47,h*.66],[w*.5,h*.46],[w*.55,h*.3],[w*.62,h*.2]],{w:Math.min(40,w*.085),dry:.75,seed:17,alpha:.85}),1300);
+  },
+  eight(c,w,h){
+    const R=Math.min(h*.36,w*.2);
+    hatch(c,w*.5-R*.2,h*.5+R*.75,w*.42,R*.38,{seed:22,skew:.7,alpha:.6});
+    const cx=w*.5,cy=h*.47;
+    run(brush(c,enso(cx,cy,R,12,-2.2,5.6),{w:R*.22,dry:.6,seed:13}),1500,()=>{
+      // 八 in two strokes
+      run(brush(c,[[cx-R*.12,cy-R*.42],[cx-R*.2,cy-R*.05],[cx-R*.42,cy+R*.38]],{w:R*.13,dry:.3,seed:31}),380,()=>
+        run(brush(c,[[cx+R*.1,cy-R*.4],[cx+R*.2,cy-R*.02],[cx+R*.48,cy+R*.36]],{w:R*.15,dry:.3,seed:37}),380));
+    });
+  }
+};
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const cv=e.target;io.unobserve(cv);const {c,w,h}=fit(cv);painters[cv.dataset.draw](c,w,h);}),{threshold:.35});
+document.querySelectorAll('canvas[data-draw]').forEach(cv=>io.observe(cv));
+
+/* ---------- halftone sky ---------- */
+function drawSky(){
+  const cv=document.getElementById('skyCv'); const {c,w,h}=fit(cv);
+  c.fillStyle='#efe9dc'; c.fillRect(0,0,w,h);
+  const n=noise2(5), cell=w<600?5:6.5;
+  const fbm=(x,y)=>{let v=0,a=.55,f=1;for(let o=0;o<5;o++){v+=a*n(x*f,y*f);a*=.5;f*=2.03;}return v;};
+  const hill=x=>h*.8-Math.sin(x/w*2.6+.4)*h*.05-(x/w)*h*.04;
+  for(let y=0;y<h;y+=cell)for(let x=0;x<w;x+=cell){
+    const off=(y/cell)%2?cell/2:0, X=x+off;
+    if(y>hill(X))continue;
+    let cl=fbm(X/260,y/170)+ (y/h)*.18 - .25;
+    const e=Math.max(0,Math.min(1,(cl-.43)/.05));   // crisp cloud edge: 0 = sky, 1 = cloud
+    if(e<1){ c.fillStyle='#3c6f9e'; c.beginPath(); c.arc(X,y,cell*.64*(1-e*.7),0,6.283); c.fill(); }
+    else { const sh=Math.max(0,Math.min(1,(.62-cl)*2.2)); // shading inside the cloud, darker toward the base
+      if(sh>.05){ c.fillStyle='#7d97ad'; c.beginPath(); c.arc(X,y,cell*.42*Math.sqrt(sh),0,6.283); c.fill(); } }
+  }
+  // grass hill with ink edge
+  c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=4)c.lineTo(x,hill(x)); c.lineTo(w,h); c.closePath();
+  c.fillStyle='#55722a'; c.fill();
+  const r=rng(9); c.strokeStyle='#2f4514'; c.lineWidth=1;
+  for(let i=0;i<w*h*.0035;i++){const x=r()*w,y=hill(x)+r()*(h-hill(x));c.globalAlpha=.25+r()*.5;c.beginPath();c.moveTo(x,y);c.lineTo(x+(r()-.5)*3,y-3-r()*6);c.stroke();}
+  c.globalAlpha=1; c.fillStyle='#8aa548';
+  for(let i=0;i<w*h*.002;i++){const x=r()*w,y=hill(x)+r()*(h-hill(x))*.7;c.globalAlpha=.3+r()*.4;c.fillRect(x,y,1.2,2.4+r()*3);}
+  c.globalAlpha=1; c.strokeStyle=INK; c.lineWidth=2.2; c.beginPath(); for(let x=0;x<=w;x+=4)(x?c.lineTo:c.moveTo).call(c,x,hill(x)+Math.sin(x*.21)*1.2); c.stroke();
+}
+function buildSun(){
+  const s=document.getElementById('sun'), r=rng(3); let d='';
+  for(let k=0;k<16;k++){
+    const a=k/16*Math.PI*2, L=78+(k%2?0:12)+r()*6, base=44, sp=.13, wig=(k%2?1:-1)*8;
+    const P=(rad,ang)=>[Math.cos(ang)*rad,Math.sin(ang)*rad];
+    const [x1,y1]=P(base,a-sp),[x2,y2]=P(base,a+sp),[tx,ty]=P(L,a);
+    const [m1x,m1y]=P((base+L)/2,a-sp*.3+wig/100),[m2x,m2y]=P((base+L)/2,a+sp*.3+wig/100);
+    d+=`M${x1.toFixed(1)},${y1.toFixed(1)} Q${(m1x+wig*Math.cos(a+1.57)).toFixed(1)},${(m1y+wig*Math.sin(a+1.57)).toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} Q${(m2x+wig*Math.cos(a+1.57)).toFixed(1)},${(m2y+wig*Math.sin(a+1.57)).toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}Z `;
+  }
+  let sp=''; for(let i=0;i<=200;i++){const t=i/200,a=t*Math.PI*2*2.6,rr=2+t*32;sp+=(i?'L':'M')+(Math.cos(a)*rr).toFixed(1)+','+(Math.sin(a)*rr).toFixed(1);}
+  s.innerHTML=`<path d="${d}" fill="#f3c22f" stroke="#1d3687" stroke-width="3" stroke-linejoin="round"/>
+    <circle r="46" fill="#1d3687"/><circle r="41" fill="#f3c22f"/>
+    <path d="${sp}" fill="none" stroke="#1d3687" stroke-width="6.5" stroke-linecap="round"/>`;
+}
+
+/* ---------- tally (正 counting) ---------- */
+const ZHENG=[ // 5 strokes of 正 in a unit box
+  [[.18,.1],[.82,.1]], [[.5,.1],[.5,.88]], [[.5,.48],[.8,.48]], [[.26,.42],[.26,.88]], [[.08,.9],[.92,.9]]
+];
+let count=0; try{count=+localStorage.getItem('hakki-rise')||0}catch(e){}
+function tallyCtx(){return fit(document.getElementById('tallyCv'));}
+let T;
+function cellOf(i,w){const cols=4,s=w/cols;const g=Math.floor(i/5)%16;return {x:(g%cols)*s,y:Math.floor(g/cols)*s,s};}
+function strokeAt(i,anim){
+  const {c,w}=T, {x,y,s}=cellOf(i,w), k=i%5, [[ax,ay],[bx,by]]=ZHENG[k], pad=s*.12, S=s-pad*2;
+  const b=brush(c,[[x+pad+ax*S,y+pad+ay*S],[x+pad+(ax+bx)/2*S+(Math.random()-.5)*2,y+pad+(ay+by)/2*S],[x+pad+bx*S,y+pad+by*S]],{w:S*.1,dry:.35,seed:i*7+3});
+  anim?run(b,260):b(1);
+}
+function drawTally(){
+  T=tallyCtx(); T.c.clearRect(0,0,T.w,T.h);
+  const shown=count%80, from=count-shown;
+  for(let i=from;i<count;i++)strokeAt(i,false);
+  document.getElementById('count').textContent=count;
+}
+document.getElementById('getup').onclick=()=>{
+  if(count>0&&count%80===0){T.c.clearRect(0,0,T.w,T.h);}
+  strokeAt(count,true); count++; document.getElementById('count').textContent=count;
+  try{localStorage.setItem('hakki-rise',count)}catch(e){}
+};
+
+/* ---------- config wiring ---------- */
+const toast=t=>{const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),1600);};
+(function(){
+  const ca=document.getElementById('caTxt');
+  ca.innerHTML='<b>CA</b>'+(CONFIG.ca||'soon. Only trust this site.');
+  document.getElementById('caBtn').onclick=()=>{ if(!CONFIG.ca)return toast('The blade isn’t drawn yet');
+    navigator.clipboard.writeText(CONFIG.ca).then(()=>toast('CA copied')).catch(()=>toast(CONFIG.ca)); };
+  document.getElementById('chain').textContent=CONFIG.chain;
+  if(CONFIG.buyUrl)document.querySelectorAll('.js-buy').forEach(a=>{a.href=CONFIG.buyUrl;a.target='_blank';a.rel='noopener'});
+  if(CONFIG.chartUrl)document.querySelectorAll('.js-chart').forEach(a=>{a.href=CONFIG.chartUrl;a.target='_blank';a.rel='noopener'});
+  [['sX',CONFIG.x],['sTg',CONFIG.telegram],['sDex',CONFIG.chartUrl]].forEach(([id,u])=>{const a=document.getElementById(id);if(u){a.href=u;a.target='_blank';a.rel='noopener'}else a.classList.add('off');});
+  const nav=document.getElementById('nav'); addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true});
+})();
+
+/* ---------- boot ---------- */
+buildSun();
+document.fonts.ready.then(()=>{drawHero();drawSky();drawTally();});
+let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{drawSky();drawTally();reducedHero();},200);});
+function reducedHero(){ // redraw hero instantly at the new size
+  const cv=document.getElementById('heroCv'); const {c,w,h}=fit(cv);
+  const R=Math.min(h*.40,w*.21), cx=Math.min(w*.3,R*1.6+20), cy=h*.47;
+  hatch(c,cx-R*.2,cy+R*.62,Math.min(w*.62,R*4.6),R*.5,{seed:11,skew:.9,alpha:.8});
+  brush(c,enso(cx,cy,R,4),{w:R*.27,dry:.6,seed:9})(1);
+  if(w>=600)brush(c,[[cx+R*1.25,cy+R*.95],[cx+R*2.4,cy+R*.15],[Math.min(w-90,cx+R*3.8),cy-R*.55]],{w:7,dry:.35,seed:21,taper:t=>Math.min(1,t/.02)*(1-t*.85)})(1);
+}
+</script>
+</body>
+</html>
