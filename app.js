@@ -56,15 +56,15 @@ const RONIN_NFTS=[
   {f:'summit',t:'The Summit',jt:'頂',r:'Legendary',e:28,p:4.8,fx:'snow',bg:'above-clouds',d:'The top of the mountain, the wind, and no one to tell. He climbed it for himself.'},
   {f:'winter-wind',t:'Winter Wind',jt:'冬の風',r:'Common',e:200,p:0.6,fx:'snow',bg:'stillness',d:'Sun on the snow, flowers pushing through. Winter never wins for good.'},
 ];
-/* the night world: seven demons, one per deadly sin. Every fall of the ronin had one of these names. */
+/* the night world: seven shadow specters, one per deadly sin. Every fall of the ronin had one of these names. */
 const ONI_NFTS=[
-  {f:'oni-pride',t:'Pride',jt:'傲慢',r:'Legendary',e:30,p:5,wide:1,wpos:'50% 24%',fx:'clouds',bg:'oni-castle',d:'He stands on the highest roof and looks down on everyone. He has never once looked up.'},
-  {f:'oni-wrath',t:'Wrath',jt:'憤怒',r:'Legendary',e:33,p:4.5,fx:'embers',bg:'oni-hellgate',d:'Every insult he ever heard, still burning. The fire keeps him warm and burns everything he touches.'},
-  {f:'oni-lust',t:'Lust',jt:'色欲',r:'Epic',e:100,p:1.8,fx:'petals',bg:'oni-lake',d:'She waits on the bridge with a smile and a fan. Whoever crosses toward her never reaches the other side.'},
-  {f:'oni-greed',t:'Greed',jt:'強欲',r:'Epic',e:100,p:1.7,fx:'dust',bg:'oni-hellgate',d:'A mountain of gold and he is still counting. Enough is a word he never learned.'},
-  {f:'oni-envy',t:'Envy',jt:'嫉妬',r:'Rare',e:150,p:1,fx:'dust',bg:'oni-lake',d:'Every mask on his wall is a face he wanted instead of his own.'},
-  {f:'oni-gluttony',t:'Gluttony',jt:'暴食',r:'Rare',e:150,p:0.9,fx:'embers',bg:'oni-hellgate',d:'The feast never ends and he is never full. The hunger is the only thing he really eats.'},
-  {f:'oni-sloth',t:'Sloth',jt:'怠惰',r:'Common',e:200,p:0.5,fx:'clouds',bg:'oni-castle',d:'He will start tomorrow. He has been saying it for a thousand years.'},
+  {f:'spec-pride',t:'Pride',jt:'傲慢',r:'Legendary',e:30,p:5,wide:1,wpos:'50% 24%',fx:'clouds',bg:'oni-castle',d:'A shadow with a cracked crown on the highest roof. It looks down on everyone and has never once looked up.'},
+  {f:'spec-wrath',t:'Wrath',jt:'憤怒',r:'Legendary',e:33,p:4.5,fx:'embers',bg:'oni-hellgate',d:'Smoke that never stops smouldering. Every insult it ever heard is still burning at its edges.'},
+  {f:'spec-lust',t:'Lust',jt:'色欲',r:'Epic',e:100,p:1.8,fx:'petals',bg:'oni-lake',d:'A shadow waits on the bridge behind a fan. Whoever crosses toward it never reaches the other side.'},
+  {f:'spec-greed',t:'Greed',jt:'強欲',r:'Epic',e:100,p:1.7,fx:'dust',bg:'oni-hellgate',d:'Long fingers of smoke over a pile of gold, still counting. Enough is a word it never learned.'},
+  {f:'spec-envy',t:'Envy',jt:'嫉妬',r:'Rare',e:150,p:1,fx:'dust',bg:'oni-lake',d:'It has no face of its own, only the masks of everyone it wanted to be.'},
+  {f:'spec-gluttony',t:'Gluttony',jt:'暴食',r:'Rare',e:150,p:0.9,fx:'embers',bg:'oni-hellgate',d:'The feast never ends and the shadow never fills. The hunger is the only thing it really eats.'},
+  {f:'spec-sloth',t:'Sloth',jt:'怠惰',r:'Common',e:200,p:0.5,fx:'clouds',bg:'oni-castle',d:'It will start tomorrow. It has been saying so for a thousand years, melting slowly off the roof.'},
 ];
 const NFTS=ONI?ONI_NFTS:RONIN_NFTS;
 NFTS.forEach((n,i)=>n.ch=ROMAN(i+1));
@@ -132,19 +132,20 @@ function drawSky(){
   for(let i=0;i<w*h*.002;i++){const x=r()*w,y=hill(x)+r()*(h-hill(x))*.7;c.globalAlpha=.3+r()*.4;c.fillRect(x,y,1.2,2.4+r()*3);}
   c.globalAlpha=1; c.strokeStyle=SKY.line; c.lineWidth=2.2; c.beginPath(); for(let x=0;x<=w;x+=4)(x?c.lineTo:c.moveTo).call(c,x,hill(x)+Math.sin(x*.21)*1.2); c.stroke();
 }
-function moonMarkup(){
-  const r=rng(7); let d='';
-  for(let k=0;k<7;k++){
-    const a=k/7*Math.PI*2-Math.PI/2, L=84+r()*6, base=46, sp=.2, wig=(k%2?1:-1)*10;
-    const P=(rad,ang)=>[Math.cos(ang)*rad,Math.sin(ang)*rad];
-    const [x1,y1]=P(base,a-sp),[x2,y2]=P(base,a+sp),[tx,ty]=P(L,a+.12);
-    const [m1x,m1y]=P((base+L)/2,a-sp*.4),[m2x,m2y]=P((base+L)/2,a+sp*.6);
-    d+=`M${x1.toFixed(1)},${y1.toFixed(1)} Q${(m1x+wig*Math.cos(a+1.57)).toFixed(1)},${(m1y+wig*Math.sin(a+1.57)).toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} Q${(m2x-wig*Math.cos(a+1.57)).toFixed(1)},${(m2y-wig*Math.sin(a+1.57)).toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}Z `;
-  }
-  let sp=''; for(let i=0;i<=200;i++){const t=i/200,a=-t*Math.PI*2*2.6,rr=2+t*32;sp+=(i?'L':'M')+(Math.cos(a)*rr).toFixed(1)+','+(Math.sin(a)*rr).toFixed(1);}
-  return `<path d="${d}" fill="#c4152c" stroke="#05050a" stroke-width="3" stroke-linejoin="round"/>
-    <circle r="47" fill="#05050a"/><circle r="42" fill="#efe6cf"/>
-    <path d="${sp}" fill="none" stroke="#c4152c" stroke-width="6.5" stroke-linecap="round"/>`;
+function moonMarkup(){   // a real full moon: pale disc, soft maria, a few craters, no rays
+  const r=rng(11); let cr='';
+  for(let k=0;k<14;k++){ const a=r()*6.283, d=Math.sqrt(r())*50, x=Math.cos(a)*d, y=Math.sin(a)*d, rr=2+r()*(k<4?7:3.5);
+    cr+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rr.toFixed(1)}" fill="#8f8a7c" opacity=".38"/><circle cx="${(x-rr*.25).toFixed(1)}" cy="${(y-rr*.25).toFixed(1)}" r="${(rr*.7).toFixed(1)}" fill="#f6f1e3" opacity=".35"/>`; }
+  return `<defs><radialGradient id="moonG" cx="38%" cy="34%" r="75%"><stop offset="0" stop-color="#fffbf1"/><stop offset=".55" stop-color="#ebe4d1"/><stop offset="1" stop-color="#b8b19f"/></radialGradient>
+    <clipPath id="moonC"><circle r="62"/></clipPath></defs>
+    <circle r="62" fill="url(#moonG)"/>
+    <g clip-path="url(#moonC)" fill="#9c9686" opacity=".42">
+      <path d="M-34,-30 C-20,-42 2,-36 6,-22 C10,-8 -6,-2 -18,-6 C-30,-10 -44,-18 -34,-30Z"/>
+      <path d="M8,-6 C22,-14 38,-6 36,8 C34,22 18,26 8,18 C0,12 -2,2 8,-6Z"/>
+      <path d="M-26,10 C-16,6 -6,14 -10,26 C-14,36 -30,36 -36,26 C-40,18 -34,12 -26,10Z"/>
+      <path d="M18,30 C26,28 32,36 28,44 C24,50 14,48 12,40 C10,34 12,32 18,30Z"/></g>
+    <g clip-path="url(#moonC)">${cr}</g>
+    <circle r="62" fill="none" stroke="#05050a" stroke-width="2.5" opacity=".55"/>`;
 }
 function sunMarkup(){ if(ONI)return moonMarkup();
   const r=rng(3); let d='';
@@ -724,7 +725,7 @@ function capSVG(cap){
 // prices are a proposal in USD; change them here
 const ONI_MERCH=[   // the night line: black, bone and blood
   {id:'oni-cap',n:'Oni Cap',cat:'Headwear',p:35,d:'Unstructured black cap, 鬼 embroidered in blood red.',c:['#111015','#c4152c']},
-  {id:'oni-tee',n:'Seven Sins Tee',cat:'Apparel',p:40,d:'Heavyweight black cotton, the blood moon on the chest.',c:['#111015']},
+  {id:'oni-tee',n:'Seven Sins Tee',cat:'Apparel',p:40,d:'Heavyweight black cotton, a real full moon crossed by smoke.',c:['#111015']},
   {id:'oni-hoodie',n:'鬼 Hoodie',cat:'Apparel',p:80,d:'Heavy black fleece, red brush kanji on the chest.',c:['#111015']},
 ];
 const DAY_MERCH=[   // v = colorways: [hex, name, image]; products without v show their colors as static dots
@@ -778,7 +779,7 @@ const MERCH=ONI?ONI_MERCH:DAY_MERCH;
     parts.forEach((p,i)=>{
       p.l=Math.min(p.max,p.l+.004); p.x+=p.vx; p.y+=p.vy;
       if(p.k==='mist'){ const g=c.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r); g.addColorStop(0,`rgba(255,255,255,${p.l})`); g.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=g; c.beginPath(); c.arc(p.x,p.y,p.r,0,6.283); c.fill(); if(p.y<H*.1)parts[i]=spawn(); }
-      else if(p.k==='mote'){ p.w+=.04; c.globalAlpha=p.l*(.5+Math.sin(p.w)*.5); c.fillStyle=ONI?'#ff8a4c':'#fff6d6'; c.shadowColor=ONI?'#ff3d1f':'#ffe9a8'; c.shadowBlur=10; c.beginPath(); c.arc(p.x+Math.sin(p.w)*3,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; if(p.y<0)parts[i]=spawn(); }
+      else if(p.k==='mote'){ p.w+=.04; c.globalAlpha=p.l*(.5+Math.sin(p.w)*.5); c.fillStyle=ONI?'#dfe6ff':'#fff6d6'; c.shadowColor=ONI?'#8fa6ff':'#ffe9a8'; c.shadowBlur=10; c.beginPath(); c.arc(p.x+Math.sin(p.w)*3,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; if(p.y<0)parts[i]=spawn(); }
       else { p.w+=.03; p.a+=.02; c.save(); c.translate(p.x+Math.sin(p.w)*8,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.fillStyle=ONI?'#d4182f':'#ffd3e2'; c.globalAlpha=p.l;
         c.beginPath(); c.moveTo(-p.s,0); c.quadraticCurveTo(0,-p.s*.75,p.s,0); c.quadraticCurveTo(0,p.s*.75,-p.s,0); c.fill(); c.restore(); if(p.y>H+20)parts[i]=spawn(); }
     });

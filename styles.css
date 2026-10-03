@@ -1492,3 +1492,6 @@ html[data-world=oni] .pf-gate .pf-k{color:#c4152c}
 html[data-world=oni] .pf-out{background:#1a1726;color:var(--ink)}
 html[data-world=oni] .pf-empty{background:#12101cdd;border-color:#efe6cf44}
 html[data-world=oni] .pf-alt{color:#ff8a96}
+/* the night sky has a real moon: no spin, a cold halo */
+html[data-world=oni] .sun{animation:none;filter:drop-shadow(0 0 26px #fffbf088) drop-shadow(0 0 90px #c9d4ff44)}
+html[data-world=oni] .mote{background:#e3e9ff;box-shadow:0 0 10px 2px #9fb3ff99}

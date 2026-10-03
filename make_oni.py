@@ -35,7 +35,7 @@ INDEX = [
     ('<h2>Wear the path.</h2>', '<h2>Wear the sin.</h2>'),
     ("Spot a RONIN piece in the street: that's another ronin.", "Spot an ONI piece at night: that's another demon."),
     ('img/escenas/falls.webp" alt="A ronin meditating by a pond, facing a legendary waterfall"',
-     'img/escenas/oni-gathering.webp" alt="The seven demons gathered under a blood moon"'),
+     'img/escenas/spec-gathering.webp" alt="The seven shadow specters gathered under the full moon"'),
     ('<div class="eyebrow jp">静寂 · stillness</div>', '<div class="eyebrow jp">百鬼夜行 · night parade</div>'),
     ('<h2>Sit with the path.</h2>', '<h2>Join the night parade.</h2>'),
     ("Before the mint opens, the ronin waits by the falls. Leave your email and we'll call you once, when it's time.",

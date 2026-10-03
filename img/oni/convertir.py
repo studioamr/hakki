@@ -4,7 +4,7 @@ Scenes are the wide ones (oni-castle, oni-hellgate, oni-lake, oni-gathering); me
 import glob, os
 from PIL import Image
 R = os.path.dirname(os.path.abspath(__file__)); IMG = os.path.dirname(R)
-SCENES = {"oni-castle", "oni-hellgate", "oni-lake", "oni-gathering"}
+SCENES = {"oni-castle", "oni-hellgate", "oni-lake", "oni-gathering", "spec-gathering"}
 MERCH = {"oni-cap", "oni-tee", "oni-hoodie"}
 for f in sorted(glob.glob(os.path.join(R, "raw", "*.png"))):
     n = os.path.splitext(os.path.basename(f))[0]
