@@ -453,7 +453,7 @@ let openShrine=()=>{};
   // the saying, letter by letter
   const typeIn=(el,txt,ms)=>new Promise(r=>{ let i=0; const step=()=>{ el.textContent=txt.slice(0,++i); i<txt.length?setTimeout(step,ms):r(); }; step(); });
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  let skipped=false;
+  let skipped=false, speaking=false;
   async function land(){
     if(box.classList.contains('land'))return;
     const sun=$('inSun'), target=$('sun'); box.classList.add('land');
@@ -464,13 +464,27 @@ let openShrine=()=>{};
     const f0=performance.now(); const fl=()=>{ fade=Math.min(1,(performance.now()-f0)/900); if(fade<1)requestAnimationFrame(fl); }; fl();
     await sleep(1500); cancelAnimationFrame(raf); done();
   }
-  const skip=()=>{ skipped=true; land(); };
-  $('inSkip').onclick=skip; box.addEventListener('click',e=>{ if(e.target.id!=='inSkip')skip(); });
+  const skip=()=>{ skipped=true; try{speechSynthesis.cancel()}catch(_){} land(); };
+  // sound: the saying spoken in Japanese, with English subtitles
+  const LINES=[{ja:'主なき道。',en:'No master.'},{ja:'ただ、道のみ。',en:'Only the path.'}];
+  const sub=$('inSub');
+  function speak(){
+    if(!('speechSynthesis' in window)){ toast('Your browser can\u2019t play the voice'); return; }
+    speechSynthesis.cancel(); speaking=true; $('inSound').classList.add('on'); $('inSound').setAttribute('aria-pressed','true');
+    const voice=speechSynthesis.getVoices().find(v=>/^ja/i.test(v.lang));
+    setTimeout(()=>LINES.forEach((l,i)=>{ const u=new SpeechSynthesisUtterance(l.ja); u.lang='ja-JP'; if(voice)u.voice=voice; u.rate=.72; u.pitch=.85;
+      if(i===0){ sub.textContent=l.en; sub.classList.add('on'); }   // subtitles follow the lines (onstart is unreliable in Chrome)
+      u.onend=()=>{ if(LINES[i+1]){ sub.textContent=LINES[i+1].en; } if(i===LINES.length-1){ speaking=false; setTimeout(()=>{ sub.classList.remove('on'); if(!skipped&&!box.classList.contains('land'))land(); },900); } };
+      speechSynthesis.speak(u); }),80);   // Chrome drops utterances queued in the same tick as cancel()
+  }
+  try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices(); }catch(_){}
+  $('inSound').onclick=e=>{ e.stopPropagation(); speak(); };
+  $('inSkip').onclick=skip; box.addEventListener('click',e=>{ if(e.target.closest('#inSound'))return; if(e.target.id!=='inSkip')skip(); });
   (async()=>{
     await sleep(900); if(skipped)return;
     await typeIn($('inJp'),'主なき道',140); if(skipped)return;
     await sleep(250); await typeIn($('inEn'),'No master. Only the path.',42); if(skipped)return;
-    await sleep(1100); if(!skipped)land();
+    await sleep(1100); while(speaking&&!skipped)await sleep(200); if(!skipped)land();
   })();
 })();
 
@@ -716,7 +730,6 @@ const MERCH=[
   const grid=$('shopGrid'); if(!grid)return;
   const cats=['All',...new Set(MERCH.map(m=>m.cat))];
   $('shopF').innerHTML=cats.map((c,i)=>`<button class="${i?'':'on'}" data-c="${c}">${c}</button>`).join('');
-  $('kitPrice').textContent='$'+(MERCH[0].p+25);
   const render=c=>{ grid.innerHTML=MERCH.filter(m=>c==='All'||m.cat===c).map((m,i)=>`<article class="prod" style="--k:${i*.07}s">
       <div class="prod-img"><img src="img/merch/${m.id}.webp" alt="${m.n}" loading="lazy"><span class="pill">Soon</span></div>
       <div class="prod-b"><small>${m.cat}</small><h4>${m.n}</h4><p>${m.d}</p>

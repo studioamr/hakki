@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,800;0,900;1,800&family=Silkscreen&family=Shippori+Mincho:wght@600;800&family=Old+Standard+TT&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=1790993701">
+<link rel="stylesheet" href="styles.css?v=1790993973">
 </head>
 <body class="intro-on">
 
@@ -24,6 +24,8 @@
   <canvas class="in-sky" id="inSky"></canvas>
   <svg class="in-sun" id="inSun" viewBox="-100 -100 200 200"></svg>
   <div class="in-say"><div class="in-jp jp" id="inJp"></div><div class="in-en" id="inEn"></div></div>
+  <button class="in-sound" id="inSound" aria-pressed="false"><i></i><span>Play with sound</span></button>
+  <div class="in-sub" id="inSub" aria-live="polite"></div>
   <button class="in-skip" id="inSkip">Skip ›</button>
 </div>
 <nav id="nav"><div class="wrap">
@@ -80,11 +82,6 @@
   <div class="head"><div><div class="eyebrow">Merch</div><h2>Wear the path.</h2></div>
     <p class="lead">Caps, tees, hoodies and more, in ink and paper. Spot a RONIN piece in the street: that's another ronin.</p></div>
   <div class="shop-bar"><div class="shop-f" id="shopF"></div><span class="shop-note">Pre-orders open with the mint</span></div>
-  <div class="kitx">
-    <div class="kitx-img"><img src="img/merch/cap.webp" alt="RONIN cap"><i class="kitx-card"></i></div>
-    <div class="kitx-copy"><span class="pill">Bundle</span><h3>The Ronin Kit</h3><p>A cap and a physical RONIN card, packed separately in one ink-printed box, with the enamel 八 pin.</p>
-      <div class="kitx-buy"><b id="kitPrice"></b><a class="btn" href="#subscribe">Notify me ↓</a></div></div>
-  </div>
   <div class="shop-grid" id="shopGrid"></div>
 </div></section>
 
@@ -113,7 +110,7 @@
   </div>
 </div></footer>
 
-<script src="config.js?v=1790993701"></script>
-<script src="app.js?v=1790993701"></script>
+<script src="config.js?v=1790993973"></script>
+<script src="app.js?v=1790993973"></script>
 </body>
 </html>

@@ -1357,3 +1357,12 @@ body.intro-on{overflow:hidden}
   .chip-ex{display:block;max-width:100%}
   .lst{flex-basis:84%}
 }
+.in-sound{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);z-index:3;display:inline-flex;align-items:center;gap:10px;border:1.5px solid #ffffff66;background:#ffffff14;color:#f2f0eb;font:800 13px Archivo;letter-spacing:.06em;padding:11px 18px;border-radius:999px;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s}
+.in-sound:hover{background:#ffffff26}
+.in-sound i{width:18px;height:14px;background:linear-gradient(#f2f0eb,#f2f0eb) 0 50%/3px 6px no-repeat,linear-gradient(#f2f0eb,#f2f0eb) 5px 50%/3px 10px no-repeat,linear-gradient(#f2f0eb,#f2f0eb) 10px 50%/3px 14px no-repeat,linear-gradient(#f2f0eb,#f2f0eb) 15px 50%/3px 8px no-repeat}
+.in-sound.on i{animation:eq .6s ease-in-out infinite alternate}
+@keyframes eq{to{background-size:3px 12px,3px 4px,3px 8px,3px 14px}}
+.in-sound.on span::after{content:" · playing"}
+.in-sub{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);z-index:3;max-width:90vw;padding:8px 16px;border-radius:8px;background:#000000b3;color:#fff;font:600 clamp(16px,2.2vw,22px) Archivo;letter-spacing:.02em;opacity:0;transition:opacity .35s}
+.in-sub.on{opacity:1}
+.intro.land .in-sound,.intro.land .in-sub{opacity:0}
