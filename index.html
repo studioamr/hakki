@@ -16,10 +16,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,800;0,900;1,800&family=Silkscreen&family=Shippori+Mincho:wght@600;800&family=Old+Standard+TT&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=1790986751">
+<link rel="stylesheet" href="styles.css?v=1790993701">
 </head>
-<body>
+<body class="intro-on">
 
+<div class="intro" id="intro" aria-hidden="true">
+  <canvas class="in-sky" id="inSky"></canvas>
+  <svg class="in-sun" id="inSun" viewBox="-100 -100 200 200"></svg>
+  <div class="in-say"><div class="in-jp jp" id="inJp"></div><div class="in-en" id="inEn"></div></div>
+  <button class="in-skip" id="inSkip">Skip ›</button>
+</div>
 <nav id="nav"><div class="wrap">
   <a class="logo" href="index.html">RONIN <span class="jp">道</span></a>
   <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html">Cards</a><a href="draw.html">Draw</a><a href="index.html#listings">Listings</a><a href="coin.html">$HAKKI</a></div>
@@ -70,33 +76,16 @@
   <a class="tz-deck" href="draw.html" aria-label="Go to the draw"><i></i><i></i><i></i><i></i></a>
 </div></section>
 
-<section class="mx" id="merch"><div class="wrap">
-  <div class="head"><div><div class="eyebrow">Merch · the Ronin Kit</div><h2>Wear the path.</h2></div>
-    <p class="lead">A RONIN cap and a physical RONIN card, packed separately in one ink-printed box. Spot another cap in the street: that's another ronin.</p></div>
-  <div class="mx-shop">
-    <div class="mx-stage" id="mxStage">
-      <div class="mx-glow"></div>
-      <div class="mx-cap" id="mxCap"></div>
-      <div class="mx-shadow"></div>
-      <span class="mx-tag jp" id="mxTag">墨</span>
-    </div>
-    <div class="mx-info">
-      <small class="mx-kicker">RONIN Kit · drops with the mint</small>
-      <h3>The Ronin Cap <span id="mxName">· Sumi</span></h3>
-      <p class="mx-desc" id="mxDesc">Ink black, embroidered 墨 on the front, RONIN on the back strap.</p>
-      <div class="mx-sw" id="mxSw"></div>
-      <div class="mx-box">
-        <div class="mx-box-h">In the box</div>
-        <div class="mx-items">
-          <div><i class="mi micap"></i><b>Cap</b><small>your color</small></div>
-          <div><i class="mi card"></i><b>Card</b><small>printed, sleeved</small></div>
-          <div><i class="mi scroll jp">道</i><b>Scroll</b><small>the code</small></div>
-          <div><i class="mi pin jp">八</i><b>Pin</b><small>enamel</small></div>
-        </div>
-      </div>
-      <div class="mx-buy"><div><small>Price</small><b>Soon</b></div><a class="btn" href="#subscribe">Notify me ↓</a></div>
-    </div>
+<section class="shop" id="merch"><div class="wrap">
+  <div class="head"><div><div class="eyebrow">Merch</div><h2>Wear the path.</h2></div>
+    <p class="lead">Caps, tees, hoodies and more, in ink and paper. Spot a RONIN piece in the street: that's another ronin.</p></div>
+  <div class="shop-bar"><div class="shop-f" id="shopF"></div><span class="shop-note">Pre-orders open with the mint</span></div>
+  <div class="kitx">
+    <div class="kitx-img"><img src="img/merch/cap.webp" alt="RONIN cap"><i class="kitx-card"></i></div>
+    <div class="kitx-copy"><span class="pill">Bundle</span><h3>The Ronin Kit</h3><p>A cap and a physical RONIN card, packed separately in one ink-printed box, with the enamel 八 pin.</p>
+      <div class="kitx-buy"><b id="kitPrice"></b><a class="btn" href="#subscribe">Notify me ↓</a></div></div>
   </div>
+  <div class="shop-grid" id="shopGrid"></div>
 </div></section>
 
 <section class="falls" id="subscribe">
@@ -124,7 +113,7 @@
   </div>
 </div></footer>
 
-<script src="config.js?v=1790986751"></script>
-<script src="app.js?v=1790986751"></script>
+<script src="config.js?v=1790993701"></script>
+<script src="app.js?v=1790993701"></script>
 </body>
 </html>

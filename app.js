@@ -312,6 +312,10 @@ let openShrine=()=>{};
         <div class="row"><span class="pr"><em>◎</em>${x.price}</span><span class="up">${x.up>=0?'+':''}${x.up}% vs mint</span></div>
         <div class="sel"><span class="sel-r">${x.n.r} · </span>seller ${x.seller}</div><button>View · Buy</button></div></div>`).join('');
     $('lstGrid').querySelectorAll('.lst').forEach(el=>{ const go=()=>openTrade(L[+el.dataset.id]); el.onclick=go; el.onkeydown=e=>{if(e.key==='Enter')go();}; });
+    // phone carousel: pagination dots follow the swipe
+    let dots=$('lstDots'); if(!dots){ $('lstGrid').insertAdjacentHTML('afterend','<div class="lst-dots" id="lstDots"></div>'); dots=$('lstDots'); }
+    dots.innerHTML=rows.map((_,k)=>`<i class="${k?'':'on'}"></i>`).join('');
+    $('lstGrid').onscroll=()=>{ const g=$('lstGrid'), c=g.firstElementChild; if(!c)return; const k=Math.round(g.scrollLeft/(c.offsetWidth+12)); dots.querySelectorAll('i').forEach((d,j)=>d.classList.toggle('on',j===k)); };
   }
   $('filters').onclick=e=>{ const b=e.target.closest('button'); if(!b)return;
     if(b.dataset.s){ sort=sort==='price-asc'?'price-desc':'price-asc'; b.textContent=sort==='price-asc'?'Price ↑':'Price ↓'; }
@@ -426,6 +430,48 @@ let openShrine=()=>{};
   if(sky&&!still)for(let k=0;k<16;k++){const m=document.createElement('i');m.className='mote';
     m.style.cssText=`left:${Math.random()*100}%;bottom:${8+Math.random()*14}%;--t:${9+Math.random()*9}s;--d:${-Math.random()*14}s;--dx:${(Math.random()-.5)*160}px;transform:scale(${.5+Math.random()})`;
     sky.appendChild(m);}
+})();
+
+/* ---------- intro: the sun in space, a saying, then it lands in the sky ---------- */
+(function(){
+  const box=$('intro'); if(!box)return;
+  let seen=false; try{seen=sessionStorage.getItem('ronin-intro')==='1'}catch(_){}
+  const done=()=>{ box.remove(); document.body.classList.remove('intro-on'); try{sessionStorage.setItem('ronin-intro','1')}catch(_){} };
+  if(seen||still){ done(); return; }
+  $('inSun').innerHTML=sunMarkup();
+  // stars + sakura petals drifting through space
+  const cv=$('inSky'); let {c,w:W,h:H}=fit(cv); const stars=Array.from({length:220},()=>({x:R(0,W),y:R(0,H),s:R(.4,1.8),p:R(0,6),z:R(.2,1)}));
+  const petals=Array.from({length:40},()=>({x:R(0,W),y:R(-H,0),s:R(5,11),vx:R(.2,.9),vy:R(.5,1.3),a:R(0,6),w:R(0,6)}));
+  let t=0, raf, fade=0;
+  const loop=()=>{ t+=.016; c.clearRect(0,0,W,H);
+    for(const s of stars){ s.x-=s.z*.15; if(s.x<0)s.x=W; c.globalAlpha=(.3+.7*Math.abs(Math.sin(t*1.4+s.p)))*(1-fade); c.fillStyle='#fff'; c.beginPath(); c.arc(s.x,s.y,s.s,0,6.283); c.fill(); }
+    if(t>1.1)for(const p of petals){ p.w+=.03; p.x+=p.vx+Math.sin(p.w)*.5; p.y+=p.vy; p.a+=.02; if(p.y>H+20){p.y=-20;p.x=R(0,W);}
+      c.save(); c.translate(p.x,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.globalAlpha=.85*Math.min(1,(t-1.1)); c.fillStyle='#ffc6d9';
+      c.beginPath(); c.moveTo(-p.s,0); c.quadraticCurveTo(0,-p.s*.75,p.s,0); c.quadraticCurveTo(0,p.s*.75,-p.s,0); c.fill(); c.restore(); }
+    c.globalAlpha=1; raf=requestAnimationFrame(loop); };
+  loop();
+  // the saying, letter by letter
+  const typeIn=(el,txt,ms)=>new Promise(r=>{ let i=0; const step=()=>{ el.textContent=txt.slice(0,++i); i<txt.length?setTimeout(step,ms):r(); }; step(); });
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  let skipped=false;
+  async function land(){
+    if(box.classList.contains('land'))return;
+    const sun=$('inSun'), target=$('sun'); box.classList.add('land');
+    // move the space sun onto the hero sun, while space turns into the sky
+    const a=sun.getBoundingClientRect(), b=target?target.getBoundingClientRect():{left:innerWidth/2-90,top:innerHeight*.6,width:180,height:180};
+    const dx=(b.left+b.width/2)-(a.left+a.width/2), dy=(b.top+b.height/2)-(a.top+a.height/2), k=b.width/a.width;
+    sun.style.transform=`translate(${dx}px,${dy}px) scale(${k})`;
+    const f0=performance.now(); const fl=()=>{ fade=Math.min(1,(performance.now()-f0)/900); if(fade<1)requestAnimationFrame(fl); }; fl();
+    await sleep(1500); cancelAnimationFrame(raf); done();
+  }
+  const skip=()=>{ skipped=true; land(); };
+  $('inSkip').onclick=skip; box.addEventListener('click',e=>{ if(e.target.id!=='inSkip')skip(); });
+  (async()=>{
+    await sleep(900); if(skipped)return;
+    await typeIn($('inJp'),'主なき道',140); if(skipped)return;
+    await sleep(250); await typeIn($('inEn'),'No master. Only the path.',42); if(skipped)return;
+    await sleep(1100); if(!skipped)land();
+  })();
 })();
 
 /* ---------- boot ---------- */
@@ -657,17 +703,27 @@ function capSVG(cap){
     <text x="118" y="86" text-anchor="middle" font-family="Shippori Mincho,serif" font-weight="800" font-size="40" fill="${cap.t}">${cap.k}</text>
   </svg>`;
 }
+// prices are a proposal in USD; change them here
+const MERCH=[
+  {id:'cap',n:'Ronin Cap',cat:'Headwear',p:35,d:'Unstructured dad cap, embroidered RONIN.',c:['#1b1b1b','#5b9bd5','#f29bbd','#5f9e3c','#f3c22f','#efe9dc']},
+  {id:'tee',n:'Path Tee',cat:'Apparel',p:40,d:'Heavyweight cotton, RONIN on the chest.',c:['#efe9dc','#1b1b1b']},
+  {id:'hoodie',n:'浪人 Hoodie',cat:'Apparel',p:80,d:'Heavy fleece, brush kanji on the chest.',c:['#1b1b1b','#3c4a5c']},
+  {id:'tote',n:'Ensō Tote',cat:'Accessories',p:28,d:'Natural canvas, ink circle print.',c:['#e8dcc0']},
+  {id:'socks',n:'八 Socks',cat:'Accessories',p:16,d:'Crew socks with the 八 pattern.',c:['#f2f0eb','#1b1b1b']},
+  {id:'pins',n:'Seal Pin Set',cat:'Accessories',p:18,d:'Three enamel pins: seal, sun, ensō.',c:['#d23a2a','#f3c22f','#1b1b1b']},
+];
 (function(){
-  const stage=$('mxCap'); if(!stage)return;
-  const DESC={Sumi:'Ink black',Sora:'Sky blue',Sakura:'Blossom pink',Take:'Bamboo green',Hi:'Sun yellow',Kami:'Paper white'};
-  $('mxSw').innerHTML=CAPS.map((c,i)=>`<button class="sw ${i===0?'on':''}" data-i="${i}" style="--cc:${c.c}" aria-label="${c.n}"><i></i><span>${c.n}</span></button>`).join('');
-  const set=i=>{ const c=CAPS[i];
-    stage.classList.remove('swap'); void stage.offsetWidth; stage.classList.add('swap');
-    stage.innerHTML=capSVG(c); $('mxTag').textContent=c.k; $('mxStage').style.setProperty('--cc',c.c); document.querySelector('.mx').style.setProperty('--cc-now',c.c);
-    $('mxName').textContent='· '+c.n; $('mxDesc').textContent=`${DESC[c.n]}, embroidered ${c.k} on the front, RONIN on the back strap.`;
-    $('mxSw').querySelectorAll('.sw').forEach((b,k)=>b.classList.toggle('on',k===i)); };
-  $('mxSw').onclick=e=>{ const b=e.target.closest('.sw'); if(b)set(+b.dataset.i); };
-  set(0); tilt($('mxStage'),10);
+  const grid=$('shopGrid'); if(!grid)return;
+  const cats=['All',...new Set(MERCH.map(m=>m.cat))];
+  $('shopF').innerHTML=cats.map((c,i)=>`<button class="${i?'':'on'}" data-c="${c}">${c}</button>`).join('');
+  $('kitPrice').textContent='$'+(MERCH[0].p+25);
+  const render=c=>{ grid.innerHTML=MERCH.filter(m=>c==='All'||m.cat===c).map((m,i)=>`<article class="prod" style="--k:${i*.07}s">
+      <div class="prod-img"><img src="img/merch/${m.id}.webp" alt="${m.n}" loading="lazy"><span class="pill">Soon</span></div>
+      <div class="prod-b"><small>${m.cat}</small><h4>${m.n}</h4><p>${m.d}</p>
+        <div class="prod-f"><div class="dots">${m.c.map(x=>`<i style="--c:${x}"></i>`).join('')}</div><b>$${m.p}</b></div>
+        <a class="prod-go" href="#subscribe">Notify me</a></div></article>`).join(''); };
+  $('shopF').onclick=e=>{ const b=e.target.closest('button'); if(!b)return; $('shopF').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); render(b.dataset.c); };
+  render('All');
 })();
 
 /* ---------- the falls: ronin by the pond, subscribe ---------- */
