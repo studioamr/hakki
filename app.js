@@ -466,7 +466,7 @@ let openShrine=()=>{};
   }
   const skip=()=>{ skipped=true; try{speechSynthesis.cancel()}catch(_){} land(); };
   // sound: the saying spoken in Japanese, with English subtitles
-  const LINES=[{ja:'主なき道。',en:'No master.'},{ja:'ただ、道のみ。',en:'Only the path.'}];
+  const LINES=[{ja:'主なき者は、',en:'Whoever has no master…'},{ja:'己が主なり。',en:'…is their own master.'}];
   const sub=$('inSub');
   function speak(){
     if(!('speechSynthesis' in window)){ toast('Your browser can\u2019t play the voice'); return; }
@@ -482,8 +482,8 @@ let openShrine=()=>{};
   $('inSkip').onclick=skip; box.addEventListener('click',e=>{ if(e.target.closest('#inSound'))return; if(e.target.id!=='inSkip')skip(); });
   (async()=>{
     await sleep(900); if(skipped)return;
-    await typeIn($('inJp'),'主なき道',140); if(skipped)return;
-    await sleep(250); await typeIn($('inEn'),'No master. Only the path.',42); if(skipped)return;
+    await typeIn($('inJp'),'主なき者は、己が主なり',120); if(skipped)return;
+    await sleep(250); await typeIn($('inEn'),'Whoever has no master is their own master.',36); if(skipped)return;
     await sleep(1100); while(speaking&&!skipped)await sleep(200); if(!skipped)land();
   })();
 })();
