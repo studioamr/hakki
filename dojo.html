@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RONIN · The Dojo</title>
+<meta name="description" content="RONIN: a collection of ronin artworks on Solana. Draw one at random or buy the one you want from a holder.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="RONIN · The Dojo">
+<meta property="og:description" content="A collection of ronin on Solana. Draw one at random, or buy the one you want from a holder.">
+<meta property="og:image" content="https://studioamr.github.io/hakki/og.jpg">
+<meta property="og:url" content="https://studioamr.github.io/hakki/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f2f0eb">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,800;0,900;1,800&family=Silkscreen&family=Shippori+Mincho:wght@600;800&family=Old+Standard+TT&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=1790986561">
+</head>
+<body class="dojo-page">
+
+<nav id="nav"><div class="wrap">
+  <a class="logo" href="index.html">RONIN <span class="jp">道</span></a>
+  <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html">Cards</a><a href="draw.html">Draw</a><a href="dojo.html" class="cur">Dojo</a><a href="index.html#listings">Listings</a><a href="coin.html">$HAKKI</a></div>
+</div></nav>
+
+<header class="dj-hero" id="dojoTop">
+  <div class="dj-bg"><img src="img/escenas/dojo-toon.webp" alt=""></div>
+  <div class="dj-hero-in wrap">
+    <div class="dj-tag jp">道場</div>
+    <h1>The Dojo.</h1>
+    <p>Wear the cap. Spot a ronin in the street. Bow. Duel.</p>
+    <div class="actions"><a class="btn" href="#duel">Duel the Sensei ↓</a><a class="btn ghost light" href="#kit">Get the kit ↓</a></div>
+  </div>
+</header>
+
+<section class="dj-sec" id="kit"><div class="wrap">
+  <div class="head"><div><div class="eyebrow">Merch · the Ronin Kit</div><h2>One box.<br>Cap and card.</h2></div>
+    <p class="lead">Every kit ships with a RONIN cap and a physical RONIN card, packed separately in an ink-printed box. Pick your cap color, the card comes with the kit.</p></div>
+  <div class="kit">
+    <div class="kit-box" id="kitBox" aria-hidden="true">
+      <div class="kb-lid"><span class="jp">浪人</span></div>
+      <div class="kb-items"><div class="kb-cap" id="kbCap"></div><div class="kb-card"></div><div class="kb-scroll"><span class="jp">道</span></div><div class="kb-pin jp">八</div></div>
+      <div class="kb-base"><b>RONIN</b><small>no master</small></div>
+    </div>
+    <ul class="kit-list">
+      <li><span class="jp">帽</span><div><b>The cap</b><p>Six colorways, embroidered kanji on the front, RONIN on the back strap.</p></div></li>
+      <li><span class="jp">札</span><div><b>A physical card</b><p>Thick printed card with the art, its rarity and its edition number, in its own sleeve.</p></div></li>
+      <li><span class="jp">巻</span><div><b>The scroll</b><p>An ink-printed scroll with the code of the ronin.</p></div></li>
+      <li><span class="jp">章</span><div><b>An enamel pin</b><p>The 八 seal, for the bag or the jacket.</p></div></li>
+    </ul>
+  </div>
+  <div class="caps-h"><div class="eyebrow">Choose your color</div></div>
+  <div class="caps" id="caps"></div>
+  <div class="kit-cta"><div><b>The kit drops with the mint.</b><span>Leave your email and you'll know the day it opens.</span></div><a class="btn" href="index.html#subscribe">Get notified →</a></div>
+</div></section>
+
+<section class="dj-sec dj-street"><div class="wrap">
+  <div class="head"><div><div class="eyebrow">The rule of the street</div><h2>Spot. Bow. Duel.</h2></div></div>
+  <div class="street">
+    <div class="sv"><span class="jp">見</span><h4>Spot the cap</h4><p>A RONIN cap in the wild means another ronin. Different color, same path.</p></div>
+    <div class="sv"><span class="jp">礼</span><h4>Bow</h4><p>A ronin never attacks without a bow. Nod, show your card, ask for a duel.</p></div>
+    <div class="sv"><span class="jp">戦</span><h4>Duel</h4><p>Open the Dojo on your phone and play right there. Winner keeps the honor.</p></div>
+  </div>
+</div></section>
+
+<section class="duel" id="duel">
+  <div class="dj-bg du-bg"><img src="img/escenas/dojo-toon.webp" alt=""></div>
+  <div class="du-in">
+    <div class="du-head"><div class="eyebrow jp">決闘 · the duel</div><h2>Duel the Sensei.</h2>
+      <p class="du-rules"><b>石</b> Stone breaks <b>刀</b> Blade · <b>刀</b> Blade cuts <b>紙</b> Scroll · <b>紙</b> Scroll wraps <b>石</b> Stone. Same element: higher power wins. Win with three seals of one element in three colors, or one of each element in three colors.</p></div>
+    <div class="board" id="board">
+      <div class="side foe"><div class="who"><span class="av jp">師</span><b>Sensei</b></div><div class="seals" id="sealsFoe"></div><div class="hand backs" id="handFoe"></div></div>
+      <div class="arena"><div class="slot" id="slotYou"></div><div class="vs" id="vsMsg">Pick a card</div><div class="slot" id="slotFoe"></div></div>
+      <div class="side you"><div class="hand" id="handYou"></div><div class="who"><span class="av jp">浪</span><b>You</b></div><div class="seals" id="sealsYou"></div></div>
+    </div>
+    <div class="du-end" id="duEnd"><div class="du-end-box"><div class="jp du-end-k" id="duEndK"></div><h3 id="duEndT"></h3><p id="duEndP"></p><button class="btn" id="duAgain">Duel again</button></div></div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="row">
+    <p class="disc">RONIN artworks are digital collectibles, not investments, and come with no promise of value or profit. Only trust links published on this site and on our official X.</p>
+    <div class="soc"><a id="sX" href="#">X</a><a id="sTg" href="#">Telegram</a></div>
+  </div>
+</div></footer>
+
+<script src="config.js?v=1790986561"></script>
+<script src="app.js?v=1790986561"></script>
+</body>
+</html>

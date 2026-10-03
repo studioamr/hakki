@@ -637,6 +637,85 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
   $('tkSvg').innerHTML=`<circle r="${R0}" cx="100" cy="100" fill="none" stroke="#0c0c0c14" stroke-width="${sw}"/>`+seg.map(([v,c])=>{ const L=Ci*v/100-3, el=`<circle r="${R0}" cx="100" cy="100" fill="none" stroke="${c}" stroke-width="${sw}" stroke-dasharray="${L} ${Ci-L}" stroke-dashoffset="${-off}" transform="rotate(-90 100 100)"/>`; off+=Ci*v/100; return el; }).join('');
 })();
 
+/* ---------- dojo.html: merch caps + the duel ---------- */
+const CAPS=[ // the merch line: six colorways, not tied to any card
+  {n:'Sumi',k:'墨',c:'#1b1b1b',t:'#f2f0eb',d:'Ink black'},
+  {n:'Sora',k:'空',c:'#5b9bd5',t:'#0c0c0c',d:'Sky blue'},
+  {n:'Sakura',k:'桜',c:'#f29bbd',t:'#0c0c0c',d:'Blossom pink'},
+  {n:'Take',k:'竹',c:'#5f9e3c',t:'#f2f0eb',d:'Bamboo green'},
+  {n:'Hi',k:'日',c:'#f3c22f',t:'#1d3687',d:'Sun yellow'},
+  {n:'Kami',k:'紙',c:'#efe9dc',t:'#0c0c0c',d:'Paper white'},
+];
+function capSVG(cap){
+  return `<svg viewBox="0 0 220 150" aria-hidden="true">
+    <ellipse cx="110" cy="138" rx="86" ry="9" fill="#0c0c0c22"/>
+    <path d="M28 104 Q110 152 196 98 Q186 118 110 128 Q46 128 28 104Z" fill="${cap.c}" stroke="#0c0c0c" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M30 104 C26 40 70 14 112 14 C158 14 196 44 192 100 Q110 120 30 104Z" fill="${cap.c}" stroke="#0c0c0c" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M112 14 C96 40 92 74 96 112 M112 14 C132 40 140 72 140 110" fill="none" stroke="#0c0c0c" stroke-opacity=".35" stroke-width="2.5"/>
+    <circle cx="112" cy="15" r="6" fill="${cap.c}" stroke="#0c0c0c" stroke-width="3"/>
+    <path d="M44 58 C62 34 84 26 104 24" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="5" stroke-linecap="round"/>
+    <text x="118" y="86" text-anchor="middle" font-family="Shippori Mincho,serif" font-weight="800" font-size="40" fill="${cap.t}">${cap.k}</text>
+  </svg>`;
+}
+(function(){
+  const caps=$('caps'); if(!caps)return;
+  caps.innerHTML=CAPS.map((c,i)=>`<button class="mcap ${i===0?'on':''}" data-i="${i}" style="--cc:${c.c}">${capSVG(c)}<b>${c.n} <span class="jp">${c.k}</span></b><small>${c.d}</small></button>`).join('');
+  const setCap=i=>{ $('kbCap').innerHTML=capSVG(CAPS[i]); caps.querySelectorAll('.mcap').forEach((b,k)=>b.classList.toggle('on',k===i)); };
+  caps.onclick=e=>{ const b=e.target.closest('.mcap'); if(b){ setCap(+b.dataset.i); $('kitBox').classList.remove('pop'); void $('kitBox').offsetWidth; $('kitBox').classList.add('pop'); } };
+  setCap(0);
+  new IntersectionObserver(es=>{ if(es[0].isIntersecting)$('kitBox').classList.add('open'); },{threshold:.4}).observe($('kitBox'));
+})();
+(function(){
+  const board=$('board'); if(!board)return;
+  const EL=[{k:'石',n:'Stone',c:'#8a7560'},{k:'刀',n:'Blade',c:'#3c6f9e'},{k:'紙',n:'Scroll',c:'#d23a2a'}];
+  const beats=(a,b)=>(a===0&&b===1)||(a===1&&b===2)||(a===2&&b===0);     // stone>blade>scroll>stone
+  const SEAL=['#e8473d','#f39c2b','#f3d02f','#4caf50','#3b82f6','#9b5de5'];   // seal colors (the win rule needs three different ones)
+  const PW={Common:[2,5],Rare:[4,8],Epic:[7,10],Legendary:[9,12]};
+  const deal=()=>{ const n=NFTS[Math.floor(Math.random()*NFTS.length)], [a,b]=PW[n.r]; return {n,el:Math.floor(Math.random()*3),pw:a+Math.floor(Math.random()*(b-a+1)),col:SEAL[Math.floor(Math.random()*SEAL.length)]}; };
+  let you=[], foe=[], sYou=[], sFoe=[], lock=false;
+  const cardHTML=(c,up=true)=>up?`<div class="dc" style="--el:${EL[c.el].c};--col:${c.col}"><img src="${img(c.n)}" alt="" style="object-position:${c.n.pos||'50% 50%'}"><span class="dc-el jp">${EL[c.el].k}</span><span class="dc-pw">${c.pw}</span><i class="dc-col"></i></div>`:`<div class="dc back"></div>`;
+  const sealHTML=s=>`<span class="seal jp" style="--el:${EL[s.el].c};--col:${s.col}">${EL[s.el].k}</span>`;
+  function render(){
+    $('handYou').innerHTML=you.map((c,i)=>`<button class="hc" data-i="${i}" aria-label="${EL[c.el].n} ${c.pw}">${cardHTML(c)}</button>`).join('');
+    $('handFoe').innerHTML=foe.map(()=>cardHTML(null,false)).join('');
+    $('sealsYou').innerHTML=sYou.map(sealHTML).join(''); $('sealsFoe').innerHTML=sFoe.map(sealHTML).join('');
+  }
+  function won(S){
+    for(let e=0;e<3;e++){ const cols=new Set(S.filter(s=>s.el===e).map(s=>s.col)); if(cols.size>=3)return true; }
+    const by=[0,1,2].map(e=>S.filter(s=>s.el===e));
+    for(const a of by[0])for(const b of by[1])for(const c of by[2]) if(new Set([a.col,b.col,c.col]).size===3)return true;
+    return false;
+  }
+  function start(){ you=Array.from({length:5},deal); foe=Array.from({length:5},deal); sYou=[]; sFoe=[]; lock=false;
+    $('slotYou').innerHTML=''; $('slotFoe').innerHTML=''; $('vsMsg').textContent='Pick a card'; $('duEnd').classList.remove('on'); render(); }
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  async function play(i){
+    if(lock)return; lock=true;
+    const me=you.splice(i,1)[0], fi=Math.floor(Math.random()*foe.length), op=foe.splice(fi,1)[0];
+    render(); $('slotYou').innerHTML=cardHTML(me); $('slotYou').className='slot in';
+    $('slotFoe').innerHTML=cardHTML(null,false); $('slotFoe').className='slot in';
+    $('vsMsg').textContent='…'; await sleep(650);
+    $('slotFoe').innerHTML=cardHTML(op); $('slotFoe').className='slot in flip'; await sleep(450);
+    let w=0; if(me.el!==op.el)w=beats(me.el,op.el)?1:-1; else w=me.pw>op.pw?1:me.pw<op.pw?-1:0;
+    const why=me.el!==op.el?(w>0?`${EL[me.el].k} ${['breaks','cuts','wraps'][me.el]} ${EL[op.el].k}`:`${EL[op.el].k} ${['breaks','cuts','wraps'][op.el]} ${EL[me.el].k}`):(w?`Same element · ${Math.max(me.pw,op.pw)} beats ${Math.min(me.pw,op.pw)}`:'Same card power · nobody scores');
+    $('vsMsg').innerHTML=`<b>${w>0?'You win the round':w<0?'Sensei wins the round':'Tie'}</b><small>${why}</small>`;
+    $('slotYou').classList.add(w>0?'win':w<0?'lose':'tie'); $('slotFoe').classList.add(w<0?'win':w>0?'lose':'tie');
+    if(w>0)sYou.push({el:me.el,col:me.col}); if(w<0)sFoe.push({el:op.el,col:op.col});
+    await sleep(1300);
+    you.push(deal()); foe.push(deal()); render();
+    $('slotYou').innerHTML=''; $('slotFoe').innerHTML='';
+    if(won(sYou)||won(sFoe)){ const v=won(sYou);
+      $('duEndK').textContent=v?'勝':'負'; $('duEndT').textContent=v?'Victory.':'The Sensei wins.';
+      $('duEndP').textContent=v?'Three seals, three colors. Bow, and walk on.':'Every master was once a student. Bow, and draw again.';
+      $('duEnd').classList.add('on'); }
+    else $('vsMsg').textContent='Pick a card';
+    lock=false;
+  }
+  $('handYou').onclick=e=>{ const b=e.target.closest('.hc'); if(b)play(+b.dataset.i); };
+  $('duAgain').onclick=start;
+  start();
+})();
+
 /* ---------- the falls: ronin by the pond, subscribe ---------- */
 (function(){
   const sec=$('subscribe'), bg=$('flBg'), cv=$('flFx'); if(!sec||!cv)return;
