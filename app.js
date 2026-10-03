@@ -58,6 +58,10 @@ function tilt(c,deg=16){
 (function(){
   document.body.insertAdjacentHTML('beforeend','<div class="cursor-light" id="cl" aria-hidden="true"></div><div class="toast" id="toast"></div>');
   const nav=$('nav'); if(nav)addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true});
+  // phone menu: the links live in a dropdown behind ☰
+  if(nav){ const w=nav.querySelector('.wrap'); w.insertAdjacentHTML('beforeend','<button class="nav-burger" id="navBurger" aria-label="Menu" aria-expanded="false"><i></i><i></i><i></i></button>');
+    const b=$('navBurger'); b.onclick=()=>{ const o=nav.classList.toggle('open'); b.setAttribute('aria-expanded',o); };
+    nav.querySelectorAll('.links a').forEach(a=>a.addEventListener('click',()=>{ nav.classList.remove('open'); b.setAttribute('aria-expanded','false'); })); }
   [['sX',CONFIG.x],['sTg',CONFIG.telegram]].forEach(([id,u])=>{const a=$(id);if(!a)return;if(u){a.href=u;a.target='_blank';a.rel='noopener'}else a.classList.add('off');});
   const f=$('subForm'); if(f)f.addEventListener('submit',async e=>{
     e.preventDefault(); const msg=$('subMsg'), email=f.email.value.trim();
