@@ -1,39 +1,39 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-world="oni">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RONIN · No Master</title>
-<meta name="description" content="RONIN: a collection of ronin artworks on Solana. Draw one at random or buy the one you want from a holder.">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>ONI · Seven Sins</title>
+<meta name="description" content="ONI: a collection of ronin artworks on Solana. Draw one at random or buy the one you want from a holder.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
-<meta property="og:title" content="RONIN · No Master">
-<meta property="og:description" content="A collection of ronin on Solana. Draw one at random, or buy the one you want from a holder.">
-<meta property="og:image" content="https://studioamr.github.io/hakki/og.jpg">
-<meta property="og:url" content="https://studioamr.github.io/hakki/">
+<meta property="og:title" content="ONI · Seven Sins">
+<meta property="og:description" content="Seven demons on Solana, the rivals of RONIN. Draw one at random, or buy the one you want from a holder.">
+<meta property="og:image" content="https://studioamr.github.io/hakki/og-oni.jpg">
+<meta property="og:url" content="https://studioamr.github.io/hakki/oni/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#f2f0eb">
+<meta name="theme-color" content="#07070d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,800;0,900;1,800&family=Silkscreen&family=Shippori+Mincho:wght@600;800&family=Old+Standard+TT&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=1791013375">
+<link rel="stylesheet" href="../styles.css?v=1791013375">
 </head>
 <body>
 
 <nav id="nav"><div class="wrap">
-  <a class="logo" href="index.html">RONIN <span class="jp">道</span></a>
-  <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html">Cards</a><a href="draw.html">Draw</a><a href="index.html#listings">Listings</a><a href="coin.html">$HAKKI</a></div>
+  <a class="logo" href="index.html">ONI <span class="jp">鬼</span></a>
+  <div class="links"><a href="index.html#collection">Collection</a><a href="cards.html">Cards</a><a href="draw.html">Draw</a><a href="index.html#listings">Listings</a><a href="../coin.html">$HAKKI</a></div>
 </div></nav>
 
 <header class="sky" id="top">
   <canvas id="skyCv"></canvas>
   <div class="in">
-    <div class="peace">PEACE</div>
-    <div class="mantra px"><span>BE CONSISTENT</span><span>BE DISCIPLINED</span><span>BE OBSESSED</span></div>
+    <div class="peace">SIN</div>
+    <div class="mantra px"><span>SEVEN SINS</span><span>SEVEN DEMONS</span><span>ONE MOON</span></div>
     <svg class="sun" id="sun" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
   </div>
   <div class="sky-foot"><div class="wrap">
-    <div class="tag"><b>RONIN</b> <span class="jp">道</span><small>no master</small></div>
+    <div class="tag"><b>ONI</b> <span class="jp">鬼</span><small>seven sins</small></div>
   </div></div>
 </header>
 
@@ -56,36 +56,36 @@
       <div class="filters" id="filters"></div>
     </div>
     <div class="listings" id="lstGrid"></div>
-    <div class="board-foot"><span>Rather leave it to fate? A random draw costs one fixed price.</span><a class="btn" href="draw.html">Draw a ronin →</a></div>
+    <div class="board-foot"><span>Rather let the moon decide? A random draw costs one fixed price.</span><a class="btn" href="draw.html">Draw a demon →</a></div>
   </div>
 </div></section>
 
 <section class="tz" id="luck"><div class="wrap tz-in">
   <div class="tz-copy">
-    <div class="eyebrow jp">運試し · draw</div>
-    <h2>Draw your ronin.</h2>
-    <p>One draw, one price. The deck spins, the path chooses, and one ronin walks out with you.</p>
+    <div class="eyebrow jp">月の籤 · draw</div>
+    <h2>Draw your demon.</h2>
+    <p>One draw, one price. The moon turns, a sin chooses you, and one demon follows you home.</p>
     <a class="btn tz-go" href="draw.html">Enter the draw →</a>
   </div>
   <a class="tz-deck" href="draw.html" aria-label="Go to the draw"><i></i><i></i><i></i><i></i></a>
 </div></section>
 
 <section class="shop" id="merch"><div class="wrap">
-  <div class="head"><div><div class="eyebrow">Merch</div><h2>Wear the path.</h2></div>
-    <p class="lead">Caps, tees, hoodies and more, in ink and paper. Spot a RONIN piece in the street: that's another ronin.</p></div>
+  <div class="head"><div><div class="eyebrow">Merch</div><h2>Wear the sin.</h2></div>
+    <p class="lead">Caps, tees, hoodies and more, in ink and paper. Spot an ONI piece at night: that's another demon.</p></div>
   <div class="shop-bar"><div class="shop-f" id="shopF"></div><span class="shop-note">Pre-orders open with the mint</span></div>
   <div class="shop-grid" id="shopGrid"></div>
 </div></section>
 
 <section class="falls" id="subscribe">
-  <div class="fl-bg" id="flBg"><img src="img/escenas/falls.webp" alt="A ronin meditating by a pond, facing a legendary waterfall"></div>
+  <div class="fl-bg" id="flBg"><img src="../img/escenas/oni-gathering.webp" alt="The seven demons gathered under a blood moon"></div>
   <canvas class="fl-fx" id="flFx"></canvas>
   <div class="fl-fog"></div>
   <div class="wrap fl-in">
     <div class="fl-card">
-      <div class="eyebrow jp">静寂 · stillness</div>
-      <h2>Sit with the path.</h2>
-      <p>Before the mint opens, the ronin waits by the falls. Leave your email and we'll call you once, when it's time.</p>
+      <div class="eyebrow jp">百鬼夜行 · night parade</div>
+      <h2>Join the night parade.</h2>
+      <p>Before the mint opens, the seven gather under the moon. Leave your email and we'll call you once, when it's time.</p>
       <form class="sub-form" id="subForm" novalidate>
         <input type="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Email">
         <button class="btn" type="submit">Subscribe</button>
@@ -97,12 +97,12 @@
 
 <footer><div class="wrap">
   <div class="row">
-    <p class="disc">RONIN artworks are digital collectibles, not investments, and come with no promise of value or profit. Only trust links published on this site and on our official X.</p>
+    <p class="disc">ONI artworks are digital collectibles, not investments, and come with no promise of value or profit. Only trust links published on this site and on our official X.</p>
     <div class="soc"><a id="sX" href="#">X</a><a id="sTg" href="#">Telegram</a></div>
   </div>
 </div></footer>
 
-<script src="config.js?v=1791013375"></script>
-<script src="app.js?v=1791013375"></script>
+<script src="../config.js?v=1791013375"></script>
+<script src="../app.js?v=1791013375"></script>
 </body>
 </html>

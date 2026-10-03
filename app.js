@@ -11,6 +11,12 @@ function noise2(seed){
 }
 function fit(cv){ const r=cv.getBoundingClientRect(), d=Math.min(2,devicePixelRatio||1); cv.width=Math.max(1,r.width*d); cv.height=Math.max(1,r.height*d); const c=cv.getContext('2d'); c.setTransform(d,0,0,d,0,0); return {c,w:r.width,h:r.height}; }
 const INK='#0c0c0c';
+/* two worlds, one script: RONIN (day, the root pages) and ONI (night, the pages in oni/) */
+const ONI=document.documentElement.dataset.world==='oni';
+const ROOT=ONI?'../':'';
+const BR=ONI?'ONI':'RONIN', br=ONI?'demon':'ronin';
+const SKY=ONI?{bg:'#25203c',dot:'#090b18',sh:'#3b3560',hill:'#140c14',blade:'#4a0f1a',tip:'#8e1b2b',line:'#05050a'}
+             :{bg:'#efe9dc',dot:'#3c6f9e',sh:'#7d97ad',hill:'#55722a',blade:'#2f4514',tip:'#8aa548',line:INK};
 const $=id=>document.getElementById(id);
 const touch=matchMedia('(hover:none)').matches;
 const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -25,7 +31,7 @@ const jnum=n=>n<10?KD[n]:(n<20?'':KD[Math.floor(n/10)])+'十'+KD[n%10];   // 1�
    To add artworks: drop the image in img/coleccion/ and add a line.
    r = rarity · e = editions · p = estimated value in SOL (real prices are set by holders)
    wide:1 = landscape artwork · bg = scene in img/escenas/ (defaults to f) · fx = the scene's particles */
-const NFTS=[
+const RONIN_NFTS=[
   {f:'pink-field',t:'Pink Field',jt:'花の野',r:'Legendary',e:33,p:5,wide:1,fx:'petals',d:'Where the path ends: flowers, sky and a friend. The only frame where he smiles.'},
   {f:'above-clouds',t:'Above the Clouds',jt:'雲の上',r:'Legendary',e:44,p:3.5,fx:'clouds',d:'Sitting above everything that knocked him down.'},
   {f:'seventh-fall',t:'Seventh Fall',jt:'七転',r:'Epic',e:100,p:1.8,fx:'bubbles',d:'Ink, water and blood. The lowest point on the whole path.'},
@@ -50,11 +56,22 @@ const NFTS=[
   {f:'summit',t:'The Summit',jt:'頂',r:'Legendary',e:28,p:4.8,fx:'snow',bg:'above-clouds',d:'The top of the mountain, the wind, and no one to tell. He climbed it for himself.'},
   {f:'winter-wind',t:'Winter Wind',jt:'冬の風',r:'Common',e:200,p:0.6,fx:'snow',bg:'stillness',d:'Sun on the snow, flowers pushing through. Winter never wins for good.'},
 ];
+/* the night world: seven demons, one per deadly sin. Every fall of the ronin had one of these names. */
+const ONI_NFTS=[
+  {f:'oni-pride',t:'Pride',jt:'傲慢',r:'Legendary',e:30,p:5,wide:1,wpos:'50% 24%',fx:'clouds',bg:'oni-castle',d:'He stands on the highest roof and looks down on everyone. He has never once looked up.'},
+  {f:'oni-wrath',t:'Wrath',jt:'憤怒',r:'Legendary',e:33,p:4.5,fx:'embers',bg:'oni-hellgate',d:'Every insult he ever heard, still burning. The fire keeps him warm and burns everything he touches.'},
+  {f:'oni-lust',t:'Lust',jt:'色欲',r:'Epic',e:100,p:1.8,fx:'petals',bg:'oni-lake',d:'She waits on the bridge with a smile and a fan. Whoever crosses toward her never reaches the other side.'},
+  {f:'oni-greed',t:'Greed',jt:'強欲',r:'Epic',e:100,p:1.7,fx:'dust',bg:'oni-hellgate',d:'A mountain of gold and he is still counting. Enough is a word he never learned.'},
+  {f:'oni-envy',t:'Envy',jt:'嫉妬',r:'Rare',e:150,p:1,fx:'dust',bg:'oni-lake',d:'Every mask on his wall is a face he wanted instead of his own.'},
+  {f:'oni-gluttony',t:'Gluttony',jt:'暴食',r:'Rare',e:150,p:0.9,fx:'embers',bg:'oni-hellgate',d:'The feast never ends and he is never full. The hunger is the only thing he really eats.'},
+  {f:'oni-sloth',t:'Sloth',jt:'怠惰',r:'Common',e:200,p:0.5,fx:'clouds',bg:'oni-castle',d:'He will start tomorrow. He has been saying it for a thousand years.'},
+];
+const NFTS=ONI?ONI_NFTS:RONIN_NFTS;
 NFTS.forEach((n,i)=>n.ch=ROMAN(i+1));
 const TOTAL=NFTS.reduce((a,n)=>a+n.e,0);
 const RCOL={Common:['#a8a196','#efe9dc'],Rare:['#4fa3ff','#d8ecff'],Epic:['#c06bff','#f0d6ff'],Legendary:['#f3c22f','#fff4c2']};
-const img=n=>`img/coleccion/${n.f}.webp`;
-const scene=f=>`img/escenas/${f}.webp`;
+const img=n=>`${ROOT}img/coleccion/${n.f}.webp`;
+const scene=f=>`${ROOT}img/escenas/${f}.webp`;
 let checkout=()=>{};   // set by the wallet block at the bottom
 const openMarket=()=>{ if(CONFIG.marketUrl)window.open(CONFIG.marketUrl,'_blank','noopener'); else toast('Trading opens right after the mint.'); };
 const nSpark={Legendary:9,Epic:6,Rare:4,Common:2};
@@ -92,7 +109,7 @@ function tilt(c,deg=16){
 /* ---------- hero: halftone sky + spiral sun ---------- */
 function drawSky(){
   const cv=$('skyCv'); if(!cv)return; const {c,w,h}=fit(cv);
-  c.fillStyle='#efe9dc'; c.fillRect(0,0,w,h);
+  c.fillStyle=SKY.bg; c.fillRect(0,0,w,h);
   const n=noise2(5), cell=w<600?5:6.5;
   const fbm=(x,y)=>{let v=0,a=.55,f=1;for(let o=0;o<5;o++){v+=a*n(x*f,y*f);a*=.5;f*=2.03;}return v;};
   const hill=x=>h*.8-Math.sin(x/w*2.6+.4)*h*.05-(x/w)*h*.04;
@@ -101,19 +118,35 @@ function drawSky(){
     if(y>hill(X))continue;
     const cl=fbm(X/260,y/170)+(y/h)*.18-.25;
     const e=Math.max(0,Math.min(1,(cl-.43)/.05));
-    if(e<1){ c.fillStyle='#3c6f9e'; c.beginPath(); c.arc(X,y,cell*.64*(1-e*.7),0,6.283); c.fill(); }
+    if(e<1){ c.fillStyle=SKY.dot; c.beginPath(); c.arc(X,y,cell*.64*(1-e*.7),0,6.283); c.fill(); }
     else { const sh=Math.max(0,Math.min(1,(.62-cl)*2.2));
-      if(sh>.05){ c.fillStyle='#7d97ad'; c.beginPath(); c.arc(X,y,cell*.42*Math.sqrt(sh),0,6.283); c.fill(); } }
+      if(sh>.05){ c.fillStyle=SKY.sh; c.beginPath(); c.arc(X,y,cell*.42*Math.sqrt(sh),0,6.283); c.fill(); } }
   }
+  if(ONI){ const st=rng(21); for(let i=0;i<w*h*.00035;i++){ const x=st()*w,y=st()*hill(x)*.92, s2=st();
+      c.fillStyle=s2>.9?'#f1d9a6':'#e9e4f5'; c.globalAlpha=.35+st()*.65; c.beginPath(); c.arc(x,y,s2>.96?1.6:.8,0,6.283); c.fill(); } c.globalAlpha=1; }
   c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=4)c.lineTo(x,hill(x)); c.lineTo(w,h); c.closePath();
-  c.fillStyle='#55722a'; c.fill();
-  const r=rng(9); c.strokeStyle='#2f4514'; c.lineWidth=1;
+  c.fillStyle=SKY.hill; c.fill();
+  const r=rng(9); c.strokeStyle=SKY.blade; c.lineWidth=1;
   for(let i=0;i<w*h*.0035;i++){const x=r()*w,y=hill(x)+r()*(h-hill(x));c.globalAlpha=.25+r()*.5;c.beginPath();c.moveTo(x,y);c.lineTo(x+(r()-.5)*3,y-3-r()*6);c.stroke();}
-  c.globalAlpha=1; c.fillStyle='#8aa548';
+  c.globalAlpha=1; c.fillStyle=SKY.tip;
   for(let i=0;i<w*h*.002;i++){const x=r()*w,y=hill(x)+r()*(h-hill(x))*.7;c.globalAlpha=.3+r()*.4;c.fillRect(x,y,1.2,2.4+r()*3);}
-  c.globalAlpha=1; c.strokeStyle=INK; c.lineWidth=2.2; c.beginPath(); for(let x=0;x<=w;x+=4)(x?c.lineTo:c.moveTo).call(c,x,hill(x)+Math.sin(x*.21)*1.2); c.stroke();
+  c.globalAlpha=1; c.strokeStyle=SKY.line; c.lineWidth=2.2; c.beginPath(); for(let x=0;x<=w;x+=4)(x?c.lineTo:c.moveTo).call(c,x,hill(x)+Math.sin(x*.21)*1.2); c.stroke();
 }
-function sunMarkup(){
+function moonMarkup(){
+  const r=rng(7); let d='';
+  for(let k=0;k<7;k++){
+    const a=k/7*Math.PI*2-Math.PI/2, L=84+r()*6, base=46, sp=.2, wig=(k%2?1:-1)*10;
+    const P=(rad,ang)=>[Math.cos(ang)*rad,Math.sin(ang)*rad];
+    const [x1,y1]=P(base,a-sp),[x2,y2]=P(base,a+sp),[tx,ty]=P(L,a+.12);
+    const [m1x,m1y]=P((base+L)/2,a-sp*.4),[m2x,m2y]=P((base+L)/2,a+sp*.6);
+    d+=`M${x1.toFixed(1)},${y1.toFixed(1)} Q${(m1x+wig*Math.cos(a+1.57)).toFixed(1)},${(m1y+wig*Math.sin(a+1.57)).toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} Q${(m2x-wig*Math.cos(a+1.57)).toFixed(1)},${(m2y-wig*Math.sin(a+1.57)).toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}Z `;
+  }
+  let sp=''; for(let i=0;i<=200;i++){const t=i/200,a=-t*Math.PI*2*2.6,rr=2+t*32;sp+=(i?'L':'M')+(Math.cos(a)*rr).toFixed(1)+','+(Math.sin(a)*rr).toFixed(1);}
+  return `<path d="${d}" fill="#c4152c" stroke="#05050a" stroke-width="3" stroke-linejoin="round"/>
+    <circle r="47" fill="#05050a"/><circle r="42" fill="#efe6cf"/>
+    <path d="${sp}" fill="none" stroke="#c4152c" stroke-width="6.5" stroke-linecap="round"/>`;
+}
+function sunMarkup(){ if(ONI)return moonMarkup();
   const r=rng(3); let d='';
   for(let k=0;k<16;k++){
     const a=k/16*Math.PI*2, L=78+(k%2?0:12)+r()*6, base=44, sp=.13, wig=(k%2?1:-1)*8;
@@ -132,26 +165,26 @@ function buildSun(){ const s=$('sun'); if(s)s.innerHTML=sunMarkup(); }
 /* ---------- card back: the hero sky with RONIN on it (painted once, used everywhere as --back) ---------- */
 async function paintBack(){
   const W=600,H=840, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const c=cv.getContext('2d');
-  c.fillStyle='#efe9dc'; c.fillRect(0,0,W,H);
+  c.fillStyle=SKY.bg; c.fillRect(0,0,W,H);
   const n=noise2(11), cell=11, fbm=(x,y)=>{let v=0,a=.55,f=1;for(let o=0;o<5;o++){v+=a*n(x*f,y*f);a*=.5;f*=2.03;}return v;};
   const hill=x=>H*.8-Math.sin(x/W*2.6+.4)*H*.04;
   for(let y=0;y<H;y+=cell)for(let x=0;x<W+cell;x+=cell){ const X=x+((y/cell)%2?cell/2:0); if(y>hill(X))continue;
     const cl=fbm(X/150,y/110)+(y/H)*.18-.25, e=Math.max(0,Math.min(1,(cl-.43)/.05));
-    if(e<1){ c.fillStyle='#3c6f9e'; c.beginPath(); c.arc(X,y,cell*.64*(1-e*.7),0,6.283); c.fill(); }
-    else { const sh=Math.max(0,Math.min(1,(.62-cl)*2.2)); if(sh>.05){ c.fillStyle='#7d97ad'; c.beginPath(); c.arc(X,y,cell*.42*Math.sqrt(sh),0,6.283); c.fill(); } } }
-  c.beginPath(); c.moveTo(0,H); for(let x=0;x<=W;x+=4)c.lineTo(x,hill(x)); c.lineTo(W,H); c.closePath(); c.fillStyle='#55722a'; c.fill();
-  const r=rng(9); c.strokeStyle='#2f4514'; for(let i=0;i<2600;i++){const x=r()*W,y=hill(x)+r()*(H-hill(x));c.globalAlpha=.3+r()*.5;c.beginPath();c.moveTo(x,y);c.lineTo(x+(r()-.5)*3,y-4-r()*6);c.stroke();}
+    if(e<1){ c.fillStyle=SKY.dot; c.beginPath(); c.arc(X,y,cell*.64*(1-e*.7),0,6.283); c.fill(); }
+    else { const sh=Math.max(0,Math.min(1,(.62-cl)*2.2)); if(sh>.05){ c.fillStyle=SKY.sh; c.beginPath(); c.arc(X,y,cell*.42*Math.sqrt(sh),0,6.283); c.fill(); } } }
+  c.beginPath(); c.moveTo(0,H); for(let x=0;x<=W;x+=4)c.lineTo(x,hill(x)); c.lineTo(W,H); c.closePath(); c.fillStyle=SKY.hill; c.fill();
+  const r=rng(9); c.strokeStyle=SKY.blade; for(let i=0;i<2600;i++){const x=r()*W,y=hill(x)+r()*(H-hill(x));c.globalAlpha=.3+r()*.5;c.beginPath();c.moveTo(x,y);c.lineTo(x+(r()-.5)*3,y-4-r()*6);c.stroke();}
   c.globalAlpha=1; c.strokeStyle=INK; c.lineWidth=3; c.beginPath(); for(let x=0;x<=W;x+=4)(x?c.lineTo:c.moveTo).call(c,x,hill(x)); c.stroke();
   // the spiral sun
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 200 200" width="260" height="260">${sunMarkup()}</svg>`;
   await new Promise(res=>{ const im=new Image(); im.onload=()=>{ c.drawImage(im,W/2-130,H*.5-130,260,260); res(); }; im.onerror=res; im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); });
   // the title
   try{ await document.fonts.load('900 150px Archivo'); await document.fonts.load('800 40px "Shippori Mincho"'); }catch(_){}
-  c.fillStyle=INK; c.textAlign='center'; c.font='900 128px Archivo'; c.save(); c.translate(W/2,H*.27); c.scale(1,1); c.fillText('RONIN',0,0); c.restore();
-  c.font='800 34px "Shippori Mincho"'; c.fillText('道',W/2,H*.27+56);
-  c.font='800 20px Archivo'; c.fillStyle='#f2f0eb'; c.fillText('N O   M A S T E R',W/2,H*.93);
+  c.fillStyle=ONI?'#efe6cf':INK; c.textAlign='center'; c.font='900 128px Archivo'; c.save(); c.translate(W/2,H*.27); c.scale(1,1); c.fillText(BR,0,0); c.restore();
+  c.font='800 34px "Shippori Mincho"'; c.fillText(ONI?'鬼':'道',W/2,H*.27+56);
+  c.font='800 20px Archivo'; c.fillStyle='#f2f0eb'; c.fillText(ONI?'S E V E N   S I N S':'N O   M A S T E R',W/2,H*.93);
   // frame
-  c.strokeStyle=INK; c.lineWidth=10; c.strokeRect(5,5,W-10,H-10); c.lineWidth=2; c.strokeRect(22,22,W-44,H-44);
+  c.strokeStyle=ONI?'#05050a':INK; c.lineWidth=10; c.strokeRect(5,5,W-10,H-10); c.lineWidth=2; c.strokeRect(22,22,W-44,H-44);
   document.documentElement.style.setProperty('--back',`url(${cv.toDataURL('image/jpeg',.88)})`);
 }
 paintBack();
@@ -172,8 +205,8 @@ let openShrine=()=>{};
   NFTS.slice(0,limit).forEach((n,i)=>{
     const c=document.createElement('div'); c.className='card'+(n.wide&&!group?' wide':''); c.dataset.r=n.r;
     c.style.setProperty('--d',(i%7*.7)+'s'); c.style.setProperty('--k',(i%4)*.1+'s');
-    c.innerHTML=`<div class="ring"></div><div class="frame"><img src="${img(n)}" alt="${n.t}" loading="lazy" style="object-position:${n.wide&&!group?'50% 50%':(n.pos||'50% 50%')}"><div class="holo"></div><div class="sweep"></div><div class="shade"></div><div class="glare"></div></div>${sparks(nSpark[n.r])}
-      <div class="info"><div><small>RONIN #${String(i+1).padStart(3,'0')}${box.dataset.odds?` · ${(n.e/TOTAL*100).toFixed(1)}% chance`:''}</small><b>${n.t}</b></div><span class="rar">${n.r}</span></div>`;
+    c.innerHTML=`<div class="ring"></div><div class="frame"><img src="${img(n)}" alt="${n.t}" loading="lazy" style="object-position:${n.wide&&!group?(n.wpos||'50% 50%'):(n.pos||'50% 50%')}"><div class="holo"></div><div class="sweep"></div><div class="shade"></div><div class="glare"></div></div>${sparks(nSpark[n.r])}
+      <div class="info"><div><small>${BR} #${String(i+1).padStart(3,'0')}${box.dataset.odds?` · ${(n.e/TOTAL*100).toFixed(1)}% chance`:''}</small><b>${n.t}</b></div><span class="rar">${n.r}</span></div>`;
     tilt(c); c.onclick=()=>openShrine(i); (group?slots[n.r]:box).appendChild(c); reveal.observe(c);
   });
   const cnt=$('collCount'); if(cnt)cnt.textContent=`${NFTS.length} artworks · ${TOTAL} pieces · Solana`;
@@ -199,7 +232,7 @@ let openShrine=()=>{};
       <div class="sh-pic"><img id="shImg" alt=""><i class="sh-shine"></i></div>
       <i class="sh-frame" aria-hidden="true"></i>
       <span class="sh-corner tl"></span><span class="sh-corner tr"></span><span class="sh-corner bl"></span><span class="sh-corner br"></span>
-      <div class="sh-seal jp">道</div>
+      <div class="sh-seal jp">${ONI?"鬼":"道"}</div>
     </div>
     <div class="sh-info">
       <div class="rv sh-ch jp" style="--i:0" id="shCh"></div>
@@ -214,7 +247,7 @@ let openShrine=()=>{};
         <button class="sh-mint" id="shMint"><span>Buy from a holder</span><i></i></button>
       </div>
       <p class="rv sh-note" style="--i:8" id="shNote"></p>
-      <a class="rv sh-luck" style="--i:8" href="draw.html">or draw a random ronin →</a>
+      <a class="rv sh-luck" style="--i:8" href="draw.html">or draw a random ${br} →</a>
     </div>
   </div></div>`);
   const sh=$('shrine'); let cur=0, raf=0, parts=[], mode='petals', birds=[], t=0;
@@ -222,7 +255,7 @@ let openShrine=()=>{};
     const n=NFTS[i], [c1,c2]=RCOL[n.r];
     sh.style.setProperty('--c1',c1); sh.style.setProperty('--c2',c2);
     $('shImg').src=img(n); $('shImg').style.objectPosition=n.pos||'50% 50%'; $('shBg').src=scene(n.bg||n.f);
-    $('shCh').textContent=`第${jnum(i+1)}章`; $('shChEn').textContent=`RONIN #${String(i+1).padStart(3,'0')} · ${n.ch}`;
+    $('shCh').textContent=`第${jnum(i+1)}章`; $('shChEn').textContent=`${BR} #${String(i+1).padStart(3,'0')} · ${n.ch}`;
     $('shT').textContent=n.t; $('shJt').textContent=n.jt; $('shR').textContent=n.r; $('shD').textContent=n.d;
     $('shE').textContent=n.e; $('shN').textContent=`${i+1} / ${NFTS.length}`; $('shP').textContent=n.p;
     $('shNote').textContent=`A random draw costs ◎ ${CONFIG.mintPrice}. To get ${n.t} for sure, buy it from someone who holds one, at their price.`;
@@ -248,8 +281,9 @@ let openShrine=()=>{};
     dust:()=>({x:R(0,W),y:R(0,H),s:R(.8,2.6),vx:R(-.15,.25),vy:R(-.2,.15),w:R(0,6),straw:Math.random()<.15}),
     bubbles:()=>({x:R(0,W),y:R(H,H*2),s:R(3,14),vy:R(-.4,-1.4),w:R(0,6)}),
     snow:()=>({x:R(0,W),y:R(-H,H),s:R(1,3.4),vy:R(.4,1.3),w:R(0,6)}),
+    embers:()=>({x:R(0,W),y:R(0,H*1.2),s:R(.8,2.8),vx:R(-.3,.3),vy:R(-1.5,-.4),w:R(0,6)}),
   };
-  const COUNT={snow:110,petals:55,leaves:34,clouds:16,seeds:40,rays:36,dust:90,bubbles:40};
+  const COUNT={embers:85,snow:110,petals:55,leaves:34,clouds:16,seeds:40,rays:36,dust:90,bubbles:40};
   function seed(){ const k=matchMedia('(max-width:700px)').matches?.55:1; parts=Array.from({length:Math.round(COUNT[mode]*k)},()=>({k:mode,...MAKE[mode]()})); birds=mode==='clouds'?Array.from({length:7},()=>({x:R(-W,0),y:R(H*.1,H*.45),v:R(.8,1.6),f:R(0,6)})):[]; }
   function ember(x,y,f){ const a=Math.random()*6.283,v=f*(1+Math.random()*3); return {k:'e',x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1.2,l:1,s:1+Math.random()*2.4}; }
   function burst(x,y,n){ for(let i=0;i<n;i++)parts.push(ember(x,y,1.6)); }
@@ -260,7 +294,7 @@ let openShrine=()=>{};
         p.w+=.03; p.x+=p.vx+Math.sin(p.w)*.6; p.y+=p.vy; p.a+=p.va; wrap(p);
         ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.scale(1,(p.k==='leaves'?.32:.55)+Math.sin(p.w*2)*.3);
         const g=ctx.createLinearGradient(-p.s,0,p.s,0);
-        if(p.k==='petals'){g.addColorStop(0,'#ffd6e4');g.addColorStop(1,'#f59ab8');} else {g.addColorStop(0,'#c9e27a');g.addColorStop(1,'#5d8a2a');}
+        if(p.k==='petals'){g.addColorStop(0,ONI?'#ff4a5e':'#ffd6e4');g.addColorStop(1,ONI?'#9e0d22':'#f59ab8');} else {g.addColorStop(0,'#c9e27a');g.addColorStop(1,'#5d8a2a');}
         ctx.fillStyle=g; ctx.globalAlpha=.88; ctx.beginPath(); ctx.moveTo(-p.s,0); ctx.quadraticCurveTo(0,-p.s*.75,p.s,0); ctx.quadraticCurveTo(0,p.s*.75,-p.s,0); ctx.fill(); ctx.restore(); break;}
       case 'clouds':{
         p.x+=p.vx; wrap(p); const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.s);
@@ -276,6 +310,10 @@ let openShrine=()=>{};
         const c=p.k==='rays'?'#e9ff9a':'#ffd98a', a=p.k==='dust'?.55:.5+Math.sin(p.w*2)*.45;
         if(p.straw){ctx.strokeStyle='rgba(225,190,110,.6)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+9*Math.cos(p.w),p.y+9*Math.sin(p.w));ctx.stroke();break;}
         ctx.globalAlpha=Math.max(0,a); ctx.fillStyle=c; ctx.shadowColor=c; ctx.shadowBlur=p.k==='dust'?4:14;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,6.283); ctx.fill(); ctx.shadowBlur=0; ctx.globalAlpha=1; break;}
+      case 'embers':{
+        p.w+=.06; p.x+=p.vx+Math.sin(p.w)*.5; p.y+=p.vy; wrap(p);
+        ctx.globalAlpha=Math.max(0,.55+Math.sin(p.w*3)*.4); ctx.fillStyle='#ff7a3a'; ctx.shadowColor='#ff2a14'; ctx.shadowBlur=12;
         ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,6.283); ctx.fill(); ctx.shadowBlur=0; ctx.globalAlpha=1; break;}
       case 'snow':{
         p.w+=.02; p.y+=p.vy; p.x+=Math.sin(p.w)*.5; if(p.y>H+10){p.y=-10;p.x=R(0,W);}
@@ -381,7 +419,7 @@ let openShrine=()=>{};
     let grid=''; for(let k=0;k<4;k++){ const v=lo+(hi-lo)*k/3, y=Y(v); grid+=`<line x1="44" x2="708" y1="${y}" y2="${y}" class="gl"/><text x="38" y="${y+4}" class="yl">${fmt(v)}</text>`; }
     const pts=H.map((v,k)=>`${X(k).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
     const my=Y(CONFIG.mintPrice);
-    $('trSvg').innerHTML=`<defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2f5f8e" stop-opacity=".22"/><stop offset="1" stop-color="#2f5f8e" stop-opacity="0"/></linearGradient></defs>
+    $('trSvg').innerHTML=`<defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${ONI?"#c4152c":"#2f5f8e"}" stop-opacity=".22"/><stop offset="1" stop-color="${ONI?"#c4152c":"#2f5f8e"}" stop-opacity="0"/></linearGradient></defs>
       ${grid}<line x1="44" x2="708" y1="${my}" y2="${my}" class="mint"/><text x="704" y="${my-6}" class="ml" text-anchor="end">Mint ◎${CONFIG.mintPrice}</text>
       <polygon points="44,${240-24} ${pts} ${X(n-1)},${240-24}" fill="url(#ga)"/><polyline points="${pts}" class="ln"/>
       <circle cx="${X(n-1)}" cy="${Y(H[n-1])}" r="5" class="dot last"/>
@@ -406,7 +444,7 @@ let openShrine=()=>{};
     const n=x.n, g=rng(5000+x.id*7), [c1]=RCOL[n.r];
     tr.style.setProperty('--rc',c1); series(x);
     $('trImg').src=img(n); $('trImg').style.objectPosition=n.pos||'50% 50%';
-    $('trCh').textContent=`RONIN #${String(x.i+1).padStart(3,'0')} · ${n.jt}`; $('trT').textContent=n.t; $('trR').textContent=n.r;
+    $('trCh').textContent=`${BR} #${String(x.i+1).padStart(3,'0')} · ${n.jt}`; $('trT').textContent=n.t; $('trR').textContent=n.r;
     $('trEd').textContent=`Edition #${x.ed} of ${n.e}`; $('trP').textContent=x.price; $('trBarP').textContent=x.price; $('trSeller').textContent=`Seller ${x.seller}`;
     const same=L.filter(y=>y.i===x.i), floor=Math.min(...same.map(y=>y.price),x.price*R(.9,.97));
     const last=hist[hist.length-1], d1=(last/hist[hist.length-2]-1)*100, vol7=vols.slice(-7).reduce((a,b)=>a+b,0);
@@ -474,6 +512,11 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
 
   // nav: "Sign in" (profile) + "Wallet"
   const navWrap=document.querySelector('nav .wrap');
+  if(navWrap){ // day ↔ night: the same page in the other world
+    const pg=(location.pathname.split('/').pop()||'index.html'), to=(ONI?'../':'oni/')+pg+location.hash;
+    navWrap.insertAdjacentHTML('beforeend',`<a class="world" id="worldSw" href="${to}" title="${ONI?'Day · RONIN':'Night · ONI'}" aria-label="Switch to ${ONI?'RONIN (day)':'ONI (night)'}"><i class="w-sun"></i><i class="w-moon"></i><b>${ONI?'RONIN':'ONI'}</b></a>`);
+    $('worldSw').onclick=e=>{ if(still)return; e.preventDefault(); document.body.classList.add('w-going'); setTimeout(()=>location.href=to,520); };
+  }
   if(navWrap)navWrap.insertAdjacentHTML('beforeend','<a class="si-link" id="siLink" href="profile.html">Sign in</a><button class="wbtn" id="wBtn"><i></i><span>Wallet</span></button>');
   document.body.insertAdjacentHTML('beforeend',`
   <div class="wm" id="wModal" aria-hidden="true" role="dialog" aria-label="Connect a wallet"><div class="wm-box">
@@ -545,7 +588,7 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
   /* sign in: a free signature proves the wallet (and the cards in it) are yours */
   async function signIn(){
     if(!addr){ afterConnect=signIn; paint(); open(wm); return; }
-    const msg=`Sign in to RONIN\n\nWallet: ${addr}\nNonce: ${Math.random().toString(36).slice(2,10)}\nIssued: ${new Date().toISOString()}\n\nThis signature only proves you own this wallet. It costs nothing and approves no transaction.`;
+    const msg=`Sign in to ${BR}\n\nWallet: ${addr}\nNonce: ${Math.random().toString(36).slice(2,10)}\nIssued: ${new Date().toISOString()}\n\nThis signature only proves you own this wallet. It costs nothing and approves no transaction.`;
     try{ const out=await prov.signMessage(new TextEncoder().encode(msg),'utf8'); const sig=out?.signature||out;
       session={addr,t:Date.now(),sig:btoa(String.fromCharCode(...new Uint8Array(sig))).slice(0,24)}; LS.set('ronin-session',session);
       toast('Signed in'); paint();
@@ -570,7 +613,7 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     const k=cur, mint=k.kind==='mint', n=mint?null:k.x.n, price=mint?CONFIG.mintPrice:k.x.price, total=price+0.00001+(mint?0.012:0);
     const live=mint?!!CONFIG.mintUrl:!!CONFIG.marketUrl;
     $('coEye').textContent=mint?'Mint · random draw':'Buy from a holder';
-    $('coTitle').textContent=mint?'Mint a random RONIN':`Buy ${n.t}`;
+    $('coTitle').textContent=mint?`Mint a random ${BR}`:`Buy ${n.t}`;
     $('coArt').innerHTML=mint?'<i class="co-back"></i>':`<img src="${img(n)}" alt="" style="object-position:${n.pos||'50% 50%'}">`;
     $('coArt').style.setProperty('--rc',mint?'#3c6f9e':RCOL[n.r][0]);
     $('coName').textContent=mint?'Random piece · fate decides':`${n.t} · #${k.x.ed}/${n.e}`;
@@ -599,10 +642,10 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
   async function render(){
     const st=A.state();
     if(!st.session){
-      root.innerHTML=`<div class="pf-gate"><div class="pf-k jp">道</div><div class="eyebrow">Holders</div><h1>Sign in to your profile.</h1>
-        <p>Your cards live in your wallet. Sign a free message with it to open your profile: your RONINs, your rank and your activity. Signing never moves funds.</p>
+      root.innerHTML=`<div class="pf-gate"><div class="pf-k jp">${ONI?"鬼":"道"}</div><div class="eyebrow">Holders</div><h1>Sign in to your profile.</h1>
+        <p>Your cards live in your wallet. Sign a free message with it to open your profile: your ${BR}s, your rank and your activity. Signing never moves funds.</p>
         <button class="btn pf-go" id="pfGo">${st.addr?'Sign in with '+short(st.addr):'Continue with wallet'}</button>
-        <a class="pf-alt" href="draw.html">Don't have a card yet? Draw your first ronin →</a></div>`;
+        <a class="pf-alt" href="draw.html">Don't have a card yet? Draw your first ${br} →</a></div>`;
       $('pfGo').onclick=()=>A.signIn(); return;
     }
     const a=st.session.addr, prof=A.profile(a), owned=await window.RONIN_OWNED(a);
@@ -611,19 +654,19 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawSky,20
     const since=new Date(prof.since||st.session.t).toLocaleDateString('en-US',{month:'short',year:'numeric'});
     root.innerHTML=`<div class="pf-head">
         <div class="pf-av" style="--h:${parseInt(a.slice(0,6),36)%360}">${rarest?`<img src="${img(rarest.n)}" alt="">`:''}</div>
-        <div class="pf-id"><div class="eyebrow">RONIN holder · since ${since}</div>
-          <h1 id="pfName" contenteditable="true" spellcheck="false" title="Click to edit">${(prof.name||'Nameless ronin').replace(/</g,'&lt;')}</h1>
+        <div class="pf-id"><div class="eyebrow">${BR} holder · since ${since}</div>
+          <h1 id="pfName" contenteditable="true" spellcheck="false" title="Click to edit">${(prof.name||(ONI?'Nameless demon':'Nameless ronin')).replace(/</g,'&lt;')}</h1>
           <div class="pf-addr"><code>${short(a)}</code><button id="pfCopy">Copy</button>${st.addr===a?'<span class="ok">● wallet connected</span>':'<span>wallet not connected</span>'}</div></div>
         <button class="pf-out" id="pfOut">Sign out</button></div>
       <div class="pf-stats">
         <div><small>Cards</small><b>${owned?list.length:'—'}</b></div><div><small>Legendary</small><b>${owned?leg:'—'}</b></div>
         <div><small>Est. value</small><b>${owned?'◎ '+value.toFixed(1):'—'}</b></div><div><small>Rarest</small><b>${rarest?rarest.n.t:'—'}</b></div></div>
       <div class="pf-sec"><h2>Your cards</h2>
-        ${owned===null?`<div class="pf-empty"><b>The collection isn't live yet.</b><p>When the mint opens, every RONIN in this wallet shows up here automatically.</p><a class="btn" href="draw.html">Draw a ronin</a></div>`
+        ${owned===null?`<div class="pf-empty"><b>The collection isn't live yet.</b><p>When the mint opens, every ${BR} in this wallet shows up here automatically.</p><a class="btn" href="draw.html">Draw a ${br}</a></div>`
           :list.length?`<div class="cards pf-cards">${list.map((o,i)=>card(o.n,i)).join('')}</div>`
-          :`<div class="pf-empty"><b>No RONIN in this wallet yet.</b><p>Draw one at random, or buy the exact one you want from a holder.</p><a class="btn" href="draw.html">Draw a ronin</a> <a class="btn ghost" href="index.html#listings">Listings</a></div>`}
+          :`<div class="pf-empty"><b>No ${BR} in this wallet yet.</b><p>Draw one at random, or buy the exact one you want from a holder.</p><a class="btn" href="draw.html">Draw a ${br}</a> <a class="btn ghost" href="index.html#listings">Listings</a></div>`}
       </div>`;
-    const nm=$('pfName'); nm.onblur=()=>{ const v=nm.textContent.trim().slice(0,32)||'Nameless ronin'; A.saveProfile(a,{...prof,name:v,since:prof.since||st.session.t}); toast('Name saved'); };
+    const nm=$('pfName'); nm.onblur=()=>{ const v=nm.textContent.trim().slice(0,32)||(ONI?'Nameless demon':'Nameless ronin'); A.saveProfile(a,{...prof,name:v,since:prof.since||st.session.t}); toast('Name saved'); };
     nm.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); nm.blur(); } };
     $('pfCopy').onclick=()=>navigator.clipboard?.writeText(a).then(()=>toast('Address copied'));
     $('pfOut').onclick=()=>{ A.signOut(); render(); };
@@ -679,7 +722,12 @@ function capSVG(cap){
   </svg>`;
 }
 // prices are a proposal in USD; change them here
-const MERCH=[   // v = colorways: [hex, name, image]; products without v show their colors as static dots
+const ONI_MERCH=[   // the night line: black, bone and blood
+  {id:'oni-cap',n:'Oni Cap',cat:'Headwear',p:35,d:'Unstructured black cap, 鬼 embroidered in blood red.',c:['#111015','#c4152c']},
+  {id:'oni-tee',n:'Seven Sins Tee',cat:'Apparel',p:40,d:'Heavyweight black cotton, the blood moon on the chest.',c:['#111015']},
+  {id:'oni-hoodie',n:'鬼 Hoodie',cat:'Apparel',p:80,d:'Heavy black fleece, red brush kanji on the chest.',c:['#111015']},
+];
+const DAY_MERCH=[   // v = colorways: [hex, name, image]; products without v show their colors as static dots
   {id:'cap',n:'Ronin Cap',cat:'Headwear',p:35,d:'Unstructured dad cap, embroidered RONIN.',v:[['#1b1b1b','Ink','cap'],['#5b9bd5','Sky','cap-sky'],['#f29bbd','Sakura','cap-pink'],['#5f9e3c','Bamboo','cap-green'],['#f3c22f','Sun','cap-yellow'],['#efe9dc','Paper','cap-white']]},
   {id:'tee',n:'Path Tee',cat:'Apparel',p:40,d:'Heavyweight cotton, RONIN on the chest.',v:[['#efe9dc','Paper','tee'],['#1b1b1b','Ink','tee-black']]},
   {id:'hoodie',n:'浪人 Hoodie',cat:'Apparel',p:80,d:'Heavy fleece, brush kanji on the chest.',v:[['#1b1b1b','Ink','hoodie'],['#55585e','Charcoal','hoodie-grey']]},
@@ -687,12 +735,13 @@ const MERCH=[   // v = colorways: [hex, name, image]; products without v show th
   {id:'socks',n:'八 Socks',cat:'Accessories',p:16,d:'Crew socks with the 八 pattern.',v:[['#f2f0eb','Paper','socks'],['#1b1b1b','Ink','socks-black']]},
   {id:'pins',n:'Seal Pin Set',cat:'Accessories',p:18,d:'Three enamel pins: seal, sun, ensō.',c:['#d23a2a','#f3c22f','#1b1b1b']},
 ];
+const MERCH=ONI?ONI_MERCH:DAY_MERCH;
 (function(){
   const grid=$('shopGrid'); if(!grid)return;
   const cats=['All',...new Set(MERCH.map(m=>m.cat))];
   $('shopF').innerHTML=cats.map((c,i)=>`<button class="${i?'':'on'}" data-c="${c}">${c}</button>`).join('');
   const render=c=>{ grid.innerHTML=MERCH.filter(m=>c==='All'||m.cat===c).map((m,i)=>`<article class="prod" style="--k:${i*.07}s">
-      <div class="prod-img"><img src="img/merch/${m.id}.webp" alt="${m.n}" loading="lazy"><span class="pill">Soon</span></div>
+      <div class="prod-img"><img src="${ROOT}img/merch/${m.id}.webp" alt="${m.n}" loading="lazy"><span class="pill">Soon</span></div>
       <div class="prod-b"><small>${m.cat}</small><h4>${m.n}</h4><p>${m.d}</p>
         <div class="prod-f"><div class="dots">${m.v?m.v.map((x,k)=>`<button class="${k?'':'on'}" style="--c:${x[0]}" data-img="${x[2]}" data-name="${x[1]}" aria-label="${x[1]}"></button>`).join(''):m.c.map(x=>`<i style="--c:${x}"></i>`).join('')}</div><b>$${m.p}</b></div>
         ${m.v?`<span class="prod-col">${m.v[0][1]}</span>`:''}
@@ -700,9 +749,9 @@ const MERCH=[   // v = colorways: [hex, name, image]; products without v show th
   // tapping a color swaps the product photo to that colorway
   grid.addEventListener('click',e=>{ const b=e.target.closest('.dots button'); if(!b)return; const card=b.closest('.prod'), im=card.querySelector('.prod-img img');
     card.querySelectorAll('.dots button').forEach(x=>x.classList.toggle('on',x===b)); card.querySelector('.prod-col').textContent=b.dataset.name;
-    im.classList.add('swap'); const nx=new Image(); nx.onload=()=>{ im.src=nx.src; requestAnimationFrame(()=>im.classList.remove('swap')); }; nx.src=`img/merch/${b.dataset.img}.webp`; });
+    im.classList.add('swap'); const nx=new Image(); nx.onload=()=>{ im.src=nx.src; requestAnimationFrame(()=>im.classList.remove('swap')); }; nx.src=`${ROOT}img/merch/${b.dataset.img}.webp`; });
   // preload the other colorways so the swap is instant
-  MERCH.forEach(m=>(m.v||[]).forEach(x=>{ const i=new Image(); i.src=`img/merch/${x[2]}.webp`; }));
+  MERCH.forEach(m=>(m.v||[]).forEach(x=>{ const i=new Image(); i.src=`${ROOT}img/merch/${x[2]}.webp`; }));
   $('shopF').onclick=e=>{ const b=e.target.closest('button'); if(!b)return; $('shopF').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); render(b.dataset.c); };
   render('All');
 })();
@@ -729,8 +778,8 @@ const MERCH=[   // v = colorways: [hex, name, image]; products without v show th
     parts.forEach((p,i)=>{
       p.l=Math.min(p.max,p.l+.004); p.x+=p.vx; p.y+=p.vy;
       if(p.k==='mist'){ const g=c.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r); g.addColorStop(0,`rgba(255,255,255,${p.l})`); g.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=g; c.beginPath(); c.arc(p.x,p.y,p.r,0,6.283); c.fill(); if(p.y<H*.1)parts[i]=spawn(); }
-      else if(p.k==='mote'){ p.w+=.04; c.globalAlpha=p.l*(.5+Math.sin(p.w)*.5); c.fillStyle='#fff6d6'; c.shadowColor='#ffe9a8'; c.shadowBlur=10; c.beginPath(); c.arc(p.x+Math.sin(p.w)*3,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; if(p.y<0)parts[i]=spawn(); }
-      else { p.w+=.03; p.a+=.02; c.save(); c.translate(p.x+Math.sin(p.w)*8,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.fillStyle='#ffd3e2'; c.globalAlpha=p.l;
+      else if(p.k==='mote'){ p.w+=.04; c.globalAlpha=p.l*(.5+Math.sin(p.w)*.5); c.fillStyle=ONI?'#ff8a4c':'#fff6d6'; c.shadowColor=ONI?'#ff3d1f':'#ffe9a8'; c.shadowBlur=10; c.beginPath(); c.arc(p.x+Math.sin(p.w)*3,p.y,p.s,0,6.283); c.fill(); c.shadowBlur=0; c.globalAlpha=1; if(p.y<0)parts[i]=spawn(); }
+      else { p.w+=.03; p.a+=.02; c.save(); c.translate(p.x+Math.sin(p.w)*8,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.fillStyle=ONI?'#d4182f':'#ffd3e2'; c.globalAlpha=p.l;
         c.beginPath(); c.moveTo(-p.s,0); c.quadraticCurveTo(0,-p.s*.75,p.s,0); c.quadraticCurveTo(0,p.s*.75,-p.s,0); c.fill(); c.restore(); if(p.y>H+20)parts[i]=spawn(); }
     });
   };
@@ -770,9 +819,9 @@ const MERCH=[   // v = colorways: [hex, name, image]; products without v show th
     const n=noise2(21), fbm=(x,y)=>{let v=0,a=.55,f=1;for(let o=0;o<4;o++){v+=a*n(x*f,y*f);a*=.5;f*=2.03;}return v;};
     let base=null;
     const bake=()=>{ const o=document.createElement('canvas'); o.width=W; o.height=H; const g=o.getContext('2d');
-      const grd=g.createLinearGradient(0,0,0,H); grd.addColorStop(0,'#0b1430'); grd.addColorStop(.7,'#16254d'); grd.addColorStop(1,'#1d2f5c'); g.fillStyle=grd; g.fillRect(0,0,W,H);
+      const grd=g.createLinearGradient(0,0,0,H); grd.addColorStop(0,ONI?'#07060d':'#0b1430'); grd.addColorStop(.7,ONI?'#1a0b16':'#16254d'); grd.addColorStop(1,ONI?'#3a0a16':'#1d2f5c'); g.fillStyle=grd; g.fillRect(0,0,W,H);
       const cell=W<600?6:8; for(let y=0;y<H;y+=cell)for(let x=0;x<W+cell;x+=cell){ const X=x+((y/cell)%2?cell/2:0), cl=fbm(X/320,y/200)+(y/H)*.25-.3;
-        const e=Math.max(0,Math.min(1,(cl-.4)/.08)); if(e<=0)continue; g.fillStyle=`rgba(120,150,210,${.10+e*.22})`; g.beginPath(); g.arc(X,y,cell*.42*e,0,6.283); g.fill(); }
+        const e=Math.max(0,Math.min(1,(cl-.4)/.08)); if(e<=0)continue; g.fillStyle=ONI?`rgba(196,21,44,${.08+e*.2})`:`rgba(120,150,210,${.10+e*.22})`; g.beginPath(); g.arc(X,y,cell*.42*e,0,6.283); g.fill(); }
       base=o; };
     const loop=()=>{ t+=.02; c.drawImage(base,0,0,W,H);
       for(const s of stars){ const a=.35+.65*Math.abs(Math.sin(t+s.p)); c.globalAlpha=a; c.fillStyle='#f2f0eb'; c.beginPath(); c.arc(s.x,s.y,s.s,0,6.283); c.fill(); }

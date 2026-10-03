@@ -1397,3 +1397,98 @@ nav.open .nav-burger i:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
 .prod-img img{transition:transform .6s,opacity .25s}
 .prod-img img.swap{opacity:0}
 @media (max-width:640px){.dots button{width:14px;height:14px;border-width:1.5px}.dots button.on{box-shadow:0 0 0 1.5px #fff,0 0 0 3px var(--ink)}}
+
+/* ===== day ↔ night switch (RONIN ↔ ONI) ===== */
+.world{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font:900 12px Archivo;letter-spacing:.12em;padding:6px 12px 6px 6px;border-radius:99px;background:#0c0c0c;color:#f2f0eb;margin-left:14px;position:relative;overflow:hidden}
+.world i{width:20px;height:20px;border-radius:50%;flex:none;transition:transform .5s cubic-bezier(.6,-.3,.3,1.4)}
+.world .w-sun{background:#f3c22f;box-shadow:0 0 0 3px #1d3687 inset}
+.world .w-moon{position:absolute;left:6px;top:6px;background:#efe6cf;box-shadow:inset -6px -2px 0 #c4152c;transform:translateY(30px)}
+.world:hover .w-sun{transform:translateY(-30px)} .world:hover .w-moon{transform:none}
+html[data-world=oni] .world{background:#efe6cf;color:#0a0a12}
+html[data-world=oni] .world .w-sun{transform:translateY(30px)} html[data-world=oni] .world .w-moon{transform:none}
+html[data-world=oni] .world:hover .w-moon{transform:translateY(-30px)} html[data-world=oni] .world:hover .w-sun{transform:none}
+body::before{content:"";position:fixed;left:50%;top:50%;width:10px;height:10px;border-radius:50%;background:#07070d;transform:translate(-50%,-50%) scale(0);z-index:999;pointer-events:none;transition:transform .55s cubic-bezier(.7,0,.3,1)}
+html[data-world=oni] body::before{background:#f2f0eb}
+body.w-going::before{transform:translate(-50%,-50%) scale(400)}
+html[data-world=oni] body{animation:wIn .6s ease-out}
+@keyframes wIn{from{filter:brightness(2.2)}}
+@media(max-width:760px){.world b{display:none}.world{padding:6px;margin-left:auto}}
+
+/* ===== ONI: the night world ===== */
+html[data-world=oni]{--paper:#0a0a12;--paper-2:#14121f;--ink:#efe6cf;--ink-2:#c9bfa8;--mute:#8d86a0;--sun:#c4152c;--navy:#c4152c}
+html[data-world=oni] body{background:var(--paper);color:var(--ink)}
+html[data-world=oni] body::after{mix-blend-mode:screen;opacity:.08}
+html[data-world=oni] nav.solid{border-bottom-color:#fff1}
+html[data-world=oni] .btn{background:#c4152c;color:#f6efe0}
+html[data-world=oni] .btn:hover{box-shadow:4px 4px 0 #efe6cf}
+html[data-world=oni] .btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+html[data-world=oni] .sky .peace{color:#c4152c}
+html[data-world=oni] ::selection{background:#c4152c;color:#fff}
+html[data-world=oni] .sun{filter:drop-shadow(0 0 24px #efe6cf88) drop-shadow(0 0 70px #c4152c77);animation-direction:reverse}
+html[data-world=oni] .sky-foot .tag{color:#efe6cf;text-shadow:0 1px 0 #000}
+html[data-world=oni] .mote{background:#ff7a45;box-shadow:0 0 8px #ff3d1f}
+/* ONI panels: lacquer black, bone text, blood accents */
+html[data-world=oni] .market::before,html[data-world=oni] .shop::before{background:radial-gradient(#c4152c22 1.2px,transparent 1.7px) 0 0/12px 12px}
+html[data-world=oni] .board{background:#12101cf2;color:var(--ink);border-color:#efe6cf;box-shadow:10px 10px 0 #c4152c}
+html[data-world=oni] .chip-ex,html[data-world=oni] .shop-note{color:#ff5a6e;border-color:#ff5a6e}
+html[data-world=oni] .lst{background:#1a1726;border-color:#efe6cf55}
+html[data-world=oni] .lst button:hover{background:#c4152c;color:#fff}
+html[data-world=oni] .lst .up{color:#ff8a8a}
+html[data-world=oni] .board-foot{border-top-color:#efe6cf33}
+html[data-world=oni] .board-foot .btn{background:#c4152c;color:#fff}
+html[data-world=oni] .tz{background:#160a12}
+html[data-world=oni] .tz::before{background:radial-gradient(#c4152c33 1.3px,transparent 1.8px) 0 0/12px 12px}
+html[data-world=oni] .tz .eyebrow{color:#ff8a96} html[data-world=oni] .tz p{color:#d8c9c4}
+html[data-world=oni] .tz-go{background:#efe6cf;color:#0a0a12;box-shadow:6px 6px 0 #c4152c}
+html[data-world=oni] .shop-f button{background:#1a1726;color:var(--ink);border-color:#efe6cf55}
+html[data-world=oni] .shop-f button.on{background:#efe6cf;color:#0a0a12}
+html[data-world=oni] .prod{background:#15121f;border-color:#efe6cf55;box-shadow:5px 5px 0 #c4152c}
+html[data-world=oni] .prod:hover{box-shadow:8px 8px 0 #c4152c}
+html[data-world=oni] .prod-img{background:#0e0c16;border-bottom-color:#efe6cf33}
+html[data-world=oni] .prod-img img{filter:brightness(.9) contrast(1.05)}
+html[data-world=oni] .prod-go{border-color:#efe6cf55} html[data-world=oni] .prod-go:hover{background:#c4152c;border-color:#c4152c;color:#fff}
+html[data-world=oni] .falls{background:#0a0a12}
+html[data-world=oni] .fl-fog{background:linear-gradient(0deg,#c4152c30,transparent)}
+html[data-world=oni] .fl-card{background:#0d0b16e6;border-color:#efe6cf;box-shadow:10px 10px 0 #c4152c}
+html[data-world=oni] .fl-card .eyebrow{color:#ff8a96}
+html[data-world=oni] .fl-card .sub-form input{background:#1a1726;color:var(--ink);border-color:#efe6cf88}
+html[data-world=oni] .fl-card .sub-form .btn{background:#c4152c;box-shadow:4px 4px 0 #efe6cf}
+html[data-world=oni] .coll{background:#07070d;color:var(--ink)}
+html[data-world=oni] .coll h2{color:var(--ink)}
+html[data-world=oni] .coll .more .btn{background:#efe6cf;color:#0a0a12}
+html[data-world=oni] .dw-body,html[data-world=oni] .dw-body footer{background:#07060d}
+html[data-world=oni] .dw{--c1:#ff8a96}
+html[data-world=oni] .dw-bar{background:#12070fb3;border-color:#c4152c55}
+html[data-world=oni] .dw-go{color:#fff;background:linear-gradient(100deg,#c4152c,#ff4a5e);box-shadow:0 0 0 2px #fff3,0 0 50px -6px #ff3d4f,6px 6px 0 #efe6cf}
+html[data-world=oni] .co-item,html[data-world=oni] .pr-row>div,html[data-world=oni] .pr-copy{background:#1a1726;color:var(--ink)}
+html[data-world=oni] .co-wallet{background:#ffffff0d}
+html[data-world=oni] .co-con{background:#c4152c;border-color:#c4152c}
+html[data-world=oni] .pr-own{border-color:#efe6cf44}
+html[data-world=oni] .sh-info{background:#0d0b16e8;border-color:#efe6cf;box-shadow:10px 10px 0 #c4152c}
+html[data-world=oni] .sh-rar span{color:#0a0a12;border-color:#0a0a12}
+html[data-world=oni] .sh-price em{color:#ff4a5e}
+html[data-world=oni] .sh-luck{color:#ff8a96}
+html[data-world=oni] .sh-stats{border-color:#efe6cf44}
+html[data-world=oni] .sh-mint{background:#efe6cf;color:#0a0a12}
+html[data-world=oni] .sh-x,html[data-world=oni] .sh-nav{background:#0d0b16;color:var(--ink);border-color:#efe6cf88}
+html[data-world=oni] .tr-box{background:#0d0b16;border-color:#efe6cf;box-shadow:10px 10px 0 #c4152c}
+html[data-world=oni] .tr-x,html[data-world=oni] .tr-buy,html[data-world=oni] .st,html[data-world=oni] .tr-chart,html[data-world=oni] .tr-tables>div{background:#17141f;color:var(--ink);border-color:#efe6cf44}
+html[data-world=oni] .tr-buy em{color:#ff4a5e}
+html[data-world=oni] .tr-offer{color:var(--ink);border-color:#efe6cf88}
+html[data-world=oni] .tr-range button{color:var(--ink);border-color:#efe6cf66}
+html[data-world=oni] .tr-range button.on{background:#efe6cf;color:#0a0a12}
+html[data-world=oni] .tr-plot .dot{fill:#ff4a5e;stroke:#17141f}
+html[data-world=oni] .tr-tip{background:#efe6cf;color:#0a0a12}
+html[data-world=oni] .tr-tables td{border-bottom-color:#ffffff14}
+html[data-world=oni] .toast{background:#c4152c;color:#fff}
+html[data-world=oni] .tr-plot .ln{stroke:#ff4a5e}
+html[data-world=oni] .tr-plot .gl{stroke:#ffffff14}
+html[data-world=oni] .tr-plot .yl{fill:#8d86a0}
+html[data-world=oni] .tr-plot .mint,html[data-world=oni] .tr-plot .cross{stroke:#efe6cf66}
+html[data-world=oni] .tr-plot .ml{fill:#c9bfa8}
+html[data-world=oni] .fl-bg img{object-position:28% 45%}
+html[data-world=oni] .pf-gate{background:#0d0b16;border-color:#efe6cf;box-shadow:10px 10px 0 #c4152c}
+html[data-world=oni] .pf-gate .pf-k{color:#c4152c}
+html[data-world=oni] .pf-out{background:#1a1726;color:var(--ink)}
+html[data-world=oni] .pf-empty{background:#12101cdd;border-color:#efe6cf44}
+html[data-world=oni] .pf-alt{color:#ff8a96}
