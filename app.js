@@ -666,12 +666,12 @@ function capSVG(cap){
   </svg>`;
 }
 // prices are a proposal in USD; change them here
-const MERCH=[
-  {id:'cap',n:'Ronin Cap',cat:'Headwear',p:35,d:'Unstructured dad cap, embroidered RONIN.',c:['#1b1b1b','#5b9bd5','#f29bbd','#5f9e3c','#f3c22f','#efe9dc']},
-  {id:'tee',n:'Path Tee',cat:'Apparel',p:40,d:'Heavyweight cotton, RONIN on the chest.',c:['#efe9dc','#1b1b1b']},
-  {id:'hoodie',n:'浪人 Hoodie',cat:'Apparel',p:80,d:'Heavy fleece, brush kanji on the chest.',c:['#1b1b1b','#3c4a5c']},
+const MERCH=[   // v = colorways: [hex, name, image]; products without v show their colors as static dots
+  {id:'cap',n:'Ronin Cap',cat:'Headwear',p:35,d:'Unstructured dad cap, embroidered RONIN.',v:[['#1b1b1b','Ink','cap'],['#5b9bd5','Sky','cap-sky'],['#f29bbd','Sakura','cap-pink'],['#5f9e3c','Bamboo','cap-green'],['#f3c22f','Sun','cap-yellow'],['#efe9dc','Paper','cap-white']]},
+  {id:'tee',n:'Path Tee',cat:'Apparel',p:40,d:'Heavyweight cotton, RONIN on the chest.',v:[['#efe9dc','Paper','tee'],['#1b1b1b','Ink','tee-black']]},
+  {id:'hoodie',n:'浪人 Hoodie',cat:'Apparel',p:80,d:'Heavy fleece, brush kanji on the chest.',v:[['#1b1b1b','Ink','hoodie'],['#55585e','Charcoal','hoodie-grey']]},
   {id:'tote',n:'Ensō Tote',cat:'Accessories',p:28,d:'Natural canvas, ink circle print.',c:['#e8dcc0']},
-  {id:'socks',n:'八 Socks',cat:'Accessories',p:16,d:'Crew socks with the 八 pattern.',c:['#f2f0eb','#1b1b1b']},
+  {id:'socks',n:'八 Socks',cat:'Accessories',p:16,d:'Crew socks with the 八 pattern.',v:[['#f2f0eb','Paper','socks'],['#1b1b1b','Ink','socks-black']]},
   {id:'pins',n:'Seal Pin Set',cat:'Accessories',p:18,d:'Three enamel pins: seal, sun, ensō.',c:['#d23a2a','#f3c22f','#1b1b1b']},
 ];
 (function(){
@@ -681,8 +681,15 @@ const MERCH=[
   const render=c=>{ grid.innerHTML=MERCH.filter(m=>c==='All'||m.cat===c).map((m,i)=>`<article class="prod" style="--k:${i*.07}s">
       <div class="prod-img"><img src="img/merch/${m.id}.webp" alt="${m.n}" loading="lazy"><span class="pill">Soon</span></div>
       <div class="prod-b"><small>${m.cat}</small><h4>${m.n}</h4><p>${m.d}</p>
-        <div class="prod-f"><div class="dots">${m.c.map(x=>`<i style="--c:${x}"></i>`).join('')}</div><b>$${m.p}</b></div>
+        <div class="prod-f"><div class="dots">${m.v?m.v.map((x,k)=>`<button class="${k?'':'on'}" style="--c:${x[0]}" data-img="${x[2]}" data-name="${x[1]}" aria-label="${x[1]}"></button>`).join(''):m.c.map(x=>`<i style="--c:${x}"></i>`).join('')}</div><b>$${m.p}</b></div>
+        ${m.v?`<span class="prod-col">${m.v[0][1]}</span>`:''}
         <a class="prod-go" href="#subscribe">Notify me</a></div></article>`).join(''); };
+  // tapping a color swaps the product photo to that colorway
+  grid.addEventListener('click',e=>{ const b=e.target.closest('.dots button'); if(!b)return; const card=b.closest('.prod'), im=card.querySelector('.prod-img img');
+    card.querySelectorAll('.dots button').forEach(x=>x.classList.toggle('on',x===b)); card.querySelector('.prod-col').textContent=b.dataset.name;
+    im.classList.add('swap'); const nx=new Image(); nx.onload=()=>{ im.src=nx.src; requestAnimationFrame(()=>im.classList.remove('swap')); }; nx.src=`img/merch/${b.dataset.img}.webp`; });
+  // preload the other colorways so the swap is instant
+  MERCH.forEach(m=>(m.v||[]).forEach(x=>{ const i=new Image(); i.src=`img/merch/${x[2]}.webp`; }));
   $('shopF').onclick=e=>{ const b=e.target.closest('button'); if(!b)return; $('shopF').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); render(b.dataset.c); };
   render('All');
 })();
