@@ -432,62 +432,6 @@ let openShrine=()=>{};
     sky.appendChild(m);}
 })();
 
-/* ---------- intro: the sun in space, a saying, then it lands in the sky ---------- */
-(function(){
-  const box=$('intro'); if(!box)return;
-  let seen=false; try{seen=sessionStorage.getItem('ronin-intro')==='1'}catch(_){}
-  const done=()=>{ box.remove(); document.body.classList.remove('intro-on'); try{sessionStorage.setItem('ronin-intro','1')}catch(_){} };
-  if(seen||still){ done(); return; }
-  $('inSun').innerHTML=sunMarkup();
-  // stars + sakura petals drifting through space
-  const cv=$('inSky'); let {c,w:W,h:H}=fit(cv); const stars=Array.from({length:220},()=>({x:R(0,W),y:R(0,H),s:R(.4,1.8),p:R(0,6),z:R(.2,1)}));
-  const petals=Array.from({length:40},()=>({x:R(0,W),y:R(-H,0),s:R(5,11),vx:R(.2,.9),vy:R(.5,1.3),a:R(0,6),w:R(0,6)}));
-  let t=0, raf, fade=0;
-  const loop=()=>{ t+=.016; c.clearRect(0,0,W,H);
-    for(const s of stars){ s.x-=s.z*.15; if(s.x<0)s.x=W; c.globalAlpha=(.3+.7*Math.abs(Math.sin(t*1.4+s.p)))*(1-fade); c.fillStyle='#fff'; c.beginPath(); c.arc(s.x,s.y,s.s,0,6.283); c.fill(); }
-    if(t>1.1)for(const p of petals){ p.w+=.03; p.x+=p.vx+Math.sin(p.w)*.5; p.y+=p.vy; p.a+=.02; if(p.y>H+20){p.y=-20;p.x=R(0,W);}
-      c.save(); c.translate(p.x,p.y); c.rotate(p.a); c.scale(1,.55+Math.sin(p.w*2)*.3); c.globalAlpha=.85*Math.min(1,(t-1.1)); c.fillStyle='#ffc6d9';
-      c.beginPath(); c.moveTo(-p.s,0); c.quadraticCurveTo(0,-p.s*.75,p.s,0); c.quadraticCurveTo(0,p.s*.75,-p.s,0); c.fill(); c.restore(); }
-    c.globalAlpha=1; raf=requestAnimationFrame(loop); };
-  loop();
-  // the saying, letter by letter
-  const typeIn=(el,txt,ms)=>new Promise(r=>{ let i=0; const step=()=>{ el.textContent=txt.slice(0,++i); i<txt.length?setTimeout(step,ms):r(); }; step(); });
-  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  let skipped=false, speaking=false;
-  async function land(){
-    if(box.classList.contains('land'))return;
-    const sun=$('inSun'), target=$('sun'); box.classList.add('land');
-    // move the space sun onto the hero sun, while space turns into the sky
-    const a=sun.getBoundingClientRect(), b=target?target.getBoundingClientRect():{left:innerWidth/2-90,top:innerHeight*.6,width:180,height:180};
-    const dx=(b.left+b.width/2)-(a.left+a.width/2), dy=(b.top+b.height/2)-(a.top+a.height/2), k=b.width/a.width;
-    sun.style.transform=`translate(${dx}px,${dy}px) scale(${k})`;
-    const f0=performance.now(); const fl=()=>{ fade=Math.min(1,(performance.now()-f0)/900); if(fade<1)requestAnimationFrame(fl); }; fl();
-    await sleep(1500); cancelAnimationFrame(raf); done();
-  }
-  const skip=()=>{ skipped=true; try{speechSynthesis.cancel()}catch(_){} land(); };
-  // sound: the saying spoken in Japanese, with English subtitles
-  const LINES=[{ja:'主なき者は、',en:'Whoever has no master…'},{ja:'己が主なり。',en:'…is their own master.'}];
-  const sub=$('inSub');
-  function speak(){
-    if(!('speechSynthesis' in window)){ toast('Your browser can\u2019t play the voice'); return; }
-    speechSynthesis.cancel(); speaking=true; $('inSound').classList.add('on'); $('inSound').setAttribute('aria-pressed','true');
-    const voice=speechSynthesis.getVoices().find(v=>/^ja/i.test(v.lang));
-    setTimeout(()=>LINES.forEach((l,i)=>{ const u=new SpeechSynthesisUtterance(l.ja); u.lang='ja-JP'; if(voice)u.voice=voice; u.rate=.72; u.pitch=.85;
-      if(i===0){ sub.textContent=l.en; sub.classList.add('on'); }   // subtitles follow the lines (onstart is unreliable in Chrome)
-      u.onend=()=>{ if(LINES[i+1]){ sub.textContent=LINES[i+1].en; } if(i===LINES.length-1){ speaking=false; setTimeout(()=>{ sub.classList.remove('on'); if(!skipped&&!box.classList.contains('land'))land(); },900); } };
-      speechSynthesis.speak(u); }),80);   // Chrome drops utterances queued in the same tick as cancel()
-  }
-  try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices(); }catch(_){}
-  $('inSound').onclick=e=>{ e.stopPropagation(); speak(); };
-  $('inSkip').onclick=skip; box.addEventListener('click',e=>{ if(e.target.closest('#inSound'))return; if(e.target.id!=='inSkip')skip(); });
-  (async()=>{
-    await sleep(900); if(skipped)return;
-    await typeIn($('inJp'),'主なき者は、己が主なり',120); if(skipped)return;
-    await sleep(250); await typeIn($('inEn'),'Whoever has no master is their own master.',36); if(skipped)return;
-    await sleep(1100); while(speaking&&!skipped)await sleep(200); if(!skipped)land();
-  })();
-})();
-
 /* ---------- boot ---------- */
 buildSun();
 document.fonts.ready.then(drawSky);
