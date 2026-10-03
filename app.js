@@ -36,6 +36,19 @@ const NFTS=[
   {f:'wanderer',t:'The Wanderer',jt:'流れ者',r:'Rare',e:150,p:0.9,fx:'clouds',bg:'shore',d:'Hair in the wind, sword loose in his hand. He walks the shore because the shore goes somewhere.'},
   {f:'stillness',t:'Stillness',jt:'静寂',r:'Legendary',e:40,p:3,fx:'dust',bg:'stillness',d:'The blade across his knees, the mind empty. The strongest moment is the one before.'},
   {f:'the-duel',t:'The Duel',jt:'決闘',r:'Legendary',e:30,p:4.5,wide:1,fx:'snow',bg:'dojo',pos:'88% 50%',d:'Snow on the dojo floor. Two swords, one silence. Only one walks away.'},
+  {f:'sakura-rain',t:'Sakura Rain',jt:'桜雨',r:'Epic',e:100,p:1.6,fx:'petals',bg:'pink-field',d:'Eyes closed under falling blossoms. He stopped running long enough to hear the pond.'},
+  {f:'mist-path',t:'Mist Path',jt:'霧の道',r:'Common',e:200,p:0.5,fx:'clouds',bg:'cedar-path',d:'He can only see three steps ahead. Three steps is enough.'},
+  {f:'blossom-rest',t:'Blossom Rest',jt:'花の休み',r:'Rare',e:150,p:0.9,fx:'petals',bg:'bamboo',d:'Back to the moss, sword across his knees. Even a ronin is allowed to sit.'},
+  {f:'spring-dream',t:'Spring Dream',jt:'春の夢',r:'Epic',e:100,p:1.7,fx:'petals',bg:'pink-field',d:'Lying in the flowers, petals on his chest. He dreams of nothing, and that is the gift.'},
+  {f:'river-stone',t:'River Stone',jt:'川の石',r:'Rare',e:150,p:1,fx:'bubbles',bg:'falls',d:'The water moves around him. He does not move at all.'},
+  {f:'white-earth',t:'White Earth',jt:'白い大地',r:'Legendary',e:36,p:3.2,fx:'dust',bg:'stillness',d:'Cracked ground, empty sky, one figure. Nothing left to lose, nothing left to prove.'},
+  {f:'the-circle',t:'The Circle',jt:'円',r:'Legendary',e:33,p:3.8,fx:'dust',bg:'dojo',d:'Kneeling in the sand ring, blades laid down. The fight he chose not to have.'},
+  {f:'first-light',t:'First Light',jt:'初光',r:'Epic',e:100,p:1.8,fx:'rays',bg:'above-clouds',d:'Knee deep in the rice fields as the sun breaks through. Every morning is another start.'},
+  {f:'cosmos-walk',t:'Cosmos Walk',jt:'秋桜',r:'Rare',e:150,p:0.9,fx:'petals',bg:'pink-field',d:'A field of cosmos and a sky full of clouds. He walks it slowly on purpose.'},
+  {f:'green-silence',t:'Green Silence',jt:'緑の静寂',r:'Common',e:200,p:0.5,fx:'seeds',bg:'meadow',d:'The wind combs the grass. He sits in the middle of it and lets it.'},
+  {f:'footprints',t:'Footprints',jt:'足跡',r:'Rare',e:150,p:1,fx:'snow',bg:'sumi',d:'A line of steps in fresh snow. The path is only visible behind you.'},
+  {f:'summit',t:'The Summit',jt:'頂',r:'Legendary',e:28,p:4.8,fx:'snow',bg:'above-clouds',d:'The top of the mountain, the wind, and no one to tell. He climbed it for himself.'},
+  {f:'winter-wind',t:'Winter Wind',jt:'冬の風',r:'Common',e:200,p:0.6,fx:'snow',bg:'stillness',d:'Sun on the snow, flowers pushing through. Winter never wins for good.'},
 ];
 NFTS.forEach((n,i)=>n.ch=ROMAN(i+1));
 const TOTAL=NFTS.reduce((a,n)=>a+n.e,0);
