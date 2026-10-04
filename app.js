@@ -56,15 +56,15 @@ const RONIN_NFTS=[
   {f:'summit',t:'The Summit',jt:'頂',r:'Legendary',e:28,p:4.8,fx:'snow',bg:'above-clouds',d:'The top of the mountain, the wind, and no one to tell. He climbed it for himself.'},
   {f:'winter-wind',t:'Winter Wind',jt:'冬の風',r:'Common',e:200,p:0.6,fx:'snow',bg:'stillness',d:'Sun on the snow, flowers pushing through. Winter never wins for good.'},
 ];
-/* the night world: seven shadow specters, one per deadly sin. Every fall of the ronin had one of these names. */
+/* the night world: the ronin's other face. Seven sins, seven shadows of the same man; every fall of the ronin had one of these names. */
 const ONI_NFTS=[
-  {f:'spec-pride',t:'Pride',jt:'傲慢',r:'Legendary',e:30,p:5,wide:1,wpos:'50% 24%',fx:'clouds',bg:'oni-castle',d:'A shadow with a cracked crown on the highest roof. It looks down on everyone and has never once looked up.'},
-  {f:'spec-wrath',t:'Wrath',jt:'憤怒',r:'Legendary',e:33,p:4.5,fx:'embers',bg:'oni-hellgate',d:'Smoke that never stops smouldering. Every insult it ever heard is still burning at its edges.'},
-  {f:'spec-lust',t:'Lust',jt:'色欲',r:'Epic',e:100,p:1.8,fx:'petals',bg:'oni-lake',d:'A shadow waits on the bridge behind a fan. Whoever crosses toward it never reaches the other side.'},
-  {f:'spec-greed',t:'Greed',jt:'強欲',r:'Epic',e:100,p:1.7,fx:'dust',bg:'oni-hellgate',d:'Long fingers of smoke over a pile of gold, still counting. Enough is a word it never learned.'},
-  {f:'spec-envy',t:'Envy',jt:'嫉妬',r:'Rare',e:150,p:1,fx:'dust',bg:'oni-lake',d:'It has no face of its own, only the masks of everyone it wanted to be.'},
-  {f:'spec-gluttony',t:'Gluttony',jt:'暴食',r:'Rare',e:150,p:0.9,fx:'embers',bg:'oni-hellgate',d:'The feast never ends and the shadow never fills. The hunger is the only thing it really eats.'},
-  {f:'spec-sloth',t:'Sloth',jt:'怠惰',r:'Common',e:200,p:0.5,fx:'clouds',bg:'oni-castle',d:'It will start tomorrow. It has been saying so for a thousand years, melting slowly off the roof.'},
+  {f:'spec-pride',t:'Pride',jt:'傲慢',r:'Legendary',e:30,p:5,wide:1,wpos:'50% 24%',fx:'clouds',bg:'oni-castle',d:'The ronin on the highest roof with a crown he swore he never wanted. The day he forgets where he came from, this is who he becomes.'},
+  {f:'spec-wrath',t:'Wrath',jt:'憤怒',r:'Legendary',e:33,p:4.5,fx:'embers',bg:'oni-hellgate',d:'Every insult he ever swallowed, still burning. His own hand on the sword, and nothing left to protect.'},
+  {f:'spec-lust',t:'Lust',jt:'色欲',r:'Epic',e:100,p:1.8,fx:'petals',bg:'oni-lake',d:'The bridge he keeps crossing toward what he wants. He never reaches the other side.'},
+  {f:'spec-greed',t:'Greed',jt:'強欲',r:'Epic',e:100,p:1.7,fx:'dust',bg:'oni-hellgate',d:'Kneeling over gold in the dark, still counting. The ronin who forgot that enough was the whole point.'},
+  {f:'spec-envy',t:'Envy',jt:'嫉妬',r:'Rare',e:150,p:1,fx:'dust',bg:'oni-lake',d:'A wall of masks, every face he wanted instead of his own. Behind the cracked one, it is still him.'},
+  {f:'spec-gluttony',t:'Gluttony',jt:'暴食',r:'Rare',e:150,p:0.9,fx:'embers',bg:'oni-hellgate',d:'The feast never ends and he never fills. The hunger is the only thing he really eats.'},
+  {f:'spec-sloth',t:'Sloth',jt:'怠惰',r:'Common',e:200,p:0.5,fx:'clouds',bg:'oni-castle',d:'He will start tomorrow. The sword rusts under the vines while his shadow melts off the roof.'},
 ];
 const NFTS=ONI?ONI_NFTS:RONIN_NFTS;
 NFTS.forEach((n,i)=>n.ch=ROMAN(i+1));
