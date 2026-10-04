@@ -70,7 +70,7 @@ const NFTS=ONI?ONI_NFTS:RONIN_NFTS;
 NFTS.forEach((n,i)=>n.ch=ROMAN(i+1));
 const TOTAL=NFTS.reduce((a,n)=>a+n.e,0);
 const RCOL={Common:['#a8a196','#efe9dc'],Rare:['#4fa3ff','#d8ecff'],Epic:['#c06bff','#f0d6ff'],Legendary:['#f3c22f','#fff4c2']};
-const img=n=>`${ROOT}img/coleccion/${n.f}.webp`;
+const img=n=>`${ROOT}img/${n.dir||"coleccion"}/${n.f}.webp`;   // dir: other collections live in their own folder (e.g. lone-wanderer)
 const scene=f=>`${ROOT}img/escenas/${f}.webp`;
 let checkout=()=>{};   // set by the wallet block at the bottom
 const openMarket=()=>{ if(CONFIG.marketUrl)window.open(CONFIG.marketUrl,'_blank','noopener'); else toast('Trading opens right after the mint.'); };
